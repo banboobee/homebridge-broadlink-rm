@@ -1,0 +1,6 @@
+# git cherry-pick [-m N] HASH --strategy-option=renormalize
+# git add --renormalize .
+* text=auto
+*.js	text eof=lf
+*.md	text eof=lf
+*.json	text eof=lf
