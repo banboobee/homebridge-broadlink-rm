@@ -91,7 +91,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     //  state.targetTemperature = state.currentTemperature;
     //}
 
-    state.targetHeatingCoolingState = state.currentHeatingCoolingState;
+    //state.targetHeatingCoolingState = state.currentHeatingCoolingState;
 
     if (state.userSpecifiedTargetTemperature) {state.targetTemperature = state.userSpecifiedTargetTemperature}
   }
@@ -159,24 +159,25 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   reset () {
+    const NULL = () => {};	// disables 'Error: Timeout Cancelled'
     super.reset();
 
     this.state.isRunningAutomatically = false;
 
     if (this.shouldIgnoreAutoOnOffPromise) {
-      this.shouldIgnoreAutoOnOffPromise.cancel();
+      this.shouldIgnoreAutoOnOffPromise.cancel(NULL);
       this.shouldIgnoreAutoOnOffPromise = undefined;
 
       this.shouldIgnoreAutoOnOff = false;
     }
 
     if (this.turnOnWhenOffDelayPromise) {
-      this.turnOnWhenOffDelayPromise.cancel();
+      this.turnOnWhenOffDelayPromise.cancel(NULL);
       this.turnOnWhenOffDelayPromise = undefined;
     }
 
     if (this.autoOffTimeoutPromise) {
-      this.autoOffTimeoutPromise.cancel();
+      this.autoOffTimeoutPromise.cancel(NULL);
       this.autoOffTimeoutPromise = null;
     }
   }
@@ -386,28 +387,24 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async checkAutoOff () {
-    await catchDelayCancelError(async () => {
-      const {config, name, data, log} = this;
-      let {enableAutoOff, onDuration, enableAutoOn, offDuration} = config;
-      onDuration = onDuration|| 60;
-      offDuration = offDuration|| 60;
-
-      if (enableAutoOn) {
-        log(`${name} enableAutoOn is not supported.`);
-      }
-      if (enableAutoOff && parseInt(onDuration) > 0) {
-        log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
-        if (this.autoOffTimeoutPromise) {
-	  this.autoOffTimeoutPromise.cancel();
-	  this.autoOffTimeoutPromise = null;
-	}
+    const {config, name, data, log} = this;
+    let {enableAutoOff, onDuration, enableAutoOn, offDuration} = config;
+    onDuration = onDuration|| 60;
+    offDuration = offDuration|| 60;
+    
+    if (enableAutoOn) {
+      log(`${name} enableAutoOn is not supported.`);
+    }
+    if (enableAutoOff && parseInt(onDuration) > 0) {
+      if (!this.autoOffTimeoutPromise) {
+	log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
 	this.autoOffTimeoutPromise = delayForDuration(onDuration);
 	await this.autoOffTimeoutPromise;
 	await this.performSend(data.off);
 	await this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
 	await this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
       }
-    });
+    }
   }
 
   // Thermostat
