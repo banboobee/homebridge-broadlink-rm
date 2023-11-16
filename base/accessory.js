@@ -1,19 +1,19 @@
 const persistentState = require('./helpers/persistentState');
 const mqtt = require('mqtt');
 
-const addSaveProxy = (name, target, saveFunc) => {
-  const handler = {
-    set(target, key, value) {
-      target[key] = value;
+// const addSaveProxy = (name, target, saveFunc) => {
+//   const handler = {
+//     set(target, key, value) {
+//       target[key] = value;
 
-      saveFunc(target);
+//       saveFunc(target);
 
-      return true
-    }
-  }
+//       return true
+//     }
+//   }
 
-  return new Proxy(target, handler);
-}
+//   return new Proxy(target, handler);
+// }
 
 class HomebridgeAccessory {
 
@@ -198,9 +198,20 @@ class HomebridgeAccessory {
     this.correctReloadedState(state);
 
     // Proxy so that whenever this.state is changed, it will persist to disk
-    this.state = addSaveProxy(name, state, (state) => {
-      persistentState.save({ host, name, state });
-    });
+    // this.state = addSaveProxy(name, state, (state) => {
+    //   persistentState.save({ host, name, state });
+    // });
+    this.state = new Proxy(state, {
+      set: async function(target, key, value) {
+	Reflect.set(target, key, value);
+	persistentState.save({ host, name, state });
+	this.serviceManager.accessory.context[key] = value;
+	// console.log(`${host}-${name}: ${JSON.stringify(state)}`);
+	// console.log(`${host}-${name}: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+
+	return true
+      }.bind(this)
+    })
 
     // Refresh the UI and resend data based on existing state
     Object.keys(serviceManager.characteristics).forEach((name) => {
@@ -239,28 +250,28 @@ class HomebridgeAccessory {
     }
   }
 
-  getInformationServices() {
-    const informationService = new Service.AccessoryInformation();
-    informationService
-      .setCharacteristic(Characteristic.Manufacturer, this.manufacturer || 'Homebridge Easy Platform')
-      .setCharacteristic(Characteristic.Model, this.model || 'Unknown')
-      .setCharacteristic(Characteristic.SerialNumber, this.serialNumber || 'Unknown');
+  // getInformationServices() {
+  //   const informationService = new Service.AccessoryInformation();
+  //   informationService
+  //     .setCharacteristic(Characteristic.Manufacturer, this.manufacturer || 'Homebridge Easy Platform')
+  //     .setCharacteristic(Characteristic.Model, this.model || 'Unknown')
+  //     .setCharacteristic(Characteristic.SerialNumber, this.serialNumber || 'Unknown');
 
-    return [informationService];
-  }
+  //   return [informationService];
+  // }
 
-  getServices() {
-    const services = this.getInformationServices();
+  // getServices() {
+  //   const services = this.getInformationServices();
 
-    services.push(this.serviceManager.service);
+  //   services.push(this.serviceManager.service);
 
-    if (this.historyService && this.config.noHistory !== true) {
-      //Note that noHistory is not working as intended. Need to pull from platform config
-      services.push(this.historyService);
-    }
+  //   if (this.historyService && this.config.noHistory !== true) {
+  //     //Note that noHistory is not working as intended. Need to pull from platform config
+  //     services.push(this.historyService);
+  //   }
 
-    return services;
-  }
+  //   return services;
+  // }
 
   // MQTT Support
   subscribeToMQTT() {

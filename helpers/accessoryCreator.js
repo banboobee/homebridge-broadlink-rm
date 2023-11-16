@@ -6,7 +6,8 @@ function createAccessory(
   { hap: { Service, Accessory, Characteristic, uuid }, platformAccessory },
   subType
 ) {
-  const services = accessoryInstance.getServices();
+  //const services = accessoryInstance.getServices();
+  const services = accessoryInstance.serviceManager.accessory.getServices();
   // The returned "services" for this accessory are simply an array of new-API-style
   // Service instances which we can add to a created HAP-NodeJS Accessory directly.
 

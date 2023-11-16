@@ -314,17 +314,17 @@ class LightAccessory extends SwitchAccessory {
     callback(null, lastActivation);
   }
 
-  localCharacteristic(key, uuid, props) {
-    let characteristic = class extends Characteristic {
-      constructor() {
-	super(key, uuid);
-	this.setProps(props);
-      }
-    }
-    characteristic.UUID = uuid;
+  // localCharacteristic(key, uuid, props) {
+  //   let characteristic = class extends Characteristic {
+  //     constructor() {
+  // 	super(key, uuid);
+  // 	this.setProps(props);
+  //     }
+  //   }
+  //   characteristic.UUID = uuid;
 
-    return characteristic;
-  }
+  //   return characteristic;
+  // }
 
   setupServiceManager () {
     const { data, name, config, serviceManagerType } = this;
@@ -335,18 +335,19 @@ class LightAccessory extends SwitchAccessory {
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, history ? Service.Switch : Service.Lightbulb, this.log);
 
     if (history) {
-      const LastActivationCharacteristic = this.localCharacteristic(
-	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
-	{format: Characteristic.Formats.UINT32,
-	 unit: Characteristic.Units.SECONDS,
-	 perms: [
-	   Characteristic.Perms.READ,
-	   Characteristic.Perms.NOTIFY
-	 ]});
+      // const LastActivationCharacteristic = this.localCharacteristic(
+      // 	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
+      // 	{format: Characteristic.Formats.UINT32,
+      // 	 unit: Characteristic.Units.SECONDS,
+      // 	 perms: [
+      // 	   Characteristic.Perms.READ,
+      // 	   Characteristic.Perms.NOTIFY
+      // 	 ]});
       
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
-	type: LastActivationCharacteristic,
+	// type: LastActivationCharacteristic,
+	type: eve.Characteristics.LastActivation,
 	method: this.getLastActivation,
 	bind: this
       });
@@ -365,6 +366,23 @@ class LightAccessory extends SwitchAccessory {
       }
     });
 
+    this.serviceManager.getCharacteristic(Characteristic.On)
+      .on('change', async function(event) {
+	if (event.newValue !== event.oldValue) {
+	  if (this.historyService) {
+	    const value = event.newValue;
+	    // this.log(`adding history of switchState.`, value);
+	    const time = Math.round(new Date().valueOf()/1000);
+	    // if (value) {
+	    this.state.lastActivation = time;
+	    // }
+	    this.historyService.addEntry(
+	      {time: time, status: value ? 1 : 0})
+	    // await this.mqttpublish('On', value ? 'true' : 'false')
+	  }
+	}
+      }.bind(this))
+    
     this.serviceManager.addToggleCharacteristic({
       name: 'brightness',
       type: Characteristic.Brightness,

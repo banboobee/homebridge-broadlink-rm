@@ -212,12 +212,24 @@ class TVAccessory extends BroadlinkRMAccessory {
   setupServiceManager() {
     const { data, name, config, serviceManagerType, log } = this;
     const { on, off } = data || {};
+    let { subType } = config;
+
+    if (!subType) {
+      subType = Accessory.Categories.TELEVISION;
+    } else if (subType.toLowerCase() === 'stb') {
+      subType = Accessory.Categories.TV_SET_TOP_BOX;
+    } else if (subType.toLowerCase() === 'receiver') {
+      subType = Accessory.Categories.AUDIO_RECEIVER;
+    } else if (subType.toLowerCase() === 'stick') {
+      subType = Accessory.Categories.TV_STREAMING_STICK;
+    }
 
     this.serviceManagers = [];
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](
       name,
       Service.Television,
-      log
+      log,
+      subType
     );
 
     this.serviceManager.setCharacteristic(Characteristic.ConfiguredName, name);
@@ -384,7 +396,8 @@ class TVAccessory extends BroadlinkRMAccessory {
       });
 
     // const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
-    const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
+    // const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
+    const speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');
 
     speakerService.setCharacteristic(
       Characteristic.Active,
@@ -464,7 +477,8 @@ class TVAccessory extends BroadlinkRMAccessory {
       for (let i = 0; i < data.inputs.length; i++) {
         const input = data.inputs[i];
         // const inputService = new Service.InputSource(`input${i}`, `input${i}`);
-        const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
+        // const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
+        const inputService = this.serviceManager.accessory.addService(Service.InputSource, `${name} input${i}`, `${name} input${i}`);
 
         inputService
           .setCharacteristic(Characteristic.Identifier, i)

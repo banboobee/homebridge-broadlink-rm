@@ -24,9 +24,9 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     super(log, config, serviceManagerType);
     if (config.debug) {this.debug = true}
 
-    this.manufacturer = 'Broadlink';
-    this.model = 'RM Mini or Pro';
-    this.serialNumber = uuid.v4();
+    // this.manufacturer = 'Broadlink';
+    // this.model = 'RM Mini or Pro';
+    // this.serialNumber = uuid.v4();
 
     //Set LogLevel
     switch(this.config.logLevel){

@@ -13,32 +13,33 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
       // Fakegato setup
     if (config.history === true || config.noHistory === false) {
-      this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.addEntry(
 	{time: Math.round(new Date().valueOf()/1000),
 	 status: this.state.switchState ? 1 : 0})
       
-      let state2 = this.state;
-      this.state = new Proxy(state2, {
-	set: async function(target, key, value) {
-	  if (target[key] != value) {
-	    Reflect.set(target, key, value);
-	    if (this.historyService) {
-	      if (key == `switchState`) {
-		//this.log(`adding history of switchState.`, value);
-		const time = Math.round(new Date().valueOf()/1000);
-		//if (value) {
-		  this.state.lastActivation = time;
-		//}
-		this.historyService.addEntry(
-		  {time: time, status: value ? 1 : 0})
-		// await this.mqttpublish('On', value ? 'true' : 'false')
-	      }
-	    }
-	  }
-	  return true
-	}.bind(this)
-      })
+      // let state2 = this.state;
+      // this.state = new Proxy(state2, {
+      // 	set: async function(target, key, value) {
+      // 	  if (target[key] != value) {
+      // 	    Reflect.set(target, key, value);
+      // 	    if (this.historyService) {
+      // 	      if (key == `switchState`) {
+      // 		//this.log(`adding history of switchState.`, value);
+      // 		const time = Math.round(new Date().valueOf()/1000);
+      // 		//if (value) {
+      // 		  this.state.lastActivation = time;
+      // 		//}
+      // 		this.historyService.addEntry(
+      // 		  {time: time, status: value ? 1 : 0})
+      // 		// await this.mqttpublish('On', value ? 'true' : 'false')
+      // 	      }
+      // 	    }
+      // 	  }
+      // 	  return true
+      // 	}.bind(this)
+      // })
 
       if (!config.isUnitTest) {this.checkPing(ping)}
     } 
@@ -208,17 +209,17 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     callback(null, lastActivation);
   }
 
-  localCharacteristic(key, uuid, props) {
-    let characteristic = class extends Characteristic {
-      constructor() {
-	super(key, uuid);
-	this.setProps(props);
-      }
-    }
-    characteristic.UUID = uuid;
+  // localCharacteristic(key, uuid, props) {
+  //   let characteristic = class extends Characteristic {
+  //     constructor() {
+  // 	super(key, uuid);
+  // 	this.setProps(props);
+  //     }
+  //   }
+  //   characteristic.UUID = uuid;
 
-    return characteristic;
-  }
+  //   return characteristic;
+  // }
 
   // MQTT
   onMQTTMessage (identifier, message) {
@@ -248,18 +249,19 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Switch, this.log);
 
     if (history) {
-      const LastActivationCharacteristic = this.localCharacteristic(
-	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
-	{format: Characteristic.Formats.UINT32,
-	 unit: Characteristic.Units.SECONDS,
-	 perms: [
-	   Characteristic.Perms.READ,
-	   Characteristic.Perms.NOTIFY
-	 ]});
+      // const LastActivationCharacteristic = this.localCharacteristic(
+      // 	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
+      // 	{format: Characteristic.Formats.UINT32,
+      // 	 unit: Characteristic.Units.SECONDS,
+      // 	 perms: [
+      // 	   Characteristic.Perms.READ,
+      // 	   Characteristic.Perms.NOTIFY
+      // 	 ]});
       
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
-	type: LastActivationCharacteristic,
+	// type: LastActivationCharacteristic,
+	type: eve.Characteristics.LastActivation,
 	method: this.getLastActivation,
 	bind: this
       });
@@ -277,6 +279,23 @@ class SwitchAccessory extends BroadlinkRMAccessory {
         setValuePromise: this.setSwitchState.bind(this)
       }
     });
+
+    this.serviceManager.getCharacteristic(Characteristic.On)
+      .on('change', async function(event) {
+	if (event.newValue !== event.oldValue) {
+	  if (this.historyService) {
+	    const value = event.newValue;
+	    // this.log(`adding history of switchState.`, value);
+	    const time = Math.round(new Date().valueOf()/1000);
+	    // if (value) {
+	    this.state.lastActivation = time;
+	    // }
+	    this.historyService.addEntry(
+	      {time: time, status: value ? 1 : 0})
+	    // await this.mqttpublish('On', value ? 'true' : 'false')
+	  }
+	}
+      }.bind(this))
   }
 }
 
