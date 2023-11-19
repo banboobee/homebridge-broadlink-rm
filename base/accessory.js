@@ -192,10 +192,15 @@ class HomebridgeAccessory {
 
     // Load state from file
     const restoreStateOrder = this.restoreStateOrder();
-    const state = persistentState.load({ host, name }) || {};
+    const state = !Object.keys(this.serviceManager.accessory.context).length ?
+	  persistentState.load({ host, name }) || {} :
+	  {...this.serviceManager.accessory.context}
 
     // Allow each accessory to correct the state if necessary
     this.correctReloadedState(state);
+    this.serviceManager.accessory.context = {...state};
+    // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+    // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
 
     // Proxy so that whenever this.state is changed, it will persist to disk
     // this.state = addSaveProxy(name, state, (state) => {
@@ -204,10 +209,10 @@ class HomebridgeAccessory {
     this.state = new Proxy(state, {
       set: async function(target, key, value) {
 	Reflect.set(target, key, value);
-	persistentState.save({ host, name, state });
+	// persistentState.save({ host, name, state });
 	this.serviceManager.accessory.context[key] = value;
-	// console.log(`${host}-${name}: ${JSON.stringify(state)}`);
-	// console.log(`${host}-${name}: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
 
 	return true
       }.bind(this)

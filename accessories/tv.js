@@ -4,6 +4,7 @@ const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const ping = require('../helpers/ping');
 const arp = require('../helpers/arp');
 const BroadlinkRMAccessory = require('./accessory');
+const persistentState = require('../base/helpers/persistentState');
 
 class TVAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, serviceManagerType) {
@@ -11,7 +12,24 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     if (!config.isUnitTest) {this.checkPing(ping);}
     this.lastPingResponse = undefined;
-  }
+
+    const {name} = this;
+    const {host, persistState} = config;
+    if (persistState === false) {return;}
+
+    const state = {...this.serviceManager.accessory.context};
+    this.state = new Proxy(state, {	// replace proxy for external accessories
+      set: async function(target, key, value) {
+	Reflect.set(target, key, value);
+	persistentState.save({ host, name, state });
+	this.serviceManager.accessory.context[key] = value;
+	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	
+	return true
+      }.bind(this)
+    })
+}
 
   setDefaults() {
     const { config } = this;
