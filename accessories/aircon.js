@@ -263,10 +263,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (state.targetTemperature > maxTemperature) {return log(`The target temperature (${this.targetTemperature}) must be less than the maxTemperature (${maxTemperature})`);}
 
     const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-    const r = new RegExp(`${mode}`);
-    const k = Object.keys(data).sort().filter(x => x.match(r));
-    const modemin = parseInt(k[0].match(/\d+/)[0]);
-    const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    // const r = new RegExp(`${mode}`);
+    // const k = Object.keys(data).sort().filter(x => x.match(r));
+    // const modemin = parseInt(k[0].match(/\d+/)[0]);
+    // const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    const x = this.dataKeys(`${mode}`).sort();
+    const modemin = parseInt(x[0]);
+    const modemax = parseInt(x[x.length - 1]);
     const temperature = state.targetTemperature;
     if (temperature < modemin) {
       state.targetTemperature = previousValue;
@@ -333,10 +336,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     let temperature = state.targetTemperature;
     const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-    const r = new RegExp(`${mode}`);
-    const k = Object.keys(data).sort().filter(x => x.match(r));
-    const modemin = parseInt(k[0].match(/\d+/)[0]);
-    const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    // const r = new RegExp(`${mode}`);
+    // const k = Object.keys(data).sort().filter(x => x.match(r));
+    // const modemin = parseInt(k[0].match(/\d+/)[0]);
+    // const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    const x = this.dataKeys(`${mode}`).sort();
+    const modemin = parseInt(x[0]);
+    const modemax = parseInt(x[x.length - 1]);
     this.log(`${name} setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}]`);
     // serviceManager.getCharacteristic(Characteristic.TargetTemperature).setProps({
     //   minValue: modemin,
@@ -448,8 +454,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (mode === 'off') {
       let hexData = data.off;
       return { finalTemperature, hexData };
-    } 
-    let hexData = data[`${mode}${temperature}`];
+    }
+    const x = this.dataKeys(`${mode}`);
+    const closest = x.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev);
+    // let hexData = data[`${mode}${temperature}`];
+    const hexData = data[`${mode}${closest}`];
+    // console.log(v, temperature, closest);
 
     if (!hexData) {
       // Mode based code not found, try mode-less
@@ -825,6 +835,26 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const temperatureDisplayUnits = (config.units.toLowerCase() === 'f') ? Characteristic.TemperatureDisplayUnits.FAHRENHEIT : Characteristic.TemperatureDisplayUnits.CELSIUS;
 
     callback(null, temperatureDisplayUnits);
+  }
+
+  dataKeys (filter) {
+    const { data } = this;
+    const allHexKeys = Object.keys(data || {});
+
+    if (!filter) {return allHexKeys;}
+
+    // Create an array of value specified in the data config
+    const foundValues = [];
+
+    allHexKeys.forEach((key) => {
+      const parts = key.split(filter);
+
+      if (parts.length !== 2) {return;}
+
+      foundValues.push(parts[1]);
+    })
+
+    return foundValues
   }
 
   // MQTT
