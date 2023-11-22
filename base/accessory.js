@@ -84,13 +84,13 @@ class HomebridgeAccessory {
     })
   }
 
-  identify(callback) {
-    const { name, log, logLevel } = this
+  // identify(callback) {
+  //   const { name, log, logLevel } = this
 
-    if (logLevel <= 1) {log(`Identify requested for ${name}`);}
+  //   if (logLevel <= 1) {log(`Identify requested for ${name}`);}
 
-    callback();
-  }
+  //   callback();
+  // }
 
   performSetValueAction({ host, data, log, name }) {
     throw new Error('The "performSetValueAction" method must be overridden.');

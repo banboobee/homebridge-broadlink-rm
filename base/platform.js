@@ -86,7 +86,6 @@ class HomebridgePlatform {
     if (!config.accessories || config.accessories.length === 0) {
       if (!disableLogs) {log(`No accessories have been added to the "${name}" platform config.`);}
       // return callback(accessories);
-      return;
     }
 
     // Let accessories know about one-another if they wish
