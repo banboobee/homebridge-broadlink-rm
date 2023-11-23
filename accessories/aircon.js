@@ -1216,7 +1216,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       .setProps({
         minValue: config.minTemperature,
         maxValue: config.maxTemperature,
-        minStep: config.tempStepSize
+        minStep: config.tempStepSize || 1
       })
       .on('change', async function (event) {
 	if (event.newValue !== event.oldValue) {
