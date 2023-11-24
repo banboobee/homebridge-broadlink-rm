@@ -199,14 +199,14 @@ class TVAccessory extends BroadlinkRMAccessory {
     });
   }
 
-  getServices() {
-    const services = this.getInformationServices();
+  // getServices() {
+  //   const services = this.getInformationServices();
 
-    services.push(this.serviceManager.service);
-    services.push(...this.serviceManagers);
+  //   services.push(this.serviceManager.service);
+  //   services.push(...this.serviceManagers);
 
-    return services;
-  }
+  //   return services;
+  // }
 
   async setInputSource() {
     const { data, host, log, name, logLevel } = this;
