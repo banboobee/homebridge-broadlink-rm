@@ -1063,6 +1063,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       //      Characteristic.Perms.NOTIFY
       // 	 ]});
 
+      this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ValvePosition);
       this.serviceManager.addGetCharacteristic({
 	name: 'currentValvePosition',
 	type: eve.Characteristics.ValvePosition,
@@ -1087,6 +1088,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
         //      Characteristic.Perms.WRITE
 	//    ]});
 	
+	this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ProgramData);
 	this.serviceManager.addGetCharacteristic({
 	  name: 'setProgramData',
 	  type: eve.Characteristics.ProgramData,
@@ -1095,6 +1097,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  bind: this,
 	});
 	
+	this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ProgramCommand);
 	this.serviceManager.addSetCharacteristic({
 	  name: 'setProgramCommand',
 	  type: eve.Characteristics.ProgramCommand,

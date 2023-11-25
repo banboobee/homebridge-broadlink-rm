@@ -344,6 +344,7 @@ class LightAccessory extends SwitchAccessory {
       // 	   Characteristic.Perms.NOTIFY
       // 	 ]});
       
+      this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
 	// type: LastActivationCharacteristic,
@@ -351,6 +352,8 @@ class LightAccessory extends SwitchAccessory {
 	method: this.getLastActivation,
 	bind: this
       });
+
+      this.serviceManager.service.addOptionalCharacteristic(Characteristic.Brightness);
     }
   
     this.serviceManager.addToggleCharacteristic({

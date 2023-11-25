@@ -258,6 +258,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       // 	   Characteristic.Perms.NOTIFY
       // 	 ]});
       
+      this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
 	// type: LastActivationCharacteristic,
