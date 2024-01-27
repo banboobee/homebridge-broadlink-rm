@@ -865,8 +865,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
     super.onMQTTMessage(identifier, message);
 
     if (identifier === 'mode' ||
-	identifier.toLowerCase() === 'currentheatingcoolingstate' ||
-	identifier.toLowerCase() === 'currentheatercoolerstate') {
+	// identifier.toLowerCase() === 'currentheatingcoolingstate' ||
+	// identifier.toLowerCase() === 'currentheatercoolerstate') {
+	identifier.toLowerCase() === 'targetheatingcoolingstate' ||
+	identifier.toLowerCase() === 'targetheatercoolerstate') {
       let mode = this.mqttValuesTemp[identifier].toLowerCase();
       switch (mode) {
       case 'off':
@@ -877,10 +879,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	//log(`${name} onMQTTMessage (set HeatingCoolingState to ${mode}).`);
 	this.reset();
 	if (mqttStateOnly) {
-	  this.state.currentHeatingCoolingState = state;
-	  this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
+	  // this.state.currentHeatingCoolingState = state;
+	  // this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
 	  this.state.targetHeatingCoolingState = state;
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
+	  await this.updateServiceCurrentHeatingCoolingState(state);
 	} else {
 	  await this.updateServiceTargetHeatingCoolingState(state);
 	}
