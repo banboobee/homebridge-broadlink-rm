@@ -4,18 +4,18 @@ let closeClient = null;
 let timeout = null;
 let getDataTimeout = null;
 
-const stop = (log, device, logLevel) => {
+const stop = async (log, device, logLevel) => {
   // Reset existing learn requests
   if (!closeClient) {return;}
 
-  closeClient();
+  await closeClient();
   closeClient = null;
 
   log(`\x1b[35m[INFO]\x1b[0m Learn Code (stopped)`);
   if(this.initalDebug !== undefined && device) {device.debug = this.initalDebug;}
 }
 
-const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
+const start = async (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
   stop()
 
   // Get the Broadlink device
@@ -31,7 +31,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
 
   let onRawData;
 
-  closeClient = (err) => {
+  closeClient = async (err) => {
     if (timeout) {clearTimeout(timeout);}
     timeout = null;
 
@@ -39,53 +39,53 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
     getDataTimeout = null;
 
     device.removeListener('rawData', onRawData);
-    device.cancelLearn();
+    await device.cancelLearn();
   };
 
-  onRawData = (message) => {
+  onRawData = async (message) => {
     if (!closeClient) {return;}
 
     const hex = message.toString('hex');
     log(`\x1b[35m[RESULT]\x1b[0m Learn Code (learned hex code: ${hex})`);
     log(`\x1b[35m[INFO]\x1b[0m Learn Code (complete)`);
 
-    closeClient();
+    await closeClient();
 
     turnOffCallback();
   };
 
   device.on('rawData', onRawData);
 
-  device.enterLearning()
+  await device.enterLearning()
   log(`Learn Code (ready)`);
 
   if (callback) {callback();}
 
-  getDataTimeout = setTimeout(() => {
-    getData(device);
+  getDataTimeout = setTimeout(async () => {
+    await getData(device);
   }, 1000)
 
   if (disableTimeout) {return;}
 
   // Timeout the client after 10 seconds
-  timeout = setTimeout(() => {
+  timeout = setTimeout(async () => {
     log('\x1b[35m[INFO]\x1b[0m Learn Code (stopped - 10s timeout)');
-    device.cancelLearn();
+    await device.cancelLearn();
 
-    closeClient();
+    await closeClient();
 
     turnOffCallback();
   }, 10000); // 10s
 }
 
-const getData = (device) => {
+const getData = async (device) => {
   if (getDataTimeout) {clearTimeout(getDataTimeout);}
   if (!closeClient) {return;}
 
-  device.checkData()
+  await device.checkData()
 
-  getDataTimeout = setTimeout(() => {
-    getData(device);
+  getDataTimeout = setTimeout(async () => {
+    await getData(device);
   }, 1000);
 }
 
