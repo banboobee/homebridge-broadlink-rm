@@ -31,5 +31,5 @@ module.exports = async ({ host, hexData, log, name, logLevel }) => {
   if (logLevel <=2) {log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);}
 
   const hexDataBuffer = new Buffer.from(hexData, 'hex');
-  await device.sendData(hexDataBuffer, logLevel, hexData);
+  await device.sendData(hexDataBuffer, logLevel);
 }
