@@ -197,8 +197,8 @@ class LightAccessory extends SwitchAccessory {
 	  const delta = (100 - r)/n;
 	  const increment = data['brightness+'];
 	  const decrement = data['brightness-'];
-	  const current = previousValue > 0 ? Math.floor((previousValue - r)/delta) : 0;
-	  const target = state.brightness > 0 ? Math.floor((state.brightness - r)/delta) : 0;
+	  const current = previousValue > 0 ? Math.floor((Math.min(previousValue, delta * n) + delta - 1)/delta) : 0;
+	  const target = state.brightness > 0 ? Math.floor((Math.min(state.brightness, delta * n) + delta - 1)/delta) : 0;
 
 	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current} interval:${onDelay}s)`);
 	  if (current != target) {	// need incremental operation
