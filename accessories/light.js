@@ -193,12 +193,12 @@ class LightAccessory extends SwitchAccessory {
           assert(data['brightness+'] && data['brightness-'] && data['availableBrightnessSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and availableBrightnessSteps\x1b[0m need to be set.`);
 	  
 	  const n = data['availableBrightnessSteps'] + 1;
-	  const r = 100 % n;
-	  const delta = (100 - r)/n;
+	  const r = 1000 % n;
+	  const delta = (1000 - r)/n;
 	  const increment = data['brightness+'];
 	  const decrement = data['brightness-'];
-	  const current = previousValue > 0 ? Math.floor((Math.min(previousValue, delta * n) + delta - 1)/delta) : 0;
-	  const target = state.brightness > 0 ? Math.floor((Math.min(state.brightness, delta * n) + delta - 1)/delta) : 0;
+	  const current = previousValue > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
+	  const target = state.brightness > 0 ? Math.floor(Math.min(state.brightness*10, delta*n - 1)/delta) + 1 : 0;
 
 	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current} interval:${onDelay}s)`);
 	  if (current != target) {	// need incremental operation
@@ -255,12 +255,12 @@ class LightAccessory extends SwitchAccessory {
         assert(data['colorTemperature+'] && data['colorTemperature-'] && data['availableColorTemperatureSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature+, colorTemperature- and availableColorTemperatureSteps\x1b[0m need to be set.`);
 	const min = 140, max = 500;
 	const n = data['availableColorTemperatureSteps'] + 1;
-	const r = 100 % n;
-	const delta = (100 - r)/n;
+	const r = 1000 % n;
+	const delta = (1000 - r)/n;
 	const increment = data['colorTemperature+'];
 	const decrement = data['colorTemperature-'];
-	const current = Math.floor(((previousValue - min)/(max - min)*100 - r)/delta);
-	const target = Math.floor(((state.colorTemperature - min)/(max - min)*100 - r)/delta);
+	const current = Math.floor(Math.min((previousValue - min)/(max - min)*1000, delta*n - 1)/delta);
+	const target = Math.floor(Math.min((state.colorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
 	
 	log(`${name} setColorTemperature: (current:${previousValue}(${current}) target:${state.colorTemperature}(${target}) increment:${target - current} interval:${onDelay}s)`);
 	if (current != target) {	// need incremental operation
