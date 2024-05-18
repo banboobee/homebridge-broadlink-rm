@@ -4,7 +4,9 @@ let closeClient = null;
 let timeout = null;
 let getDataTimeout = null;
 
-const stop = async (log, device, logLevel) => {
+let currentDevice
+
+const stop = async (log, debug) => {
   // Reset existing learn requests
   if (!closeClient) {return;}
 
@@ -12,10 +14,10 @@ const stop = async (log, device, logLevel) => {
   closeClient = null;
 
   log(`\x1b[35m[INFO]\x1b[0m Learn Code (stopped)`);
-  if(this.initalDebug !== undefined && device) {device.debug = this.initalDebug;}
+  if(this.initalDebug !== undefined && currentDevice) {currentDevice.debug = this.initalDebug;}
 }
 
-const start = async (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
+const start = async (host, callback, turnOffCallback, log, disableTimeout, debug) => {
   stop()
 
   // Get the Broadlink device
@@ -25,9 +27,11 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, logLe
   }  
 
   this.initalDebug = device.debug;
-  if (logLevel <=1) {device.debug = true;}
+  if (debug <=1) {device.debug = true;}
 
   if (!device.enterLearning) {return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR learning not supported for device at ${host})`);}
+
+  currentDevice = device
 
   let onRawData;
 
@@ -39,7 +43,7 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, logLe
     getDataTimeout = null;
 
     device.removeListener('rawData', onRawData);
-    await device.cancelLearn();
+    await device.cancelLearn(debug);
   };
 
   onRawData = async (message) => {
@@ -56,13 +60,13 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, logLe
 
   device.on('rawData', onRawData);
 
-  await device.enterLearning()
+  await device.enterLearning(debug)
   log(`Learn Code (ready)`);
 
   if (callback) {callback();}
 
   getDataTimeout = setTimeout(async () => {
-    await getData(device);
+    await getData(device, debug);
   }, 1000)
 
   if (disableTimeout) {return;}
@@ -70,7 +74,7 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, logLe
   // Timeout the client after 10 seconds
   timeout = setTimeout(async () => {
     log('\x1b[35m[INFO]\x1b[0m Learn Code (stopped - 10s timeout)');
-    await device.cancelLearn();
+    await device.cancelLearn(debug);
 
     await closeClient();
 
@@ -78,14 +82,14 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, logLe
   }, 10000); // 10s
 }
 
-const getData = async (device) => {
+const getData = async (device, debug) => {
   if (getDataTimeout) {clearTimeout(getDataTimeout);}
   if (!closeClient) {return;}
 
-  await device.checkData()
+  await device.checkData(debug)
 
   getDataTimeout = setTimeout(async () => {
-    await getData(device);
+    await getData(device, debug);
   }, 1000);
 }
 
