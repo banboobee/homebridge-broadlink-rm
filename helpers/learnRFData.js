@@ -1,184 +1,70 @@
 const { getDevice } = require('./getDevice');
 
-let closeClient = null;
-let isClosingClient = false;
 let timeout = null;
-let getDataTimeout = null;
-let getDataTimeout2 = null;
-let getDataTimeout3 = null;
-
-let currentDevice
+let currentDevice = null;
 
 const stop = async (log, debug) => {
   // Reset existing learn requests
-  if (!closeClient || isClosingClient) {return;}
-
-  isClosingClient = true;
-
-  if (currentDevice) {await currentDevice.cancelLearn(debug);}
-
-  setTimeout(() => {
-    closeClient();
-    closeClient = null;
-    isClosingClient = false;
-
-    if (log) {log(`\x1b[35m[INFO]\x1b[0m Scan RF (stopped)`);}
-  }, 500)
-
+  // if (currentDevice) {await currentDevice.cancelSweepFrequency(debug);}
   if(this.initalDebug !== undefined && currentDevice) {currentDevice.debug = this.initalDebug;}
+  currentDevice = null;
 }
 
 const start = async (host, callback, turnOffCallback, log, disableTimeout, debug) => {
-  stop()
+  stop(log, debug)
 
   // Get the Broadlink device
   const device = getDevice({ host, log, learnOnly: true })
-  if (!device) { 
-    return log(`\x1b[35m[INFO]\x1b[0m Learn Code (Couldn't learn code, device not found)`);
-  }
-
-  this.initalDebug = device.debug;
-  if (debug) {device.debug = true;}
-
+  if (!device) return log(`\x1b[35m[INFO]\x1b[0m Learn Code (Couldn't learn code, device not found)`);
   if (!device.enterLearning) {return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR/RF learning not supported for device at ${host})`);}
   if (!device.enterRFSweep) {return log(`\x1b[31m[ERROR]\x1b[0m Scan RF (RF learning not supported for device (${device.type}) at ${host})`);}
 
   currentDevice = device
+  this.initalDebug = device.debug;
+  if (debug) device.debug = true;
 
-  let onRawData;
-  let onRawData2;
-  let onRawData3;
+  await device.sweepFrequency(debug);
+  log(`\x1b[35m[INFO]\x1b[0m Detecting radiofrequency, press and hold the button to learn...`);
+  callback();
 
-  closeClient = (err) => {
-    if (timeout) {clearTimeout(timeout);}
-    timeout = null;
-
-    if (getDataTimeout) {clearTimeout(getDataTimeout);}
-    getDataTimeout = null;
-
-    if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
-    getDataTimeout2 = null;
-
-    if (getDataTimeout3) {clearTimeout(getDataTimeout3);}
-    getDataTimeout3 = null;
-
-
-    device.removeListener('rawRFData', onRawData);
-    device.removeListener('rawRFData2', onRawData2);
-    device.removeListener('rawData', onRawData3);
-  };
-
-  onRawData = async (message) => {
-    if (!closeClient) {return;}
-
-    if (getDataTimeout) {clearTimeout(getDataTimeout);}
-    getDataTimeout = null;
-
-    const Mhz = message[4] << 24 | message[3] << 16 | message[2] << 8 | message[1]
-    log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 1 of 2) ${(Mhz / 1000).toFixed(1)}Mhz`);
-
-    // if (device.type === 0x279d || device.type === 0x27a9) {
-    //   return await device.enterLearning();
-    // }
-
-    log(`\x1b[35m[ACTION]\x1b[0m Keep holding that button!`)
-
-    getDataTimeout2 = setTimeout(() => {
-      getData2(device, debug);
-    }, 1000);
-  };
-
-  onRawData2 = (message) => {
-    if (!closeClient) {return;}
-
-    if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
-    getDataTimeout2 = null;
-
-    log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 2 of 2)`)
-    log(`\x1b[35m[ACTION]\x1b[0m Press the RF button multiple times with a pause between them to get code.`);
-
-    getDataTimeout3 = setTimeout(() => {
-      getData3(device, debug);
-    }, 1000);
-  };
-
-  onRawData3 = async (message) => {
-    if (!closeClient) {return;}
-
-    const hex = message.toString('hex');
-    log(`\x1b[35m[INFO]\x1b[0m Scan RF (complete)`);
-    log(`\x1b[35m[RESULT]\x1b[0m Hex Code: ${hex}`);
-
-    await device.cancelLearn(debug);
-
-    closeClient();
-
-    turnOffCallback();
-  };
-
-  device.on('rawRFData', onRawData);
-  device.on('rawRFData2', onRawData2);
-  device.on('rawData', onRawData3);
-
-  await device.enterRFSweep(debug);
-  log(`\x1b[35m[INFO]\x1b[0m Scan RF (scanning)`);
-  log(`\x1b[35m[ACTION]\x1b[0m Detecting radiofrequency, press and hold the button to learn...`);
-
-  if (callback) {callback();}
-
-  getDataTimeout = setTimeout(() => {
-    getData(device, debug);
-  }, 1000);
-
-  if (disableTimeout) {return;}
-
-  // Timeout the client after 60 seconds
   timeout = setTimeout(async () => {
-    await device.cancelLearn(debug)
-
-    setTimeout(() => {
-      log('\x1b[35m[INFO]\x1b[0m Scan RF (stopped - 60s timeout)');
-      closeClient?.();
-
-      turnOffCallback();
-    }, 1000);
-  }, 60 * 1000); //60s
-}
-
-const getData = async (device, debug) => {
-  if (getDataTimeout) {clearTimeout(getDataTimeout);}
-  if (!closeClient) {return;}
-
-  await device.checkRFData(debug);
-  if (!getDataTimeout) {return;}
-
-  getDataTimeout = setTimeout(async () => {
-    await getData(device, debug);
-  }, 1000);
-}
-
-const getData2 = async (device, debug) => {
-  if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
-  if (!closeClient) {return;}
-
-  await device.checkRFData2(debug);
-  if (!getDataTimeout2) {return;}
-
-  getDataTimeout2 = setTimeout(async () => {
-    await getData2(device, debug);
-  }, 1000);
-}
-
-const getData3 = async (device, debug) => {
-  if (getDataTimeout3) {clearTimeout(getDataTimeout3);}
-  if (!closeClient) {return;}
-
-  await device.checkData(debug)
-  if (!getDataTimeout3) {return;}
-
-  getDataTimeout3 = setTimeout(async () => {
-    await getData3(device, debug);
-  }, 1000);
+    timeout = null;
+  }, 30 * 1000); // 30s
+  while (timeout) { 
+    await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+    const {locked, frequency} = await device.checkFrequency(debug);
+    if (locked) {
+      log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(1)}Mhz`);
+      // log(`\x1b[35m[INFO]\x1b[0m You can now let go of the button`);
+      log(`\x1b[35m[INFO]\x1b[0m Press the button again, now a short press.`);
+      break;
+    }
+  }
+  if (timeout) {
+    clearTimeout(timeout);
+    await device.findRFPacket(debug);
+  } else {
+    log('\x1b[35m[INFO]\x1b[0m Radiofrequency not found');
+    await device.cancelSweepFrequency(debug);
+    turnOffCallback();
+    return;
+  }
+  timeout = setTimeout(async () => {
+    timeout = null;
+    log('\x1b[35m[INFO]\x1b[0m No data received...');
+  }, 30 * 1000); // 30s
+  while (timeout) { 
+    await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+    const data = await device.checkData(debug);
+    if (data) {
+      const hex = data.toString('hex');
+      log(`\x1b[35m[INFO]\x1b[0m Packet found!`);
+      log(`\x1b[35m[RESULT]\x1b[0m Hex Code: ${hex}`);
+      break;
+    }
+  }
+  clearTimeout(timeout);
+  turnOffCallback();
 }
 
 module.exports = { start, stop }
