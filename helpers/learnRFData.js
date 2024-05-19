@@ -32,8 +32,9 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   }, 30 * 1000); // 30s
   while (timeout) { 
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    const {locked, frequency} = await device.checkFrequency(debug);
-    if (locked) {
+    const data = await device.checkFrequency(debug);
+    if (data?.locked) {
+      const {locked, frequency} = data;
       log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(1)}Mhz`);
       // log(`\x1b[35m[INFO]\x1b[0m You can now let go of the button`);
       log(`\x1b[35m[INFO]\x1b[0m Press the button again, now a short press.`);
