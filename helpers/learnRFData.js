@@ -10,7 +10,7 @@ const stop = async (log, debug) => {
   currentDevice = null;
 }
 
-const start = async (host, callback, turnOffCallback, log, disableTimeout, debug) => {
+const start = async (host, callback, turnOffCallback, log, debug) => {
   stop(log, debug)
 
   // Get the Broadlink device
@@ -23,7 +23,7 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   this.initalDebug = device.debug;
   if (debug) device.debug = true;
 
-  await device.sweepFrequency(debug);
+  await device.mutex.use(async () => device.sweepFrequency(debug));
   log(`\x1b[35m[INFO]\x1b[0m Detecting radiofrequency, press and hold the button to learn...`);
   callback();
 
@@ -32,7 +32,7 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   }, 30 * 1000); // 30s
   while (timeout) { 
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    const data = await device.checkFrequency(debug);
+    const data = await device.mutex.use(async () => device.checkFrequency(debug));
     if (data?.locked) {
       const {locked, frequency} = data;
       log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(1)}Mhz`);
@@ -43,10 +43,10 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   }
   if (timeout) {
     clearTimeout(timeout);
-    await device.findRFPacket(debug);
+    await device.mutex.use(async () => device.findRFPacket(debug));
   } else {
     log('\x1b[35m[INFO]\x1b[0m Radiofrequency not found');
-    await device.cancelSweepFrequency(debug);
+    await device.mutex.use(async () => device.cancelSweepFrequency(debug));
     turnOffCallback();
     return;
   }
@@ -56,7 +56,7 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   }, 30 * 1000); // 30s
   while (timeout) { 
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    const data = await device.checkData(debug);
+    const data = await device.mutex.use(async () => device.checkData(debug));
     if (data) {
       const hex = data.toString('hex');
       log(`\x1b[35m[INFO]\x1b[0m Packet found!`);

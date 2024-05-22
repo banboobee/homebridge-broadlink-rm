@@ -7,7 +7,7 @@ const stop = async (log, debug) => {
   if (this.initalDebug !== undefined && currentDevice) currentDevice.debug = this.initalDebug;
 }
 
-const start = async (host, callback, turnOffCallback, log, disableTimeout, debug) => {
+const start = async (host, callback, turnOffCallback, log, debug) => {
   stop(log, debug)
 
   // Get the Broadlink device
@@ -19,18 +19,18 @@ const start = async (host, callback, turnOffCallback, log, disableTimeout, debug
   this.initalDebug = device.debug;
   if (debug <= 1) device.debug = true;
 
-  await device.enterLearning(debug)
+  await device.mutex.use(async () => device.enterLearning(debug));
   log(`\x1b[35m[INFO]\x1b[0m Learning...`);
   callback();
 
   timeout = setTimeout(async () => {
     timeout = null;
     log('\x1b[35m[INFO]\x1b[0m No data received...');
-    await device.cancelLearning(debug)
+    await device.mutex.use(async () => device.cancelLearning(debug));
   }, 10 * 1000); // 10s
   while (timeout) {
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    if (data = await device.checkData(debug)) {
+    if (data = await device.mutex.use(async () => device.checkData(debug))) {
       const hex = data.toString('hex');
       log(`\x1b[35m[INFO]\x1b[0m Packet found!`);
       log(`\x1b[35m[RESULT]\x1b[0m Hex Code: ${hex}`);

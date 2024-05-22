@@ -10,7 +10,7 @@ const pingTimeout = 5;
 
 const startKeepAlive = (device, log) => {
   if(!device.host.port) {return;}
-  setInterval(() => {
+  setInterval(async () => {await device.mutex?.use(async () => {
     if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
     const socket = dgram.createSocket({ type:'udp4', reuseAddr:true }); 
     let packet = Buffer.alloc(0x30, 0);
@@ -19,16 +19,17 @@ const startKeepAlive = (device, log) => {
       if (err) {log('\x1b[33m[DEBUG]\x1b[0m send keepalive packet error', err)}
     });
     socket.close();
-  }, keepAliveFrequency);
+  })}, keepAliveFrequency);
 }
 
 const startPing = (device, log) => {
   device.state = 'unknown';
   device.retryCount = 1;
 
-  setInterval(() => {
+  setInterval(async () => {await device.mutex?.use(async () => {
     try {
       ping.sys.probe(device.host.address, (active, err) => {
+        if(broadlink.debug) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
         if(err){
           log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
           throw err;
@@ -58,11 +59,12 @@ const startPing = (device, log) => {
           //Acive - reset retry counter
           device.retryCount = 0;
         }
-      }, {timeout: pingTimeout})
+      }, {timeout: pingTimeout});
+      // await new Promise(resolve => setTimeout(resolve, 1 * 1000));
     } catch (err) {
       log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
     }
-  }, pingFrequency);
+  })}, pingFrequency);
 }
 
 const discoveredDevices = {};
