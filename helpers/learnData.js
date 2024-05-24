@@ -5,6 +5,11 @@ let currentDevice
 
 const stop = async (log, debug) => {
   if (this.initalDebug !== undefined && currentDevice) currentDevice.debug = this.initalDebug;
+  if (timeout) {
+    clearTimeout(timeout);
+    log('\x1b[35m[INFO]\x1b[0m Canceled');
+  }
+  timeout = null;
 }
 
 const start = async (host, callback, turnOffCallback, log, debug) => {
@@ -25,8 +30,6 @@ const start = async (host, callback, turnOffCallback, log, debug) => {
 
   timeout = setTimeout(async () => {
     timeout = null;
-    log('\x1b[35m[INFO]\x1b[0m No data received...');
-    await device.mutex.use(async () => device.cancelLearning(debug));
   }, 10 * 1000); // 10s
   while (timeout) {
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
@@ -37,7 +40,13 @@ const start = async (host, callback, turnOffCallback, log, debug) => {
       break;
     }
   }
-  clearTimeout(timeout);
+  if (timeout) {
+    clearTimeout(timeout);
+    timeout = null;
+  } else {
+    log('\x1b[35m[INFO]\x1b[0m No data received...');
+    await device.mutex.use(async () => device.cancelLearning(debug));
+  }
   turnOffCallback();
 }
 
