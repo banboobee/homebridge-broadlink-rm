@@ -9,6 +9,9 @@ const keepAliveFrequency = 90000;
 const pingTimeout = 5;
 
 const startKeepAlive = (device, log) => {
+  if (!broadlink.accessories?.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress))
+    return;
+  
   if(!device.host.port) {return;}
   setInterval(async () => {await device.mutex?.use(async () => {
     if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
@@ -23,6 +26,9 @@ const startKeepAlive = (device, log) => {
 }
 
 const startPing = (device, log) => {
+  if (!broadlink.accessories?.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress))
+    return;
+    
   device.state = 'unknown';
   device.retryCount = 1;
 
@@ -36,22 +42,16 @@ const startPing = (device, log) => {
         }
         
         if (!active && device.state === 'active' && device.retryCount === 2) {
-	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
-            log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
-	  }
+          log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
 
           device.state = 'inactive';
           device.retryCount = 0;
         } else if (!active && device.state === 'active') {
-	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
-	    if(broadlink.debug) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
-	  }
+	  if (broadlink.debug) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
 
           device.retryCount += 1;
         } else if (active && device.state !== 'active') {
-	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
-            if (device.state === 'inactive') {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);}
-	  }
+          if (device.state === 'inactive') {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);}
 
           device.state = 'active';
           device.retryCount = 0;
