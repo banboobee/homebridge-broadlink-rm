@@ -137,6 +137,8 @@ class HomebridgeAccessory {
       }
 
       this.state[propertyName] = value;
+      
+      callback(null);
 
       // Set toggle data if this is a toggle
       const data = value ? onData : offData;
@@ -146,7 +148,7 @@ class HomebridgeAccessory {
       } else if (data) {
         await this.performSetValueAction({ host, data, log, name });
       }
-      callback(null);
+      // callback(null);
     } catch (err) {
       if (this.logLevel <= 4) {log('setCharacteristicValue error:', err.message)}
       callback(err)
