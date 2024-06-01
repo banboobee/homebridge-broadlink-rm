@@ -39,12 +39,16 @@ const start = async (host, frequency, callback, turnOffCallback, log, debug) => 
     while (timeout) { 
       await new Promise(resolve => setTimeout(resolve, 1 * 1000));
       const data = await device.mutex.use(async () => device.checkFrequency(debug));
-      if (data?.locked) {
+      if (data) {
 	const {locked, frequency} = data;
-	log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(1)}MHz`);
-	// log(`\x1b[35m[INFO]\x1b[0m You can now let go of the button`);
-	log(`\x1b[35m[INFO]\x1b[0m Press the button again, now a short press.`);
-	break;
+	if (locked) {
+	  log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(2)}MHz`);
+	  // log(`\x1b[35m[INFO]\x1b[0m You can now let go of the button`);
+	  log(`\x1b[35m[INFO]\x1b[0m Press the button again, now a short press.`);
+	  break;
+	} else {
+	  log(`\x1b[35m[INFO]\x1b[0m scanning ${frequency.toFixed(2)}MHz ...`);
+	}
       }
     }
     if (timeout) {
