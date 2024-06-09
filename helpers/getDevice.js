@@ -13,16 +13,20 @@ const startKeepAlive = (device, log) => {
     return;
   
   if(!device.host.port) {return;}
-  setInterval(async () => {await device.mutex?.use(async () => {
-    if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
-    const socket = dgram.createSocket({ type:'udp4', reuseAddr:true }); 
-    let packet = Buffer.alloc(0x30, 0);
-    packet[0x26] = 0x1;
-    socket.send(packet, 0, packet.length, device.host.port, device.host.address, (err, bytes) => {
-      if (err) {log('\x1b[33m[DEBUG]\x1b[0m send keepalive packet error', err)}
-    });
-    socket.close();
-  })}, keepAliveFrequency);
+  // setInterval(async () => {await device.mutex?.use(async () => {
+  //   if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
+  //   const socket = dgram.createSocket({ type:'udp4', reuseAddr:true }); 
+  //   let packet = Buffer.alloc(0x30, 0);
+  //   packet[0x26] = 0x1;
+  //   socket.send(packet, 0, packet.length, device.host.port, device.host.address, (err, bytes) => {
+  //     if (err) {log('\x1b[33m[DEBUG]\x1b[0m send keepalive packet error', err)}
+  //   });
+  //   socket.close();
+  // })}, keepAliveFrequency);
+  device.ping && setInterval(async () => {
+    if(broadlink.debug) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
+    device.ping();
+  }, keepAliveFrequency);
 }
 
 const startPing = (device, log) => {
@@ -32,7 +36,8 @@ const startPing = (device, log) => {
   device.state = 'unknown';
   device.retryCount = 1;
 
-  setInterval(async () => {await device.mutex?.use(async () => {
+  // setInterval(async () => {await device.mutex?.use(async () => {
+  device.pauseWhile && setInterval(async () => {device.pauseWhile(async () => {
     try {
       ping.sys.probe(device.host.address, (active, err) => {
         if(broadlink.debug) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);

@@ -30,7 +30,7 @@ const start = async (host, frequency, callback, turnOffCallback, log, debug) => 
   if (debug) device.debug = true;
 
   if (!frequency) {
-    await device.mutex.use(async () => device.sweepFrequency(debug));
+    await device.sweepFrequency(debug);
     log(`\x1b[35m[INFO]\x1b[0m Detecting radiofrequency, press and hold the button to learn...`);
     
     timeout = setTimeout(async () => {
@@ -38,7 +38,7 @@ const start = async (host, frequency, callback, turnOffCallback, log, debug) => 
     }, 30 * 1000); // 30s
     while (timeout) { 
       await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-      const data = await device.mutex.use(async () => device.checkFrequency(debug));
+      const data = await device.checkFrequency(debug);
       if (data) {
 	const {locked, frequency} = data;
 	if (locked) {
@@ -56,20 +56,20 @@ const start = async (host, frequency, callback, turnOffCallback, log, debug) => 
       timeout = null;
     } else {
       log('\x1b[35m[INFO]\x1b[0m Radiofrequency not found');
-      await device.mutex.use(async () => device.cancelSweepFrequency(debug));
+      await device.cancelSweepFrequency(debug);
       turnOffCallback();
       return;
     }
   } else {
     log('\x1b[35m[INFO]\x1b[0m Press the button you want to learn, a short press...');
   }
-  await device.mutex.use(async () => device.findRFPacket(frequency, debug));
+  await device.findRFPacket(frequency, debug);
   timeout = setTimeout(async () => {
     timeout = null;
   }, 30 * 1000); // 30s
   while (timeout) { 
     await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    const data = await device.mutex.use(async () => device.checkData(debug));
+    const data = await device.checkData(debug);
     if (data) {
       const hex = data.toString('hex');
       log(`\x1b[35m[INFO]\x1b[0m Packet found!`);

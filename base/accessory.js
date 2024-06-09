@@ -151,7 +151,7 @@ class HomebridgeAccessory {
       // callback(null);
     } catch (err) {
       if (this.logLevel <= 4) {log('setCharacteristicValue error:', err.message)}
-      callback(err)
+      // callback(err)
     }
   }
 
