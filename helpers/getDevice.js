@@ -94,7 +94,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     broadlink.discover();
   }
 
-  broadlink.on('deviceReady', (device) => {
+  broadlink.on('deviceReady', async (device) => {
     let macAddressParts, macAddress;
     if (device.mac.includes(":")) {
       macAddress = device.mac;
@@ -104,7 +104,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     }
     device.host.macAddress = macAddress;
 
-    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (${device.type.toString(16)}) at ${device.host.address} (${device.host.macAddress})`);
+    const v = device.getFWversion ? `, v${await device.getFWversion()}` : '';
+    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (0x${device.type.toString(16)}${v}) at ${device.host.address} (${device.host.macAddress})`);
     addDevice(device);
 
     startPing(device, log);
