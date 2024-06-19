@@ -24,7 +24,7 @@ const startKeepAlive = (device, log) => {
   //   socket.close();
   // })}, keepAliveFrequency);
   device.ping && setInterval(async () => {
-    if(broadlink.debug) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
+    if(broadlink.debug < 2) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
     device.ping();
   }, keepAliveFrequency);
 }
@@ -40,7 +40,7 @@ const startPing = (device, log) => {
   device.pauseWhile && setInterval(async () => {device.pauseWhile(async () => {
     try {
       ping.sys.probe(device.host.address, (active, err) => {
-        if(broadlink.debug) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
+        if(broadlink.debug < 2) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
         if(err){
           log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
           throw err;
@@ -52,7 +52,7 @@ const startPing = (device, log) => {
           device.state = 'inactive';
           device.retryCount = 0;
         } else if (!active && device.state === 'active') {
-	  if (broadlink.debug) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
+	  if (broadlink.debug < 2) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
 
           device.retryCount += 1;
         } else if (active && device.state !== 'active') {
@@ -78,7 +78,7 @@ let discoverDevicesInterval;
 
 const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout = 60, accessories = null) => {
   broadlink.log = log;
-  broadlink.debug = logLevel <=1;
+  broadlink.debug = logLevel;
   broadlink.accessories = accessories;
   //broadlink.logLevel = logLevel;
 
@@ -104,8 +104,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     }
     device.host.macAddress = macAddress;
 
-    const v = device.getFWversion ? `, v${await device.getFWversion()}` : '';
-    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (0x${device.type.toString(16)}${v}) at ${device.host.address} (${device.host.macAddress})`);
+    const v = await device.getFWversion?.();
+    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
     addDevice(device);
 
     startPing(device, log);

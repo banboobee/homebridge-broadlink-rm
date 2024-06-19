@@ -532,7 +532,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (logLevel <=1) {log(`${name} monitorTemperature`);}
 
     device.on('temperature', this.onTemperature.bind(this));
-    device.checkTemperature(logLevel < 2);
+    device.checkTemperature(logLevel);
 
     this.updateTemperatureUI();
     if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
@@ -653,7 +653,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    device.checkTemperature(logLevel < 2);
+    device.checkTemperature(logLevel);
     if (logLevel <1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (requested temperature from device, waiting)`);}
   }
 

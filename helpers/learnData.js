@@ -23,7 +23,7 @@ const start = async (host, callback, turnOffCallback, log, debug) => {
 
   currentDevice = device
   this.initalDebug = device.debug;
-  if (debug <= 1) device.debug = true;
+  device.debug = debug;
 
   await device.enterLearning(debug);
   log(`\x1b[35m[INFO]\x1b[0m Learning...`);
