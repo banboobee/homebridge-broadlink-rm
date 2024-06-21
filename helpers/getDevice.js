@@ -24,7 +24,7 @@ const startKeepAlive = (device, log) => {
   //   socket.close();
   // })}, keepAliveFrequency);
   device.ping && setInterval(async () => {
-    if(broadlink.debug < 2) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
+    if(broadlink.debug < 1) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
     device.ping();
   }, keepAliveFrequency);
 }
@@ -40,7 +40,7 @@ const startPing = (device, log) => {
   device.pauseWhile && setInterval(async () => {device.pauseWhile(async () => {
     try {
       ping.sys.probe(device.host.address, (active, err) => {
-        if(broadlink.debug < 2) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
+        if(broadlink.debug < 1) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
         if(err){
           log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
           throw err;
@@ -52,7 +52,7 @@ const startPing = (device, log) => {
           device.state = 'inactive';
           device.retryCount = 0;
         } else if (!active && device.state === 'active') {
-	  if (broadlink.debug < 2) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
+	  if (broadlink.debug < 1) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
 
           device.retryCount += 1;
         } else if (active && device.state !== 'active') {
