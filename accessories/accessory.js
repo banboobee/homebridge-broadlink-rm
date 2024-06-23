@@ -80,6 +80,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 
   async performSend (data, actionCallback) {
     const { logLevel, config, host, log, name } = this;
+    let r = 0, x = 0;
 
     //Error catch
     if(data === undefined){return}
@@ -89,48 +90,72 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 
     if (!host || !device) {	// Error reporting
       await sendData({ host, hexData: data, log, name, logLevel });
-
-      return;
+      return {
+	attempt : 0,
+	fail: -1,
+	timeout: false
+      };
     }
 
-    await device.mutex.use(async () => {	// Queue command sequence
-      if (typeof data === 'string') {
-	await sendData({ host, hexData: data, log, name, logLevel });
-	
-	return;
-      }
+    return await device.mutex.use(async () => {	// Queue command sequence
+      let timeout = setTimeout(() => {
+	timeout = null;
+	log.error(`${name} Failed to execute command sequence. Timed out of 60 second(s).`);
+      }, 60*1000);
       
-      // Itterate through each hex config in the array
-      for (let index = 0; index < data.length; index++) {
-        const { pause } = data[index];
-
-        await this.performRepeatSend(data[index], actionCallback);
-
-        if (pause) {
-	  await new Promise(resolve => setTimeout(resolve, pause * 1000));
-	  if (logLevel < 2) log(`${name} pause (${device.host.address}; ${device.host.macAddress}) ${pause * 1000} ms`);
-        }
+      if (typeof data === 'string') {
+	r += await sendData({ host, hexData: data, log, name, logLevel });
+	x++;
+      } else {
+	// Itterate through each hex config in the array
+	for (let i = 0; timeout && i < data.length; i++) {
+          const { pause } = data[i];
+	  const { data: hex, interval = 0.1, sendCount = 1} = data[i];
+	  
+          // await this.performRepeatSend(data[index], actionCallback);
+	  for (let j = 0; timeout && hex && j < sendCount; j++) {
+	    r += await sendData({ host, hexData: hex, log, name, logLevel });
+	    x++;
+	    
+	    if (j < sendCount) {
+	      await new Promise(resolve => setTimeout(resolve, interval * 1000));
+	      if (logLevel < 2) log(`${name} interval (${host}) ${interval * 1000} ms`);
+	    }
+	  }
+	  
+          if (pause) {
+	    await new Promise(resolve => setTimeout(resolve, pause * 1000));
+	    if (logLevel < 2) log(`${name} pause (${device.host.address}; ${device.host.macAddress}) ${pause * 1000} ms`);
+          }
+	}
       }
+      clearTimeout(timeout);
+
+      return {
+	attempt : x,
+	fail: r,
+	timeout: !timeout
+      };
     });
   }
+  
+//   async performRepeatSend (parentData, actionCallback) {
+//     const { host, log, name, logLevel } = this;
+//     let { data, interval, sendCount } = parentData;
 
-  async performRepeatSend (parentData, actionCallback) {
-    const { host, log, name, logLevel } = this;
-    let { data, interval, sendCount } = parentData;
+//     sendCount = sendCount || 1
+//     if (sendCount > 1) {interval = interval || 0.1;}
 
-    sendCount = sendCount || 1
-    if (sendCount > 1) {interval = interval || 0.1;}
+//     // Itterate through each hex config in the array
+//     for (let index = 0; data && index < sendCount; index++) {
+//       await sendData({ host, hexData: data, log, name, logLevel });
 
-    // Itterate through each hex config in the array
-    for (let index = 0; data && index < sendCount; index++) {
-      await sendData({ host, hexData: data, log, name, logLevel });
-
-      if (interval && index < sendCount) {
-	await new Promise(resolve => setTimeout(resolve, interval * 1000));
-	if (logLevel < 2) log(`${name} interval (${host}) ${interval * 1000} ms`);
-      }
-    }
-  }
+//       if (interval && index < sendCount) {
+// 	await new Promise(resolve => setTimeout(resolve, interval * 1000));
+// 	if (logLevel < 2) log(`${name} interval (${host}) ${interval * 1000} ms`);
+//       }
+//     }
+//   }
 }
 
 module.exports = BroadlinkRMAccessory;

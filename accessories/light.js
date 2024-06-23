@@ -200,13 +200,21 @@ class LightAccessory extends SwitchAccessory {
 	  const current = previousValue > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
 	  const target = state.brightness > 0 ? Math.floor(Math.min(state.brightness*10, delta*n - 1)/delta) + 1 : 0;
 
-	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current} interval:${onDelay}s)`);
+	  log(`\x1b[33m[DEBUG]\x1b[0m ${name} setBrightness: current:${String(previousValue).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(state.brightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
 	  if (current != target) {	// need incremental operation
-            await this.performSend([
-	      {'data': target > current ? increment : decrement,
+	    const d = target - current;
+            const {attempt, fail, timeout} = await this.performSend([
+	      {'data': d > 0 ? increment : decrement,
 	       'interval': onDelay,
-	       'sendCount': Math.abs(target - current),
+	       'sendCount': Math.abs(d),
 	      }]);
+	    const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+	    const u = Math.floor((Math.min(state.brightness*10, delta*n - 1) - c*delta)/10);
+	    log(`\x1b[33m[DEBUG]\x1b[0m ${name} setBrightness: current:${state.brightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
+	    if (fail || timeout) {	// nned correction?
+	      state.brightness = u;
+	      serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	    }
 	  }
 	} else {
           // Find brightness closest to the one requested
