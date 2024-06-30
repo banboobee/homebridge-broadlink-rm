@@ -44,6 +44,8 @@ const start = async (host, frequency, callback, turnOffCallback, log, debug) => 
 	if (locked) {
 	  log(`\x1b[35m[INFO]\x1b[0m Radiofrequency detected: ${frequency.toFixed(2)}MHz`);
 	  // log(`\x1b[35m[INFO]\x1b[0m You can now let go of the button`);
+	  log(`\x1b[35m[INFO]\x1b[0m Pausing 5 seconds.`);
+	  await new Promise(resolve => setTimeout(resolve, 5 * 1000));
 	  log(`\x1b[35m[INFO]\x1b[0m Press the button again, now a short press.`);
 	  break;
 	} else {
