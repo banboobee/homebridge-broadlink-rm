@@ -242,7 +242,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       subType = Accessory.Categories.TV_STREAMING_STICK;
     }
 
-    this.serviceManagers = [];
+    // this.serviceManagers = [];
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](
       name,
       Service.Television,
@@ -489,7 +489,7 @@ class TVAccessory extends BroadlinkRMAccessory {
         callback(null);         
       });
 
-    this.serviceManagers.push(speakerService);
+    // this.serviceManagers.push(speakerService);
 
     if (data.inputs && data.inputs instanceof Array) {
       for (let i = 0; i < data.inputs.length; i++) {
@@ -510,7 +510,7 @@ class TVAccessory extends BroadlinkRMAccessory {
             getInputType(input.type)
           );
 
-        this.serviceManagers.push(inputService);
+        // this.serviceManagers.push(inputService);
         this.serviceManager.service.addLinkedService(inputService);
       }
     }
