@@ -31,7 +31,7 @@ class ServiceManager {
   }
 
   refreshCharacteristicUI (characteristic) {
-    this.getCharacteristic(characteristic).getValue();
+    this.getCharacteristic(characteristic).value;
   }
 
   // Convenience
