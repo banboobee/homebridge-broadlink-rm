@@ -3,7 +3,7 @@ const { assert } = require('chai');
 
 const npmPackage = require('./package.json');
 const Accessory = require('./accessories');
-const checkForUpdates = require('./helpers/checkForUpdates');
+// const checkForUpdates = require('./helpers/checkForUpdates');
 const broadlink = require('./helpers/broadlink');
 const { discoverDevices } = require('./helpers/getDevice');
 // const { createAccessory } = require('./helpers/accessoryCreator');
@@ -45,7 +45,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
     this.discoverBroadlinkDevices();
     this.showMessage();
-    setTimeout(() => checkForUpdates(log), 1800);
+    // setTimeout(() => checkForUpdates(log), 1800);
 
     if (!config.accessories) {config.accessories = []}
 
