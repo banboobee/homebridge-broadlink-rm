@@ -216,6 +216,7 @@ class LightAccessory extends SwitchAccessory {
 	      serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
 	    }
 	  }
+	  await this.mqttpublish('Brightness', state.brightness);
 	} else {
           // Find brightness closest to the one requested
           const foundValues = this.dataKeys('brightness')
@@ -227,6 +228,7 @@ class LightAccessory extends SwitchAccessory {
 	  
           log(`${name} setBrightness: (closest: ${closest})`);
           await this.performSend(hexData);
+	  await this.mqttpublish('Brightness', state.brightness);
 	}
       } else {
         log(`${name} setBrightness: (off)`);
@@ -320,6 +322,27 @@ class LightAccessory extends SwitchAccessory {
 	  Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
     
     callback(null, lastActivation);
+  }
+
+  // MQTT
+  onMQTTMessage (identifier, message) {
+    const { state, logLevel, log, name, config } = this;
+    const mqttStateOnly = config.mqttStateOnly === false ? false : true;
+
+    super.onMQTTMessage(identifier, message);
+
+    if (identifier.toLowerCase() === 'brightness') {
+      const brightness = Number(this.mqttValuesTemp[identifier]);
+      // this.reset();
+      if (mqttStateOnly) {
+	// this.state.brightness = brightness;
+	// this.serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	this.serviceManager.updateCharacteristic(Characteristic.Brightness, brightness);
+      } else {
+	this.serviceManager.setCharacteristic(Characteristic.Brightness, brightness)
+      }
+      log(`${name} onMQTTMessage (set brightness to ${this.state.brightness}).`);
+    }
   }
 
   // localCharacteristic(key, uuid, props) {
