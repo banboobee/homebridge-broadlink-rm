@@ -657,10 +657,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperatureFromFile () {
     const { config, logLevel, host, log, name, state } = this;
-    const { temperatureFilePath, noHumidity, batteryAlerts } = config;
+    const { temperatureFilePath, noHumidity/*, batteryAlerts */} = config;
     let humidity = null;
     let temperature = null;
-    let battery = null;
+    // let battery = null;
 
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile reading file: ${temperatureFilePath}`);}
 
@@ -684,17 +684,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
             let value = line.split(':');
             if(value[0] == 'temperature') {temperature = parseFloat(value[1]);}
             if(value[0] == 'humidity' && !noHumidity) {humidity = parseFloat(value[1]);}
-            if(value[0] == 'battery' && batteryAlerts) {battery = parseFloat(value[1]);}
+            // if(value[0] == 'battery' && batteryAlerts) {battery = parseFloat(value[1]);}
           }
         });
       }
 
       //Default battery level if none returned
-      if (battery) {
-        state.batteryLevel = battery;
-      }else{
-        state.batteryLevel = 100;
-      }
+      // if (battery) {
+      //   state.batteryLevel = battery;
+      // }else{
+      //   state.batteryLevel = 100;
+      // }
 	    
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);}
 
@@ -911,13 +911,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' && identifier !== 'battery' && identifier !== 'combined') {
+    if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' /* && identifier !== 'battery' && identifier !== 'combined' */) {
       log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt message received with unexpected identifier: ${identifier}, ${message.toString()})`);
 
       return;
     }
 
-    let temperatureValue, humidityValue, batteryValue;
+    let temperatureValue, humidityValue/*, batteryValue*/;
     let objectFound = false;
     let value = this.mqttValuesTemp[identifier];
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value: ${value})`);}
@@ -928,7 +928,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (typeof temperatureJSON === 'object') {
         objectFound = true;
         let values = [];
-        if (identifier !== 'temperature' && identifier !== 'battery'){
+        if (identifier !== 'temperature' /*&& identifier !== 'battery'*/){
           //Try to locate other Humidity fields
           if (values.length === 0) {values = findKey(temperatureJSON, 'Hum');}
           if (values.length === 0) {values = findKey(temperatureJSON, 'hum');}
@@ -941,18 +941,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
             values = [];
           }
         }
-        if (identifier !== 'temperature' && identifier !== 'humidity'){
-          //Try to locate other Battery fields
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Batt');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'batt');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Battery');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'battery');}
-          if(values.length > 0) {
-            batteryValue = values;
-            values = [];
-          }
-        }
-        if(identifier !== 'battery' && identifier !== 'humidity'){
+        // if (identifier !== 'temperature' && identifier !== 'humidity'){
+        //   //Try to locate other Battery fields
+        //   if (values.length === 0) {values = findKey(temperatureJSON, 'Batt');}
+        //   if (values.length === 0) {values = findKey(temperatureJSON, 'batt');}
+        //   if (values.length === 0) {values = findKey(temperatureJSON, 'Battery');}
+        //   if (values.length === 0) {values = findKey(temperatureJSON, 'battery');}
+        //   if(values.length > 0) {
+        //     batteryValue = values;
+        //     values = [];
+        //   }
+        // }
+        if(/*identifier !== 'battery' &&*/ identifier !== 'humidity'){
           //Try to locate other Temperature fields
           if (values.length === 0) {values = findKey(temperatureJSON, 'temp');}
           if (values.length === 0) {values = findKey(temperatureJSON, 'Temp');}
@@ -976,10 +976,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if(temperatureValue !== undefined && temperatureValue.length > 0) {
         this.mqttValues.temperature = parseFloat(temperatureValue[0]);
       }
-      if(batteryValue !== undefined && batteryValue.length > 0) {
-        state.batteryLevel = parseFloat(batteryValue[0]);
-        this.mqttValues.battery = parseFloat(batteryValue[0]);
-      }
+      // if(batteryValue !== undefined && batteryValue.length > 0) {
+      //   state.batteryLevel = parseFloat(batteryValue[0]);
+      //   this.mqttValues.battery = parseFloat(batteryValue[0]);
+      // }
       if(humidityValue !== undefined && humidityValue.length > 0) {
         this.mqttValues.humidity = parseFloat(humidityValue[0]);
       }
@@ -992,10 +992,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value})`);}
       value = parseFloat(value);
 
-      if (identifier == 'battery'){
-        state.batteryLevel = value;
-        return;
-      } 
+      // if (identifier == 'battery'){
+      //   state.batteryLevel = value;
+      //   return;
+      // } 
       this.mqttValues[identifier] = value;
     }
     this.onTemperature(this.mqttValues.temperature,this.mqttValues.humidity);
