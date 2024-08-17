@@ -1184,17 +1184,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
     });
 
-    this.serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState)
-      .on('change', async function (event) {
-	if (event.newValue !== event.oldValue) {
-	  if (this.historyService) {
-	    const value = event.newValue;
-	    // this.log(`updated CurrentHeatingCoolingState.`, value)
-	    await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value]);
-	    await this.mqttpublish('targetTemperature', this.state.targetTemperature);
-	  }
-	}
-      }.bind(this))
+    // this.serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState)
+    //   .on('change', async function (event) {
+    // 	if (event.newValue !== event.oldValue) {
+    // 	  // if (this.historyService) {
+    // 	    const value = event.newValue;
+    // 	    // this.log(`updated CurrentHeatingCoolingState.`, value)
+    // 	    await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value]);
+    // 	    await this.mqttpublish('targetTemperature', this.state.targetTemperature);
+    // 	  // }
+    // 	}
+    //   }.bind(this))
 
     this.serviceManager.addToggleCharacteristic({
       name: 'targetTemperature',
@@ -1219,6 +1219,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
         ignorePreviousValue: true
       }
     });
+      
+    this.serviceManager.getCharacteristic(Characteristic.TargetHeatingCoolingState)
+      .on('change', async function (event) {
+	if (event.newValue !== event.oldValue) {
+	  const value = event.newValue;
+	  // this.log(`updated TargetHeatingCoolingState.`, value)
+	  await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value]);
+	  await this.mqttpublish('targetTemperature', this.state.targetTemperature);
+	}
+      }.bind(this))
 
     if (config.heatOnly) {
       this.serviceManager
@@ -1288,14 +1298,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
       })
       .on('change', async function (event) {
 	if (event.newValue !== event.oldValue) {
+	  const value = event.newValue;
 	  if (this.historyService) {
-	    const value = event.newValue;
 	    // this.log(`adding history of targetTemperature.`, value)
 	    this.historyService.addEntry(
 	      {time: Math.round(new Date().valueOf()/1000),
 	       setTemp: value || 30});
-	    await this.mqttpublish('targetTemperature', value);
 	  }
+	  await this.mqttpublish('targetTemperature', value);
 	}
       }.bind(this));
 
