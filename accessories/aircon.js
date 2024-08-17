@@ -128,7 +128,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.defaultCoolTemperature = config.defaultCoolTemperature || 16;
     config.defaultHeatTemperature = config.defaultHeatTemperature || 30;
     // ignore Humidity if set to not use it, or using Temperature source that doesn't support it
-    if(config.noHumidity || config.w1Device || config.pseudoDeviceTemperature){
+    if(config.noHumidity /* || config.w1Device */ || config.pseudoDeviceTemperature){
       state.currentHumidity = null;
       config.noHumidity = true;
     } else {
@@ -511,12 +511,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async monitorTemperature () {
     const { config, host, log, logLevel, name, state } = this;
-    const { temperatureFilePath, pseudoDeviceTemperature, w1DeviceID } = config;
+    const { temperatureFilePath, pseudoDeviceTemperature/*, w1DeviceID */} = config;
 
     if (pseudoDeviceTemperature !== undefined) {return;}
 
     //Force w1 and file devices to a minimum 1 minute refresh
-    if (w1DeviceID || temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
+    if (/* w1DeviceID || */ temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
 
     const device = getDevice({ host, log });
 
@@ -602,7 +602,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   addTemperatureCallbackToQueue (callback) {
     const { config, host, logLevel, log, name, state } = this;
-    const { mqttURL, temperatureFilePath, w1DeviceID, noHumidity } = config;
+    const { mqttURL, mqttTopic, temperatureFilePath, /* w1DeviceID, */ noHumidity } = config;
 
     // Clear the previous callback
     if (Object.keys(this.temperatureCallbackQueue).length > 1) {
@@ -624,11 +624,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     // Read temperature from W1 Device
-    if (w1DeviceID) {
-      this.updateTemperatureFromW1();
+    // if (w1DeviceID) {
+    //   this.updateTemperatureFromW1();
 
-      return;
-    }
+    //   return;
+    // }
 
     // Read temperature from mqtt
     if (mqttURL) {
@@ -702,35 +702,35 @@ class AirConAccessory extends BroadlinkRMAccessory {
     });
   }
 
-  updateTemperatureFromW1 () {
-    const { config, logLevel, host, log, name, state } = this;
-    const { w1DeviceID } = config;
+  // updateTemperatureFromW1 () {
+  //   const { config, logLevel, host, log, name, state } = this;
+  //   const { w1DeviceID } = config;
 
-    var W1PATH = "/sys/bus/w1/devices";
-    var fName = W1PATH + "/" + w1DeviceID + "/w1_slave";
-    var temperature;
+  //   var W1PATH = "/sys/bus/w1/devices";
+  //   var fName = W1PATH + "/" + w1DeviceID + "/w1_slave";
+  //   var temperature;
 
-    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 reading file: ${fName}`);}
+  //   if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 reading file: ${fName}`);}
 
-    fs.readFile(fName, 'utf8', (err, data) => {
-      if (err) {
-        log(`\x1b[31m[ERROR] \x1b[0m${name} updateTemperatureFromW1\n\n${err.message}`);
-      }
+  //   fs.readFile(fName, 'utf8', (err, data) => {
+  //     if (err) {
+  //       log(`\x1b[31m[ERROR] \x1b[0m${name} updateTemperatureFromW1\n\n${err.message}`);
+  //     }
 
-      if(data.includes("t=")){
-        var matches = data.match(/t=([0-9]+)/);
-        temperature = parseInt(matches[1]) / 1000;
-      }else{
-        if (logLevel <=3) {log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromW1 error reading file: ${fName}, using previous Temperature`);}
-        temperature = (state.currentTemperature || 0);
-      }
-      //Default battery level 
-      state.batteryLevel = 100;
+  //     if(data.includes("t=")){
+  //       var matches = data.match(/t=([0-9]+)/);
+  //       temperature = parseInt(matches[1]) / 1000;
+  //     }else{
+  //       if (logLevel <=3) {log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromW1 error reading file: ${fName}, using previous Temperature`);}
+  //       temperature = (state.currentTemperature || 0);
+  //     }
+  //     //Default battery level 
+  //     state.batteryLevel = 100;
 
-      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 (parsed temperature: ${temperature})`);}
-      this.onTemperature(temperature);
-    });
-  }
+  //     if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 (parsed temperature: ${temperature})`);}
+  //     this.onTemperature(temperature);
+  //   });
+  // }
 
   processQueuedTemperatureCallbacks (temperature) {
     if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
