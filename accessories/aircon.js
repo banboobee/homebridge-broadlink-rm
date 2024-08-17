@@ -82,7 +82,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
     }
 
-    this.temperatureCallbackQueue = {};
+    // this.temperatureCallbackQueue = {};
     this.monitorTemperature();
     this.thermoHistory();
   }
@@ -532,50 +532,66 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (logLevel <=1) {log(`${name} monitorTemperature`);}
 
     device.on('temperature', this.onTemperature.bind(this));
-    device.checkTemperature(logLevel);
+    // device.checkTemperature(logLevel);
 
     this.updateTemperatureUI();
     if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
   }
 
-  async onTemperature (temperature,humidity) {
+  async onTemperature(temperature, humidity) {
     const { config, host, logLevel, log, name, state } = this;
     const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
     // onTemperature is getting called twice. No known cause currently.
     // This helps prevent the same temperature from being processed twice
-    if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
+    // if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
 
     temperature += temperatureAdjustment;
     if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
     state.currentTemperature = temperature;
     if(logLevel < 2) {log(`\x1b[36m[INFO] \x1b[0m${name} onTemperature (${temperature})`);}
+    this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
 
-    if(humidity) {
-      if(noHumidity){
-        state.currentHumidity = null;
-      }else{
-        humidity += humidityAdjustment;
-        state.currentHumidity = humidity;
-        if(logLevel < 2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
-      }
+    if (humidity && !noHumidity){
+      humidity += humidityAdjustment;
+      state.currentHumidity = humidity;
+      if(logLevel < 2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
+      this.serviceManager.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(humidity);
     }
     
     //Process Fakegato history
-    //Ignore readings of exactly zero - the default no value value.
-    if(config.noHistory !== true && this.state.currentTemperature != 0.00) {
-      //this.lastUpdatedAt = Date.now();
-      if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);}
-      if(noHumidity && config.enableModeHistory === false){
-        this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
+    if (this.state.currentTemperature) {
+      if (!config.noHistory) {
+	//this.lastUpdatedAt = Date.now();
+	if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);}
+	if (noHumidity) {
+          this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
+	} else {
+          this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+	}
+      }
+      if (noHumidity) {
 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
-      }else{
-        this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+      } else {
 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
       }
     }
+    // //Process Fakegato history
+    // //Ignore readings of exactly zero - the default no value value.
+    // if(config.noHistory !== true && this.state.currentTemperature != 0.00) {
+    //   //this.lastUpdatedAt = Date.now();
+    //   if(logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
+    //   if(noHumidity && config.enableModeHistory === false){
+    //     this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
+    // 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
+    //   }else{
+    //     this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+    // 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
+    //   }
+    // }
     
-    this.processQueuedTemperatureCallbacks(temperature);
+    // this.processQueuedTemperatureCallbacks(temperature);
+    this.checkTemperatureForAutoOnOff(temperature);
   }
 
   async thermoHistory() { 
@@ -600,21 +616,22 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
   }
 
-  addTemperatureCallbackToQueue (callback) {
+  updateTemperature () {
+  // addTemperatureCallbackToQueue (callback) {
     const { config, host, logLevel, log, name, state } = this;
     const { mqttURL, mqttTopic, temperatureFilePath, /* w1DeviceID, */ noHumidity } = config;
 
     // Clear the previous callback
-    if (Object.keys(this.temperatureCallbackQueue).length > 1) {
-      if (state.currentTemperature) {
-        if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (clearing previous callback, using existing temperature)`);}
-        this.processQueuedTemperatureCallbacks(state.currentTemperature);
-      }
-    }
+    // if (Object.keys(this.temperatureCallbackQueue).length > 1) {
+    //   if (state.currentTemperature) {
+    //     if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperature (clearing previous callback, using existing temperature)`);}
+    //     this.processQueuedTemperatureCallbacks(state.currentTemperature);
+    //   }
+    // }
 
     // Add a new callback
-    const callbackIdentifier = uuid.v4();
-    this.temperatureCallbackQueue[callbackIdentifier] = callback;
+    // const callbackIdentifier = uuid.v4();
+    // this.temperatureCallbackQueue[callbackIdentifier] = callback;
 
     // Read temperature from file
     if (temperatureFilePath) {
@@ -645,15 +662,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const device = getDevice({ host, log });
 
     if (!device || device.state === 'inactive') {
-      if (logLevel <=3) {log(`${name} addTemperatureCallbackToQueue (device no longer active, using existing temperature)`);}
+      if (logLevel <=3) {log(`${name} updateTemperature (device no longer active, using existing temperature)`);}
 
-      this.processQueuedTemperatureCallbacks(state.currentTemperature || 0);
+      // this.processQueuedTemperatureCallbacks(state.currentTemperature || 0);
 
       return;
     }
 
     device.checkTemperature(logLevel);
-    if (logLevel <1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (requested temperature from device, waiting)`);}
+    if (logLevel <1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperature (requested temperature from device, waiting)`);}
   }
 
   updateTemperatureFromFile () {
@@ -733,23 +750,23 @@ class AirConAccessory extends BroadlinkRMAccessory {
   //   });
   // }
 
-  processQueuedTemperatureCallbacks (temperature) {
-    if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
+  // processQueuedTemperatureCallbacks (temperature) {
+  //   if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
 
-    Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
-      const callback = this.temperatureCallbackQueue[callbackIdentifier];
+  //   Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
+  //     const callback = this.temperatureCallbackQueue[callbackIdentifier];
 
-      //callback(null, temperature);
+  //     //callback(null, temperature);
 
-      this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
+  //     this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
       
-      delete this.temperatureCallbackQueue[callbackIdentifier];
-    })
+  //     delete this.temperatureCallbackQueue[callbackIdentifier];
+  //   })
 
-    this.temperatureCallbackQueue = {};
+  //   this.temperatureCallbackQueue = {};
 
-    this.checkTemperatureForAutoOnOff(temperature);
-  }
+  //   this.checkTemperatureForAutoOnOff(temperature);
+  // }
 
   updateTemperatureUI () {
     const { config, serviceManager } = this;
@@ -771,7 +788,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     callback(null, this.state.currentTemperature);
 
-    this.addTemperatureCallbackToQueue(callback);
+    // this.addTemperatureCallbackToQueue(callback);
+    this.updateTemperature();
   }
 
   getCurrentHumidity (callback) {
