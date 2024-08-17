@@ -2,7 +2,7 @@
 const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
-const findKey = require('find-key');
+// const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
@@ -631,7 +631,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // }
 
     // Read temperature from mqtt
-    if (mqttURL) {
+    if (mqttURL && mqttTopic?.filter(x =>
+      x.identifier === 'temperature' ||	x.identifier === 'unknown').length) {
       const temperature = this.mqttValueForIdentifier('temperature');
       const humidity = noHumidity ? null : this.mqttValueForIdentifier('humidity');
       this.onTemperature(temperature || 0,humidity);
@@ -885,7 +886,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	} else {
 	  await this.updateServiceTargetHeatingCoolingState(state);
 	}
-	log(`${name} onMQTTMessage (set currentHeatingCoolingState to ${this.state.currentHeatingCoolingState}).`);
+	log(`${name} onMQTTMessage (set targetHeatingCoolingState to ${this.state.targetHeatingCoolingState}).`);
 	break;
       default:
 	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
@@ -917,8 +918,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    let temperatureValue, humidityValue/*, batteryValue*/;
-    let objectFound = false;
+    // let temperatureValue, humidityValue/*, batteryValue*/;
+    // let objectFound = false;
     let value = this.mqttValuesTemp[identifier];
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value: ${value})`);}
     try {
@@ -926,79 +927,124 @@ class AirConAccessory extends BroadlinkRMAccessory {
       const temperatureJSON = JSON.parse(value);
 
       if (typeof temperatureJSON === 'object') {
-        objectFound = true;
-        let values = [];
-        if (identifier !== 'temperature' /*&& identifier !== 'battery'*/){
-          //Try to locate other Humidity fields
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Hum');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'hum');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Humidity');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'humidity');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'RelativeHumidity');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'relativehumidity');}
-          if(values.length > 0) {
-            humidityValue = values;
-            values = [];
-          }
-        }
-        // if (identifier !== 'temperature' && identifier !== 'humidity'){
-        //   //Try to locate other Battery fields
-        //   if (values.length === 0) {values = findKey(temperatureJSON, 'Batt');}
-        //   if (values.length === 0) {values = findKey(temperatureJSON, 'batt');}
-        //   if (values.length === 0) {values = findKey(temperatureJSON, 'Battery');}
-        //   if (values.length === 0) {values = findKey(temperatureJSON, 'battery');}
-        //   if(values.length > 0) {
-        //     batteryValue = values;
-        //     values = [];
-        //   }
-        // }
-        if(/*identifier !== 'battery' &&*/ identifier !== 'humidity'){
-          //Try to locate other Temperature fields
-          if (values.length === 0) {values = findKey(temperatureJSON, 'temp');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Temp');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'temperature');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'Temperature');}
-          if (values.length === 0) {values = findKey(temperatureJSON, 'local_temperature');}
-          if(values.length > 0) {
-            temperatureValue = values;
-          }
-        }
+	if (identifier !== 'temperature') {
+	  let humidity = this.findKey(temperatureJSON, 'humidity|relativehumidity')?.[0];
+	  if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed humidity: ${humidity})`);}
+          this.mqttValues.humidity = humidity ? Number(humidity) : undefined;
+	}
+	if (identifier !== 'humidity') {
+	  let temperature = this.findKey(temperatureJSON, 'temperature')?.[0];
+	  if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed temperature: ${temperature})`);}
+          this.mqttValues.temperature = temperature ? Number(temperature) : undefined;
+	}
+      } else {
+	if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
+          log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (empty ${identifier})`);
+          return;
+	}
+	
+	if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed ${identifier}: ${value})`);}
+	this.mqttValues[identifier] = Number(value);
+      }
+
+      // if (typeof temperatureJSON === 'object') {
+      //   objectFound = true;
+      //   let values = [];
+      //   if (identifier !== 'temperature' /*&& identifier !== 'battery'*/){
+      //     Try to locate other Humidity fields
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Hum');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'hum');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Humidity');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'humidity');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'RelativeHumidity');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'relativehumidity');}
+      //     if(values.length > 0) {
+      //       humidityValue = values;
+      //       values = [];
+      //     }
+      //   }
+      //   // if (identifier !== 'temperature' && identifier !== 'humidity'){
+      //   //   //Try to locate other Battery fields
+      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'Batt');}
+      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'batt');}
+      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'Battery');}
+      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'battery');}
+      //   //   if(values.length > 0) {
+      //   //     batteryValue = values;
+      //   //     values = [];
+      //   //   }
+      //   // }
+      //   if(/*identifier !== 'battery' &&*/ identifier !== 'humidity'){
+      //     //Try to locate other Temperature fields
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'temp');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Temp');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'temperature');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Temperature');}
+      //     if (values.length === 0) {values = findKey(temperatureJSON, 'local_temperature');}
+      //     if(values.length > 0) {
+      //       temperatureValue = values;
+      //     }
+      //   }
              
-        if (values.length > 0) {
-          value = values[0];
-        } else {
-          value = undefined;
-        }
-      }
-    } catch (err) {} //Result couldn't be parsed as JSON
-
-    if(objectFound) {
-      if(temperatureValue !== undefined && temperatureValue.length > 0) {
-        this.mqttValues.temperature = parseFloat(temperatureValue[0]);
-      }
-      // if(batteryValue !== undefined && batteryValue.length > 0) {
-      //   state.batteryLevel = parseFloat(batteryValue[0]);
-      //   this.mqttValues.battery = parseFloat(batteryValue[0]);
+      //   if (values.length > 0) {
+      //     value = values[0];
+      //   } else {
+      //     value = undefined;
+      //   }
       // }
-      if(humidityValue !== undefined && humidityValue.length > 0) {
-        this.mqttValues.humidity = parseFloat(humidityValue[0]);
-      }
-    }else{
-      if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
-        log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt value not found)`);
-        return;
-      }
+    } catch (err) {
+      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (${value} couldn't be parsed)`);
+      
+      return;
+    } //Result couldn't be parsed as JSON
 
-      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value})`);}
-      value = parseFloat(value);
+    // if(objectFound) {
+    //   if(temperatureValue !== undefined && temperatureValue.length > 0) {
+    //     this.mqttValues.temperature = parseFloat(temperatureValue[0]);
+    //   }
+    //   // if(batteryValue !== undefined && batteryValue.length > 0) {
+    //   //   state.batteryLevel = parseFloat(batteryValue[0]);
+    //   //   this.mqttValues.battery = parseFloat(batteryValue[0]);
+    //   // }
+    //   if(humidityValue !== undefined && humidityValue.length > 0) {
+    //     this.mqttValues.humidity = parseFloat(humidityValue[0]);
+    //   }
+    // }else{
+    //   if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
+    //     log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt value not found)`);
+    //     return;
+    //   }
 
-      // if (identifier == 'battery'){
-      //   state.batteryLevel = value;
-      //   return;
-      // } 
-      this.mqttValues[identifier] = value;
+    //   if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value})`);}
+    //   value = parseFloat(value);
+
+    //   // if (identifier == 'battery'){
+    //   //   state.batteryLevel = value;
+    //   //   return;
+    //   // } 
+    //   this.mqttValues[identifier] = value;
+    // }
+    this.onTemperature(this.mqttValues.temperature, this.mqttValues.humidity);
+  }
+
+  findKey = (jsObject, requiredKey, results = undefined) => {
+    // console.log(jsObject, requiredKey);
+    // if (((typeof jsObject) !== 'object') || ((typeof requiredKey) !== 'string')) {
+    //   return undefined;
+    // }
+    const rx = new RegExp(requiredKey, 'i');
+    for (const key in jsObject) {
+      const value = jsObject[key];
+      if (key.match(rx) && !results?.includes(value)) {
+	results = results ?? [];
+        results.push(value);
+      }
+      if ((typeof value) === 'object') {
+        results = this.findKey(value, requiredKey, results);
+      }
     }
-    this.onTemperature(this.mqttValues.temperature,this.mqttValues.humidity);
+    
+    return results;
   }
 
   getValvePosition(callback) {
