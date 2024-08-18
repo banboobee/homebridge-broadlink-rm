@@ -219,6 +219,7 @@ class HomebridgeAccessory {
 	return true
       }.bind(this)
     })
+    this.serviceManager.state = this.state;
 
     // Refresh the UI and resend data based on existing state
     Object.keys(serviceManager.characteristics).forEach((name) => {

@@ -3,12 +3,13 @@ const assert = require('assert')
 class ServiceManager {
 
   constructor (name, serviceType, log, subType = undefined) {
-    assert(name, 'ServiceManager requireds a "name" to be provided.')
+    assert(name, 'ServiceManager requires a "name" to be provided.')
     assert(serviceType, 'ServiceManager requires the "type" to be provided.')
     assert(log, 'ServiceManager requires "log" to be provided.')
     const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
     
     this.log = log
+    this.names = {};
     
     this.accessory = cachedAccessories.find((cache) => cache.UUID == uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
     // this.service = new serviceType(name);
@@ -19,11 +20,18 @@ class ServiceManager {
     this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
     this.characteristics = {}
 
-    this.addNameCharacteristic()
+    this.addNameCharacteristic(name);
   }
 
   setCharacteristic (characteristic, value) {    
     this.service.setCharacteristic(characteristic, value);
+  }
+
+  updateCharacteristic (characteristic, value) {
+    // const name = this.getCharacteristic(Characteristic.Name).value;
+    this.state[this.names[characteristic.UUID]] = value;
+    this.getCharacteristic(characteristic).updateValue(value);
+    // this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateCharacteristic: ${this.names[characteristic.UUID]} ${value}`);
   }
 
   getCharacteristic (characteristic) {
@@ -31,15 +39,19 @@ class ServiceManager {
   }
 
   refreshCharacteristicUI (characteristic) {
-    this.getCharacteristic(characteristic).value;
+    // this.getCharacteristic(characteristic).value;
+    // const name = this.getCharacteristic(Characteristic.Name).value;
+    const value = this.state[this.names[characteristic.UUID]];
+    this.getCharacteristic(characteristic).updateValue(value);
+    //this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} refreshCharacteristicUI: ${this.names[characteristic.UUID]} ${value}`);
   }
 
   // Convenience
 
   addCharacteristic ({ name, type, getSet, method, bind, props }) {
     this.characteristics[name] = type
-
-
+    this.names[type.UUID] = name;
+    
     if (props) {
       props.propertyName = name
 
@@ -70,16 +82,21 @@ class ServiceManager {
 
   // Name Characteristic
 
-  addNameCharacteristic () {
+  addNameCharacteristic (name) {
+    // console.log(`addNameCharacteristic: ${name}`);
     this.addCharacteristic({ name: 'name', type: Characteristic.Name, method: this.getName });
+    this.setCharacteristic(Characteristic.Name, name);    
   }
 
-  getName (callback) {
-    const { name } = this
+  getName (callback = undefined) {
+    // const { name } = this
+    const name = this.getCharacteristic(Characteristic.Name).value;
 
     this.log(`${name} getName: ${name}`);
 
-    callback(null, name);
+    callback?.(null, name);
+
+    return name;
   }
 }
 
