@@ -232,8 +232,9 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       const on = this.mqttValuesTemp[identifier] === 'true' ? true : false;
       this.reset();
       if (mqttStateOnly) {
-	this.state.switchState = on;
-	this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	// this.state.switchState = on;
+	// this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	this.serviceManager.updateCharacteristic(Characteristic.On, on);
       } else {
 	this.serviceManager.setCharacteristic(Characteristic.On, on)
       }
