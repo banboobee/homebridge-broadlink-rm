@@ -56,13 +56,14 @@ class LightAccessory extends SwitchAccessory {
   async setExclusivesOFF () {
     const { log, name, logLevel } = this;
     if (this.exclusives) {
-      this.exclusives.forEach(x => {
+      this.exclusives.forEach(async (x) => {
 	if (x.state.switchState) {
 	  this.log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
 	  x.reset();
 	  x.state.switchState = false;
 	  x.lastBrightness = undefined;
           x.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	  await x.mqttpublish('On', 'false');
 	}
       });
     }
@@ -82,14 +83,14 @@ class LightAccessory extends SwitchAccessory {
       if (brightness !== state.brightness || previousValue !== state.switchState || colorTemperature !== state.colorTemperature) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
-        state.switchState = false;
-        state.brightness = brightness;
+        state.switchState = false;	// ???
+        state.brightness = brightness;	// ???
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
-	serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	serviceManager.refreshCharacteristicUI(Characteristic.Brightness);	// ???
 	if (this.dataKeys('colorTemperature').length > 0) {
           state.colorTemperature = colorTemperature;
           serviceManager.setCharacteristic(Characteristic.ColorTemperature, colorTemperature);
-	  serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+	  serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);	// ???
 	}
       } else {
         if (hexData) {await this.performSend(hexData);}
