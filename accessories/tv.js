@@ -29,6 +29,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	return true
       }.bind(this)
     })
+    this.serviceManager.state = this.state;
 }
 
   setDefaults() {
