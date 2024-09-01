@@ -342,7 +342,7 @@ class LightAccessory extends SwitchAccessory {
       } else {
 	this.serviceManager.setCharacteristic(Characteristic.Brightness, brightness)
       }
-      log(`${name} onMQTTMessage (set brightness to ${this.state.brightness}).`);
+      log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set brightness to ${this.state.brightness}.`);
     }
   }
 

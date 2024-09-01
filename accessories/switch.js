@@ -238,7 +238,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       } else {
 	this.serviceManager.setCharacteristic(Characteristic.On, on)
       }
-      log(`${name} onMQTTMessage (set switchState to ${this.state.switchState}).`);
+      log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set switchState to ${this.state.switchState}.`);
     }
   }
 
