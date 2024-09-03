@@ -1,20 +1,6 @@
 const persistentState = require('./helpers/persistentState');
 const mqtt = require('mqtt');
 
-// const addSaveProxy = (name, target, saveFunc) => {
-//   const handler = {
-//     set(target, key, value) {
-//       target[key] = value;
-
-//       saveFunc(target);
-
-//       return true
-//     }
-//   }
-
-//   return new Proxy(target, handler);
-// }
-
 class HomebridgeAccessory {
 
   constructor(log, config = {}, serviceManagerType = 'ServiceManager') {
@@ -106,17 +92,17 @@ class HomebridgeAccessory {
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
       if (delay) {
-        if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: ${value} (delaying by ${delay}s)`);}
+        this.logs.warn(`set${capitalizedPropertyName}: ${value} (delaying by ${delay}s)`);
 
         await delayForDuration(delay);
       }
 
-      if (this.logLevel <= 2) {log(`${name} set${capitalizedPropertyName}: ${value}`);}
+      this.logs.info(`set${capitalizedPropertyName}: ${value}`);
 
       if (this.isReloadingState && !resendDataAfterReload) {
         this.state[propertyName] = value;
 
-        if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - A)`);}
+        this.logs.warn(`set${capitalizedPropertyName}: already ${value} (no data sent - A)`);
 
         callback(null);
         return;
@@ -124,7 +110,7 @@ class HomebridgeAccessory {
 
       if (!ignorePreviousValue && this.state[propertyName] == value && !this.isReloadingState) {
         if (!allowResend) {
-          if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - B)`);}
+          this.logs.warn(`set${capitalizedPropertyName}: already ${value} (no data sent - B)`);
 
           callback(null);
           return;
@@ -150,7 +136,7 @@ class HomebridgeAccessory {
       }
       // callback(null);
     } catch (err) {
-      if (this.logLevel <= 4) {log('setCharacteristicValue error:', err.message)}
+      this.logs.error('setCharacteristicValue error:', err.message);
       // callback(err)
     }
   }
@@ -178,7 +164,8 @@ class HomebridgeAccessory {
       this.state[propertyName] = value;
     }
     
-    if (this.logLevel < 1) {log(`${name} get${capitalizedPropertyName}: ${value}`);}
+    this.logs.trace(`get${capitalizedPropertyName}: ${value}`);
+    
     callback(null, value);
   }
 
@@ -251,10 +238,10 @@ class HomebridgeAccessory {
       setTimeout(() => {
         this.isReloadingState = false;
 
-        if (this.logLevel <= 2) {log(`${name} Accessory Ready`);}
+        this.logs.info(`Accessory Ready`);
       }, (resendDataAfterReloadDelay * 1000) + 300);
     } else {
-      if (this.logLevel <= 2) {log(`${name} Accessory Ready`);}
+      this.logs.info(`Accessory Ready`);
     }
   }
 
@@ -293,7 +280,7 @@ class HomebridgeAccessory {
 
     // Perform some validation of the mqttTopic option in the config. 
     if (mqttTopic && typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {
-      if (this.logLevel <= 4) {log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)}
+      log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`);
 
       return;
     }
@@ -310,7 +297,7 @@ class HomebridgeAccessory {
       });
 
       if (erroneousTopics.length > 0) {
-        if (this.logLevel <= 4) {log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)}
+        log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`);
 
         return;
       }
@@ -368,7 +355,7 @@ class HomebridgeAccessory {
     mqttClient.on('connect', () => {
       this.isMQTTConnecting = false;
 
-      if (this.logLevel <= 2) {log(`\x1b[35m[INFO]\x1b[0m ${name} MQTT client connected.`)}
+      this.logs.info(`MQTT client connected.`);
 
       mqttTopic && mqttTopic.forEach(({ topic }) => {
         mqttClient.subscribe(topic)
@@ -390,9 +377,9 @@ class HomebridgeAccessory {
     if (this.mqttClient) {
       try {
 	await this.mqttClient.publish(`homebridge-broadlink-rm/${this.config.type}/${this.name}/${topic}`, `${message}`, {"retain": true})
-	// this.log(`${this.name}: MQTT publish(topic: ${topic}, message: ${message})`)
+	// this.logs.debug(`MQTT publish(topic: ${topic}, message: ${message})`)
       } catch (e) {
-	this.log(`${this.name}: Failed to publish MQTT message. ${e}`)
+	this.logs.error(`Failed to publish MQTT message. ${e}`)
       }
     }
   }
@@ -410,19 +397,50 @@ class HomebridgeAccessory {
     if (value === undefined) {value = this.mqttValues.unknown;}
 
     if (!this.mqttClient.connected) {
-      if (!this.isMQTTConnecting && logLevel <= 4) {log(`\x1b[31m[ERROR]\x1b[0m ${name} MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);}
+      if (!this.isMQTTConnecting) {
+	this.logs.error(`MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);
+      }
 
       return;
     }
 
     if (value === undefined) {
-      if (this.logLevel <= 4) {log(`\x1b[31m[ERROR]\x1b[0m ${name} No MQTT value could be found for topic with identifier "${identifier}".`);}
+      this.logs.error(`No MQTT value could be found for topic with identifier "${identifier}".`);
 
       return;
     }
 
     return value;
   }
+
+  logs = {
+    trace: (log) => {
+      if (this.logLevel < 1) {
+	this.log.info(`\x1b[90m[TRACE] ${this.name}`, String(log), '\x1b[0m');
+      }
+    },
+    debug: (log) => {
+      if (this.logLevel < 2) {
+	this.log(`\x1b[33m[DEBUG]\x1b[0m ${this.name}`, String(log));
+      }
+    },
+    info: (log) => {
+      if (this.logLevel < 3) {
+	this.log(`\x1b[35m[INFO]\x1b[0m ${this.name}`, String(log));
+      }
+    },
+    warn: (log) => {
+      if (this.logLevel < 4) {
+	this.log(`\x1b[33m[WARN]\x1b[0m ${this.name}`, String(log));
+      }
+    },
+    error: (log) => {
+      // if (this.logLevel < 5) {
+	this.log(`\x1b[31m[ERROR]\x1b[0m ${this.name}`, String(log));
+      // }
+    }
+  }
+
 }
 
 module.exports = HomebridgeAccessory;

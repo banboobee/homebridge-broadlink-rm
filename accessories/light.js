@@ -47,7 +47,7 @@ class LightAccessory extends SwitchAccessory {
 	    exAccessory.exclusives.push(this);
 	  }
         } else {
-	  log(`${name}: No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
+	  this.logs.error(`No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
         }
       });
     }
@@ -58,7 +58,7 @@ class LightAccessory extends SwitchAccessory {
     if (this.exclusives) {
       this.exclusives.forEach(async (x) => {
 	if (x.state.switchState) {
-	  this.log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
+	  this.logs.info(`setSwitchState: ${x.name} is configured to be turned off`);
 	  x.reset();
 	  x.state.switchState = false;
 	  x.lastBrightness = undefined;
@@ -81,7 +81,7 @@ class LightAccessory extends SwitchAccessory {
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
       const colorTemperature = useLastKnownColorTemperature ? state.colorTemperature : defaultColorTemperature;
       if (brightness !== state.brightness || previousValue !== state.switchState || colorTemperature !== state.colorTemperature) {
-        log(`${name} setSwitchState: (brightness: ${brightness})`);
+        this.logs.debug(`setSwitchState: (brightness: ${brightness})`);
 
         state.switchState = false;	// ???
         state.brightness = brightness;	// ???
@@ -126,10 +126,10 @@ class LightAccessory extends SwitchAccessory {
         serviceManager.refreshCharacteristicUI(Characteristic.On);
 
         if (on) {
-          log(`${name} setHue: (turn on, wait ${onDelay}s)`);
+          this.logs.debug(`setHue: (turn on, wait ${onDelay}s)`);
           await this.performSend(on);
 
-          log(`${name} setHue: (wait ${onDelay}s then send data)`);
+          this.logs.debug(`setHue: (wait ${onDelay}s then send data)`);
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
         }
@@ -143,10 +143,10 @@ class LightAccessory extends SwitchAccessory {
       // If saturation is less than 10, choose white
       if (state.saturation < 10 && data.white) {
         hexData = data.white;
-        log(`${name} setHue: (closest: white)`);
+        this.logs.debug(`setHue: (closest: white)`);
       } else {
         hexData = data[`hue${closest}`];
-        log(`${name} setHue: (closest: hue${closest})`);
+        this.logs.debug(`setHue: (closest: hue${closest})`);
       }
       await this.performSend(hexData);
     });
@@ -181,7 +181,7 @@ class LightAccessory extends SwitchAccessory {
 	  this.setExclusivesOFF();
     
           if (on) {
-            log(`${name} setBrightness: (turn on, wait ${onDelay}s)`);
+            this.logs.debug(`setBrightness: (turn on, wait ${onDelay}s)`);
             await this.performSend(on);
     
             this.onDelayTimeoutPromise = delayForDuration(onDelay);
@@ -201,7 +201,7 @@ class LightAccessory extends SwitchAccessory {
 	  const current = previousValue > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
 	  const target = state.brightness > 0 ? Math.floor(Math.min(state.brightness*10, delta*n - 1)/delta) + 1 : 0;
 
-	  log(`\x1b[33m[DEBUG]\x1b[0m ${name} setBrightness: current:${String(previousValue).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(state.brightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
+	  this.logs.debug(`setBrightness: current:${String(previousValue).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(state.brightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
 	  if (current != target) {	// need incremental operation
 	    const d = target - current;
             const {attempt, fail, timeout} = await this.performSend([
@@ -211,7 +211,7 @@ class LightAccessory extends SwitchAccessory {
 	      }]);
 	    const c = d > 0 ? d - attempt - fail : d + attempt + fail;
 	    const u = Math.floor((Math.min(state.brightness*10, delta*n - 1) - c*delta)/10);
-	    log(`\x1b[33m[DEBUG]\x1b[0m ${name} setBrightness: current:${state.brightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
+	    this.logs.debug(`setBrightness: current:${state.brightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
 	    if (fail || timeout) {	// nned correction?
 	      state.brightness = u;
 	      serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
@@ -227,12 +227,12 @@ class LightAccessory extends SwitchAccessory {
           const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
           const hexData = data[`brightness${closest}`];
 	  
-          log(`${name} setBrightness: (closest: ${closest})`);
+          this.logs.debug(`setBrightness: (closest: ${closest})`);
           await this.performSend(hexData);
 	  await this.mqttpublish('Brightness', state.brightness);
 	}
       } else {
-        log(`${name} setBrightness: (off)`);
+        this.logs.debug(`setBrightness: (off)`);
         await this.performSend(off);
     	await this.mqttpublish('On', 'false');
       }
@@ -255,7 +255,7 @@ class LightAccessory extends SwitchAccessory {
 	this.setExclusivesOFF();
 
         if (on) {
-          log(`${name} setColorTemperature: (turn on, wait ${onDelay}s)`);
+          this.logs.debug(`setColorTemperature: (turn on, wait ${onDelay}s)`);
           await this.performSend(on);
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
@@ -273,7 +273,7 @@ class LightAccessory extends SwitchAccessory {
 	const current = Math.floor(Math.min((previousValue - min)/(max - min)*1000, delta*n - 1)/delta);
 	const target = Math.floor(Math.min((state.colorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
 	
-	log(`${name} setColorTemperature: (current:${previousValue}(${current}) target:${state.colorTemperature}(${target}) increment:${target - current} interval:${onDelay}s)`);
+	this.logs.debug(`setColorTemperature: (current:${previousValue}(${current}) target:${state.colorTemperature}(${target}) increment:${target - current} interval:${onDelay}s)`);
 	if (current != target) {	// need incremental operation
           await this.performSend([
 	    {'data': target > current ? increment : decrement,
@@ -290,7 +290,7 @@ class LightAccessory extends SwitchAccessory {
         const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.colorTemperature) < Math.abs(prev - state.colorTemperature) ? curr : prev);
         const hexData = data[`colorTemperature${closest}`];
 	
-        log(`${name} setColorTemperature: (closest: ${closest})`);
+        this.logs.debug(`setColorTemperature: (closest: ${closest})`);
         await this.performSend(hexData);
       }
       
@@ -342,7 +342,7 @@ class LightAccessory extends SwitchAccessory {
       } else {
 	this.serviceManager.setCharacteristic(Characteristic.Brightness, brightness)
       }
-      log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set brightness to ${this.state.brightness}.`);
+      this.logs.debug(`onMQTTMessage: set brightness to ${this.state.brightness}.`);
     }
   }
 
@@ -406,7 +406,7 @@ class LightAccessory extends SwitchAccessory {
 	if (event.newValue !== event.oldValue) {
 	  if (this.historyService) {
 	    const value = event.newValue;
-	    // this.log(`adding history of switchState.`, value);
+	    // this.logs.debug(`adding history of switchState.`, value);
 	    const time = Math.round(new Date().valueOf()/1000);
 	    // if (value) {
 	    this.state.lastActivation = time;

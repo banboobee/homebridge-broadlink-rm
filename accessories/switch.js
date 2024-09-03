@@ -19,28 +19,6 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 	{time: Math.round(new Date().valueOf()/1000),
 	 status: this.state.switchState ? 1 : 0})
       
-      // let state2 = this.state;
-      // this.state = new Proxy(state2, {
-      // 	set: async function(target, key, value) {
-      // 	  if (target[key] != value) {
-      // 	    Reflect.set(target, key, value);
-      // 	    if (this.historyService) {
-      // 	      if (key == `switchState`) {
-      // 		//this.log(`adding history of switchState.`, value);
-      // 		const time = Math.round(new Date().valueOf()/1000);
-      // 		//if (value) {
-      // 		  this.state.lastActivation = time;
-      // 		//}
-      // 		this.historyService.addEntry(
-      // 		  {time: time, status: value ? 1 : 0})
-      // 		// await this.mqttpublish('On', value ? 'true' : 'false')
-      // 	      }
-      // 	    }
-      // 	  }
-      // 	  return true
-      // 	}.bind(this)
-      // })
-
       if (!config.isUnitTest) {this.checkPing(ping)}
     } 
   }
@@ -176,7 +154,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       let { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
-        log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);
+        this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
 
         this.autoOffTimeoutPromise = delayForDuration(onDuration);
         await this.autoOffTimeoutPromise;
@@ -192,7 +170,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       let { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
-        log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);
+        this.logs.info(`setSwitchState: automatically turn on in ${offDuration} seconds`);
 
         this.autoOnTimeoutPromise = delayForDuration(offDuration);
         await this.autoOnTimeoutPromise;
@@ -238,7 +216,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       } else {
 	this.serviceManager.setCharacteristic(Characteristic.On, on)
       }
-      log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set switchState to ${this.state.switchState}.`);
+      this.logs.debug(`onMQTTMessage: set switchState to ${this.state.switchState}.`);
     }
   }
 
@@ -287,7 +265,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 	if (event.newValue !== event.oldValue) {
 	  if (this.historyService) {
 	    const value = event.newValue;
-	    // this.log(`adding history of switchState.`, value);
+	    // this.logs.trace(`adding history of switchState.`, value);
 	    const time = Math.round(new Date().valueOf()/1000);
 	    // if (value) {
 	    this.state.lastActivation = time;

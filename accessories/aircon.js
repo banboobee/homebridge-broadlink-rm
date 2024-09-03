@@ -2,7 +2,6 @@
 const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
-// const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
@@ -35,63 +34,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // Fakegato setup
     if(config.noHistory !== true) {
-      //this.services = this.getServices();
-      //this.displayName = config.name;
-      //this.lastUpdatedAt = undefined;
       this.historyService = new HistoryService(
 	config.enableModeHistory ? 'custom' : 'room',
-	// {displayName: config.name, services: this.getServices(), log: log},
 	this.serviceManager.accessory,
 	{storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      // this.historyService.log = this.log;  
 
       if (config.enableModeHistory) {
 	this.valveInterval = 1;
-	// let state2 = this.state;
-	// //console.log(state2)
-	// this.state = new Proxy(state2, {
-	//   set: async function(target, key, value) {
-	//     if (target[key] != value) {
-	//       Reflect.set(target, key, value);
-	//       if (this.historyService) {
-	// 	if (key == 'targetTemperature') {
-	// 	  //this.log(`adding history of targetTemperature.`, value)
-	// 	  this.historyService.addEntry(
-	// 	    {time: Math.round(new Date().valueOf()/1000),
-	// 	     setTemp: value || 30})
-	// 	  await this.mqttpublish('targetTemperature', value)
-	// 	} else if (key == 'targetHeatingCoolingState') {
-	// 	  // this.log(`adding history of targetHeatingCoolingState.`, value * 25)
-	// 	  // this.historyService.addEntry(
-	// 	  //   {time: Math.round(new Date().valueOf()/1000),
-	// 	  //    valvePosition: value ? Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0
-	// 	  //    //value * 25
-	// 	  //   })
-	// 	  this.valveInterval = 1;
-	// 	  clearTimeout(this.valveTimer);
-	// 	  this.thermoHistory();
-	// 	} else if (key == 'currentHeatingCoolingState') {
-	// 	  await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value])
-	// 	  await this.mqttpublish('targetTemperature', this.state.targetTemperature)
-	// 	}
-	//       }
-	//     }
-	//     return true
-	//   }.bind(this)
-	// })
       }
     }
 
-    // this.temperatureCallbackQueue = {};
     this.monitorTemperature();
     this.thermoHistory();
   }
 
   correctReloadedState (state) {
-    //if (state.currentHeatingCoolingState === Characteristic.CurrentHeatingCoolingState.OFF)  {
-    //  state.targetTemperature = state.currentTemperature;
-    //}
-
     //state.targetHeatingCoolingState = state.currentHeatingCoolingState;
 
     if (state.userSpecifiedTargetTemperature) {state.targetTemperature = state.userSpecifiedTargetTemperature}
@@ -185,7 +142,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async updateServiceTargetHeatingCoolingState (value) {
     const { serviceManager, state, log } = this;
-    // log(`${name} updateServiceTargetHeatingCoolingState current:${keys[this.state['targetHeatingCoolingState']]} target:${keys[value]}`);
+    // this.logs.debug(`updateServiceTargetHeatingCoolingState current:${keys[this.state['targetHeatingCoolingState']]} target:${keys[value]}`);
 
     await delayForDuration(0.2).then(() => {
       serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
@@ -204,7 +161,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	update = Characteristic.TargetHeatingCoolingState.HEAT;
       }
     }
-    // log(`${name} updateServiceCurrentHeatingCoolingState current:${keys[this.state['currentHeatingCoolingState']]} target:${keys[value]} update:${keys[update]}`);
+    // this.logs.debug(`updateServiceCurrentHeatingCoolingState current:${keys[this.state['currentHeatingCoolingState']]} target:${keys[value]} update:${keys[update]}`);
 
     await delayForDuration(0.25).then(() => {
       serviceManager.setCharacteristic(Characteristic.CurrentHeatingCoolingState, update);
@@ -224,7 +181,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       } else {
 	update = Characteristic.TargetHeatingCoolingState.HEAT;
       }
-      if (logLevel <=1) log(`${name} getCurrentHeatingCoolingState current:${keys[current]} update:${keys[update]}`);
+      this.logs.debug(`getCurrentHeatingCoolingState current:${keys[current]} update:${keys[update]}`);
     }
 
     return update;
@@ -239,11 +196,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (!autoSwitchName) {return;}
 
-    if (logLevel <=2) {log(`${name} Linking autoSwitch "${autoSwitchName}"`)}
+    this.logs.info(`Linking autoSwitch "${autoSwitchName}"`);
 
     const autoSwitchAccessories = accessories.filter(accessory => accessory.name === autoSwitchName);
 
-    if (autoSwitchAccessories.length === 0) {return log(`${name} No accessory could be found with the name "${autoSwitchName}". Please update the "autoSwitchName" value or add a matching switch accessory.`);}
+    if (autoSwitchAccessories.length === 0) {
+      return this.logs.error(`No accessory could be found with the name "${autoSwitchName}". Please update the "autoSwitchName" value or add a matching switch accessory.`);
+    }
 
     this.autoSwitchAccessory = autoSwitchAccessories[0];
   }
@@ -260,8 +219,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.previouslyOff = false;
 
-    if (state.targetTemperature < minTemperature) {return log(`The target temperature (${this.targetTemperature}) must be more than the minTemperature (${minTemperature})`);}
-    if (state.targetTemperature > maxTemperature) {return log(`The target temperature (${this.targetTemperature}) must be less than the maxTemperature (${maxTemperature})`);}
+    if (state.targetTemperature < minTemperature) {
+      return this.logs.error(`The target temperature (${this.targetTemperature}) must be more than the minTemperature (${minTemperature})`);
+    }
+    if (state.targetTemperature > maxTemperature) {
+      return this.logs.error(`The target temperature (${this.targetTemperature}) must be less than the maxTemperature (${maxTemperature})`);
+    }
 
     const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
     // const r = new RegExp(`${mode}`);
@@ -308,7 +271,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
       if (currentHeatingCoolingState === 'cool' && data.offDryMode !== undefined) {
         // Dry off mode when previously cooling
-        if (logLevel <=2) {log(`${name} Previous state ${currentHeatingCoolingState}, setting off with dry mode`);}
+        this.logs.info(`Previous state ${currentHeatingCoolingState}, setting off with dry mode`);
         await this.performSend(data.offDryMode);
       } else {
         await this.performSend(data.off);
@@ -329,7 +292,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Perform the auto -> cool/heat conversion if `replaceAutoMode` is specified
     if (replaceAutoMode && targetHeatingCoolingState === 'auto') {
-      if (logLevel <=2) {log(`${name} setTargetHeatingCoolingState (converting from auto to ${replaceAutoMode})`);}
+      this.logs.info(`setTargetHeatingCoolingState (converting from auto to ${replaceAutoMode})`);
       await this.updateServiceTargetHeatingCoolingState(HeatingCoolingStates[replaceAutoMode]);
 
       return;
@@ -344,7 +307,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const x = this.dataKeys(`${mode}`).sort();
     const modemin = parseInt(x[0]);
     const modemax = parseInt(x[x.length - 1]);
-    this.log(`${name} setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}]`);
+    this.logs.debug(`setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}]`);
     // serviceManager.getCharacteristic(Characteristic.TargetTemperature).setProps({
     //   minValue: modemin,
     //   maxValue: modemax,
@@ -378,7 +341,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
       }
 
-      if (logLevel <=1) {this.log(`${name} sentMode (${mode})`);}
+      this.logs.debug(`sentMode (${mode})`);
 
       //Force Temperature send
       await delayForDuration(0.25).then(() => {
@@ -401,11 +364,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     offDuration = offDuration|| 60;
     
     if (enableAutoOn) {
-      log(`${name} enableAutoOn is not supported.`);
+      this.logs.error(`enableAutoOn is not supported.`);
     }
     if (enableAutoOff && parseInt(onDuration) > 0) {
       if (!this.autoOffTimeoutPromise) {
-	log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
+	this.logs.info(`setTargetHeatingCoolingState: automatically turn off in ${onDuration} seconds`);
 	this.autoOffTimeoutPromise = delayForDuration(onDuration);
 	await this.autoOffTimeoutPromise;
 	await this.performSend(data.off);
@@ -420,11 +383,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, host, log, name, state, logLevel } = this;
     const { preventResendHex, defaultCoolTemperature, heatTemperature, ignoreTemperatureWhenOff, sendTemperatureOnlyWhenOff } = config;
 
-    if (logLevel <=1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} Potential sendTemperature (${temperature})`);
+    this.logs.debug(`Potential sendTemperature (${temperature})`);
 
     // Ignore Temperature if off, staying off - and set to ignore. OR temperature not provided
     if ((!state.targetHeatingCoolingState && ignoreTemperatureWhenOff) || !temperature) {
-      if (logLevel <=2) {log(`${name} Ignoring sendTemperature due to "ignoreTemperatureWhenOff": true or no temperature set.`);}
+      this.logs.info(`Ignoring sendTemperature due to "ignoreTemperatureWhenOff": true or no temperature set.`);
       return;
     }
 
@@ -442,7 +405,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if((previousTemperature !== finalTemperature) || (state.firstTemperatureUpdate && !preventResendHex)){
       //Set the temperature
       await this.performSend(hexData.data);
-      if (logLevel <=2) {this.log(`${name} sentTemperature (${state.targetTemperature})`);}
+      this.logs.info(`sentTemperature (${state.targetTemperature})`);
       state.firstTemperatureUpdate = false;
     }
   }
@@ -464,11 +427,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (!hexData) {
       // Mode based code not found, try mode-less
-      if (logLevel <=3) {this.log(`${name} No ${mode} HEX code found for ${temperature}`);}
+      this.logs.warn(`No ${mode} HEX code found for ${temperature}`);
       hexData = data[`temperature${temperature}`];
     } else {
       if (hexData['pseudo-mode']) {
-        if (logLevel <=2) this.log(`\x1b[35m[INFO] \x1b[0m${name} Configuration found for ${mode}${temperature} with pseudo-mode. Pseudo-mode will replace the configured mode.`);
+        this.logs.info(`Configuration found for ${mode}${temperature} with pseudo-mode. Pseudo-mode will replace the configured mode.`);
       }
     }
 
@@ -482,7 +445,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
         or provide the default temperature:
         \x1b[33m { "temperature${defaultTemperature}": { "data": "HEXCODE", "pseudo-mode" : "heat/cool" } }\x1b[0m`);
 
-      if (logLevel <=2) {this.log(`${name} Update to default temperature (${defaultTemperature})`);}
+      this.logs.info(`Update to default temperature (${defaultTemperature})`);
       finalTemperature = defaultTemperature;
     }
 
@@ -494,12 +457,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { on } = data;
 
     if (state.currentHeatingCoolingState === Characteristic.TargetHeatingCoolingState.OFF && config.turnOnWhenOff) {
-      if (logLevel <=2) {log(`${name} sending "on" hex before sending temperature`);}
+      this.logs.info(`sending "on" hex before sending temperature`);
 
       if (on) {
         await this.performSend(on);
       } else {
-        if (logLevel <=4) {log(`\x1b[31m[CONFIG ERROR] \x1b[0m ${name} No On Hex configured, but turnOnWhenOff enabled`);}
+        log(`\x1b[31m[CONFIG ERROR] \x1b[0m ${name} No On Hex configured, but turnOnWhenOff enabled`);
       }
 
       return true;
@@ -530,7 +493,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    if (logLevel < 1) log(`${name} monitorTemperature`);
+    this.logs.trace(`monitorTemperature`);
 
     device.on('temperature', this.onTemperature.bind(this));
     // device.checkTemperature(logLevel);
@@ -543,22 +506,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, host, logLevel, log, name, state } = this;
     const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
-    // onTemperature is getting called twice. No known cause currently.
-    // This helps prevent the same temperature from being processed twice
-    // if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
-
     if (!Number.isNaN(Number(temperature))) {
       temperature += temperatureAdjustment;
       if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
       state.currentTemperature = temperature;
-      if(logLevel < 1) log(`\x1b[35m[INFO] \x1b[0m${name} onTemperature (${temperature})`);
+      this.logs.trace(`onTemperature: ${temperature}`);
       this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
     }
 
     if (!noHumidity && !Number.isNaN(Number(humidity))) {
       humidity += humidityAdjustment;
       state.currentHumidity = humidity;
-      if(logLevel < 1) log(`\x1b[35m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);
+      this.logs.trace(`onHumidity: ` + humidity);
       this.serviceManager.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(humidity);
     }
     
@@ -566,7 +525,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (!Number.isNaN(Number(this.state.currentTemperature))) {
       if (!config.noHistory) {
 	//this.lastUpdatedAt = Date.now();
-	if (logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
+	this.logs.trace(`Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
 	if (noHumidity) {
           this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
 	} else {
@@ -579,21 +538,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
       }
     }
-    // //Process Fakegato history
-    // //Ignore readings of exactly zero - the default no value value.
-    // if(config.noHistory !== true && this.state.currentTemperature != 0.00) {
-    //   //this.lastUpdatedAt = Date.now();
-    //   if(logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
-    //   if(noHumidity && config.enableModeHistory === false){
-    //     this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
-    // 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
-    //   }else{
-    //     this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
-    // 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
-    //   }
-    // }
     
-    // this.processQueuedTemperatureCallbacks(temperature);
     this.checkTemperatureForAutoOnOff(temperature);
   }
 
@@ -620,21 +565,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperature () {
-  // addTemperatureCallbackToQueue (callback) {
     const { config, host, logLevel, log, name, state } = this;
     const { mqttURL, mqttTopic, temperatureFilePath, /* w1DeviceID, */ noHumidity } = config;
-
-    // Clear the previous callback
-    // if (Object.keys(this.temperatureCallbackQueue).length > 1) {
-    //   if (state.currentTemperature) {
-    //     if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperature (clearing previous callback, using existing temperature)`);}
-    //     this.processQueuedTemperatureCallbacks(state.currentTemperature);
-    //   }
-    // }
-
-    // Add a new callback
-    // const callbackIdentifier = uuid.v4();
-    // this.temperatureCallbackQueue[callbackIdentifier] = callback;
 
     // Read temperature from file
     if (temperatureFilePath) {
@@ -642,13 +574,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
       return;
     }
-
-    // Read temperature from W1 Device
-    // if (w1DeviceID) {
-    //   this.updateTemperatureFromW1();
-
-    //   return;
-    // }
 
     // Read temperature from mqtt
     if (mqttURL && mqttTopic?.filter(x =>
@@ -665,15 +590,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const device = getDevice({ host, log });
 
     if (!device || device.state === 'inactive') {
-      if (logLevel <=3) {log(`${name} updateTemperature (device no longer active, using existing temperature)`);}
-
-      // this.processQueuedTemperatureCallbacks(state.currentTemperature || 0);
+      this.logs.warn(`updateTemperature: device no longer active, using existing temperature`);
 
       return;
     }
 
     device.checkTemperature(logLevel);
-    if (logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperature (requested temperature from device, waiting)`);
+    this.logs.trace(`updateTemperature: requested temperature from device, waiting`);
   }
 
   updateTemperatureFromFile () {
@@ -683,15 +606,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
     let temperature = null;
     // let battery = null;
 
-    if (logLevel <=1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile reading file: ${temperatureFilePath}`);
+    this.logs.trace(`updateTemperatureFromFile reading file: ${temperatureFilePath}`);
 
     fs.readFile(temperatureFilePath, 'utf8', (err, data) => {
       if (err) {
-        if (logLevel <=4) {log(`\x1b[31m[ERROR] \x1b[0m${name} updateTemperatureFromFile\n\n${err.message}`);}
+        this.logs.error(`updateTemperatureFromFile\n\n${err.message}`);
       }
 
       if (data === undefined || data.trim().length === 0) {
-        if (logLevel <=3) {log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromFile error reading file: ${temperatureFilePath}, using previous Temperature`);}
+        this.logs.warn(`updateTemperatureFromFile error reading file: ${temperatureFilePath}, using previous Temperature`);
         if (!noHumidity) {humidity = (state.currentHumidity || 0);}
         temperature = (state.currentTemperature || 0);
       }
@@ -717,59 +640,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
       //   state.batteryLevel = 100;
       // }
 	    
-      if (logLevel <=1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);
+      this.logs.trace(`updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);
 
       this.onTemperature(temperature, humidity);
     });
   }
-
-  // updateTemperatureFromW1 () {
-  //   const { config, logLevel, host, log, name, state } = this;
-  //   const { w1DeviceID } = config;
-
-  //   var W1PATH = "/sys/bus/w1/devices";
-  //   var fName = W1PATH + "/" + w1DeviceID + "/w1_slave";
-  //   var temperature;
-
-  //   if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 reading file: ${fName}`);}
-
-  //   fs.readFile(fName, 'utf8', (err, data) => {
-  //     if (err) {
-  //       log(`\x1b[31m[ERROR] \x1b[0m${name} updateTemperatureFromW1\n\n${err.message}`);
-  //     }
-
-  //     if(data.includes("t=")){
-  //       var matches = data.match(/t=([0-9]+)/);
-  //       temperature = parseInt(matches[1]) / 1000;
-  //     }else{
-  //       if (logLevel <=3) {log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromW1 error reading file: ${fName}, using previous Temperature`);}
-  //       temperature = (state.currentTemperature || 0);
-  //     }
-  //     //Default battery level 
-  //     state.batteryLevel = 100;
-
-  //     if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 (parsed temperature: ${temperature})`);}
-  //     this.onTemperature(temperature);
-  //   });
-  // }
-
-  // processQueuedTemperatureCallbacks (temperature) {
-  //   if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
-
-  //   Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
-  //     const callback = this.temperatureCallbackQueue[callbackIdentifier];
-
-  //     //callback(null, temperature);
-
-  //     this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
-      
-  //     delete this.temperatureCallbackQueue[callbackIdentifier];
-  //   })
-
-  //   this.temperatureCallbackQueue = {};
-
-  //   this.checkTemperatureForAutoOnOff(temperature);
-  // }
 
   updateTemperatureUI () {
     const { config, serviceManager } = this;
@@ -789,13 +664,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Some devices don't include a thermometer and so we can use `pseudoDeviceTemperature` instead
     if (pseudoDeviceTemperature !== undefined) {
-      if (logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} getCurrentTemperature (using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config)`);
+      this.logs.trace(`getCurrentTemperature (using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config)`);
       return callback(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
     }
 
     callback(Number.isNaN(Number(this.state.currentTemperature)), this.state.currentTemperature);
 
-    // this.addTemperatureCallbackToQueue(callback);
     this.updateTemperature();
   }
 
@@ -811,7 +685,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     let { autoHeatTemperature, autoCoolTemperature, minimumAutoOnOffDuration } = config;
 
     if (this.shouldIgnoreAutoOnOff) {
-      if (logLevel <=2) {log(`${name} checkTemperatureForAutoOn (ignore within ${minimumAutoOnOffDuration}s of previous auto-on/off due to "minimumAutoOnOffDuration")`);}
+      this.logs.info(`checkTemperatureForAutoOn (ignore within ${minimumAutoOnOffDuration}s of previous auto-on/off due to "minimumAutoOnOffDuration")`);
 
       return;
     }
@@ -819,28 +693,28 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (!autoHeatTemperature && !autoCoolTemperature) {return;}
 
     if (!this.isAutoSwitchOn()) {
-      if (logLevel <=2) {log(`${name} checkTemperatureForAutoOnOff (autoSwitch is off)`);}
+      this.logs.info(`checkTemperatureForAutoOnOff (autoSwitch is off)`);
       return;
     }
 
-    if (logLevel <=1) {log(`${name} checkTemperatureForAutoOnOff`);}
+    this.logs.debug(`checkTemperatureForAutoOnOff`);
 
     if (autoHeatTemperature && temperature < autoHeatTemperature) {
       this.state.isRunningAutomatically = true;
 
-      if (logLevel <=2) {log(`${name} checkTemperatureForAutoOnOff (${temperature} < ${autoHeatTemperature}: auto heat)`);}
+      this.logs.info(`checkTemperatureForAutoOnOff (${temperature} < ${autoHeatTemperature}: auto heat)`);
       serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
     } else if (autoCoolTemperature && temperature > autoCoolTemperature) {
       this.state.isRunningAutomatically = true;
 
-      if (logLevel <=2) {log(`${name} checkTemperatureForAutoOnOff (${temperature} > ${autoCoolTemperature}: auto cool)`);}
+      this.log.info(`checkTemperatureForAutoOnOff (${temperature} > ${autoCoolTemperature}: auto cool)`);
       serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
     } else {
-      if (logLevel <=1) {log(`${name} checkTemperatureForAutoOnOff (temperature is ok)`);}
+      this.logs.debug(`checkTemperatureForAutoOnOff (temperature is ok)`);
 
       if (this.state.isRunningAutomatically) {
         this.isAutomatedOff = true;
-        if (logLevel <=2) {log(`${name} checkTemperatureForAutoOnOff (auto off)`);}
+        this.logs.info(`checkTemperatureForAutoOnOff (auto off)`);
         serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
       } else {
         return;
@@ -900,7 +774,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       case 'cool':
       case 'auto':
 	let state = this.HeatingCoolingStates[mode];
-	//log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set HeatingCoolingState to ${mode}.`);
+	//this.logs.debug(`onMQTTMessage: set HeatingCoolingState to ${mode}.`);
 	this.reset();
 	if (mqttStateOnly) {
 	  // this.state.currentHeatingCoolingState = state;
@@ -911,10 +785,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	} else {
 	  await this.updateServiceTargetHeatingCoolingState(state);
 	}
-	log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set targetHeatingCoolingState to ${this.state.targetHeatingCoolingState}.`);
+	this.logs.debug(`onMQTTMessage: set targetHeatingCoolingState to ${this.state.targetHeatingCoolingState}.`);
 	break;
       default:
-	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
+	this.logs.error(`onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
       }
       return;
     }
@@ -930,15 +804,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	} else {
 	  this.serviceManager.setCharacteristic(Characteristic.TargetTemperature, target);
 	}
-	log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage: set targetTemperature to ${target}.`);
+	this.logs.debug(`onMQTTMessage: set targetTemperature to ${target}.`);
       } else {
-	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected targetTemperature: ${this.mqttValuesTemp[identifier]})`);
+	this.logs.error(`onMQTTMessage (unexpected targetTemperature: ${this.mqttValuesTemp[identifier]})`);
       }
       return;
     }
 
     if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' /* && identifier !== 'battery' && identifier !== 'combined' */) {
-      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage: mqtt message received with unexpected identifier: ${identifier}, ${message.toString()}`);
+      this.logs.error(`onMQTTMessage: mqtt message received with unexpected identifier: ${identifier}, ${message.toString()}`);
 
       return;
     }
@@ -946,7 +820,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // let temperatureValue, humidityValue/*, batteryValue*/;
     // let objectFound = false;
     let value = this.mqttValuesTemp[identifier];
-    if (logLevel < 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value: ${value})`);
+    this.logs.trace(`onMQTTMessage (raw value: ${value})`);
     try {
       //Attempt to parse JSON - if result is JSON
       const temperatureJSON = JSON.parse(value);
@@ -954,109 +828,33 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (typeof temperatureJSON === 'object') {
 	if (identifier !== 'temperature') {
 	  let humidity = this.findKey(temperatureJSON, 'humidity|relativehumidity')?.[0];
-	  if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed humidity: ${humidity})`);}
+	  this.logs.trace(`onMQTTMessage (parsed humidity: ${humidity})`);
           this.mqttValues.humidity = humidity ? Number(humidity) : undefined;
 	}
 	if (identifier !== 'humidity') {
 	  let temperature = this.findKey(temperatureJSON, 'temperature')?.[0];
-	  if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed temperature: ${temperature})`);}
+	  this.logs.trace(`onMQTTMessage (parsed temperature: ${temperature})`);
           this.mqttValues.temperature = temperature ? Number(temperature) : undefined;
 	}
       } else {
 	if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
-          log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage: empty ${identifier}`);
+          this.logs.error(`onMQTTMessage: empty ${identifier}`);
           return;
 	}
 	
-	if (logLevel < 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed ${identifier}: ${value})`);}
+	this.logs.trace(`onMQTTMessage (parsed ${identifier}: ${value})`);
 	this.mqttValues[identifier] = Number(value);
       }
-
-      // if (typeof temperatureJSON === 'object') {
-      //   objectFound = true;
-      //   let values = [];
-      //   if (identifier !== 'temperature' /*&& identifier !== 'battery'*/){
-      //     Try to locate other Humidity fields
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Hum');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'hum');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Humidity');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'humidity');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'RelativeHumidity');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'relativehumidity');}
-      //     if(values.length > 0) {
-      //       humidityValue = values;
-      //       values = [];
-      //     }
-      //   }
-      //   // if (identifier !== 'temperature' && identifier !== 'humidity'){
-      //   //   //Try to locate other Battery fields
-      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'Batt');}
-      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'batt');}
-      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'Battery');}
-      //   //   if (values.length === 0) {values = findKey(temperatureJSON, 'battery');}
-      //   //   if(values.length > 0) {
-      //   //     batteryValue = values;
-      //   //     values = [];
-      //   //   }
-      //   // }
-      //   if(/*identifier !== 'battery' &&*/ identifier !== 'humidity'){
-      //     //Try to locate other Temperature fields
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'temp');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Temp');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'temperature');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'Temperature');}
-      //     if (values.length === 0) {values = findKey(temperatureJSON, 'local_temperature');}
-      //     if(values.length > 0) {
-      //       temperatureValue = values;
-      //     }
-      //   }
-             
-      //   if (values.length > 0) {
-      //     value = values[0];
-      //   } else {
-      //     value = undefined;
-      //   }
-      // }
     } catch (err) {
-      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage: ${value} couldn't be parsed`);
+      this.logs.error(`onMQTTMessage: ${value} couldn't be parsed`);
       
       return;
     } //Result couldn't be parsed as JSON
 
-    // if(objectFound) {
-    //   if(temperatureValue !== undefined && temperatureValue.length > 0) {
-    //     this.mqttValues.temperature = parseFloat(temperatureValue[0]);
-    //   }
-    //   // if(batteryValue !== undefined && batteryValue.length > 0) {
-    //   //   state.batteryLevel = parseFloat(batteryValue[0]);
-    //   //   this.mqttValues.battery = parseFloat(batteryValue[0]);
-    //   // }
-    //   if(humidityValue !== undefined && humidityValue.length > 0) {
-    //     this.mqttValues.humidity = parseFloat(humidityValue[0]);
-    //   }
-    // }else{
-    //   if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
-    //     log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt value not found)`);
-    //     return;
-    //   }
-
-    //   if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value})`);}
-    //   value = parseFloat(value);
-
-    //   // if (identifier == 'battery'){
-    //   //   state.batteryLevel = value;
-    //   //   return;
-    //   // } 
-    //   this.mqttValues[identifier] = value;
-    // }
     this.onTemperature(this.mqttValues.temperature, this.mqttValues.humidity);
   }
 
   findKey = (jsObject, requiredKey, results = undefined) => {
-    // console.log(jsObject, requiredKey);
-    // if (((typeof jsObject) !== 'object') || ((typeof requiredKey) !== 'string')) {
-    //   return undefined;
-    // }
     const rx = new RegExp(requiredKey, 'i');
     for (const key in jsObject) {
       const value = jsObject[key];
@@ -1096,18 +894,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
     callback(null, buffer);
   }
 
-  // localCharacteristic(key, uuid, props) {
-  //   let characteristic = class extends Characteristic {
-  //     constructor() {
-  // 	super(key, uuid);
-  // 	this.setProps(props);
-  //     }
-  //   }
-  //   characteristic.UUID = uuid;
-
-  //   return characteristic;
-  // }
-
   // Service Manager Setup
 
   setupServiceManager () {
@@ -1119,22 +905,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
     if (config.noHistory !== true) {
       if (config.enableTargetTemperatureHistory === true) {
-	this.log(`${this.name} Accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
+	this.logs.info(`Accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
       } else if (config.enableModeHistory === true) {
-	this.log(`${this.name} Accessory is configured to record HeatingCoolingState history.`);
+	this.logs.info(`Accessory is configured to record HeatingCoolingState history.`);
       }
     }
 
     if(config.noHistory !== true && config.enableModeHistory) {
-      // const ValvePositionCharacteristic = this.localCharacteristic(
-      // 	'ValvePosition', 'E863F12E-079E-48FF-8F27-9C2605A29F52',
-      // 	{format: Characteristic.Formats.UINT8,
-      // 	 unit: Characteristic.Units.PERCENTAGE,
-      // 	 perms: [
-      //      Characteristic.Perms.READ,
-      //      Characteristic.Perms.NOTIFY
-      // 	 ]});
-
       this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ValvePosition);
       this.serviceManager.addGetCharacteristic({
 	name: 'currentValvePosition',
@@ -1145,21 +922,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       });
       
       if (config.enableTargetTemperatureHistory) {
-	// const ProgramDataCharacteristic = this.localCharacteristic(
-	//   'ProgramData', 'E863F12F-079E-48FF-8F27-9C2605A29F52',
-	//   {format: Characteristic.Formats.DATA,
-	//    perms: [
-        //      Characteristic.Perms.READ,
-        //      Characteristic.Perms.NOTIFY
-	//    ]});
-	
-	// const ProgramCommandCharacteristic = this.localCharacteristic(
-	//   'ProgramCommand', 'E863F12C-079E-48FF-8F27-9C2605A29F52',
-	//   {format: Characteristic.Formats.DATA,
-	//    perms: [
-        //      Characteristic.Perms.WRITE
-	//    ]});
-	
 	this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ProgramData);
 	this.serviceManager.addGetCharacteristic({
 	  name: 'setProgramData',
@@ -1260,12 +1022,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	if (event.newValue !== event.oldValue) {
 	  if (this.historyService) {
 	    const value = event.newValue
-	    // this.log(`adding history of targetHeatingCoolingState.`, value * 25)
-	    // this.historyService.addEntry(
-	    //   {time: Math.round(new Date().valueOf()/1000),
-	    //    valvePosition: value ? Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0
-	    //    //value * 25
-	    //   })
 	    this.valveInterval = 1;
 	    clearTimeout(this.valveTimer);
 	    this.thermoHistory();
