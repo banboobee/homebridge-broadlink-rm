@@ -311,13 +311,14 @@ class HomebridgeAccessory {
       }
 
       mqttTopic = [mqttTopicObj]
+      config.mqttTopic = mqttTopic;
     }
 
     // Create an easily referenced instance variable
-    const mqttTopicIdentifiersByTopic = {};
-    mqttTopic && mqttTopic.forEach(({ identifier, topic }) => {
-      mqttTopicIdentifiersByTopic[topic] = identifier;
-    })
+    // const mqttTopicIdentifiersByTopic = {};
+    // mqttTopic && mqttTopic.forEach(({ identifier, topic }) => {
+    //   mqttTopicIdentifiersByTopic[topic] = identifier;
+    // })
 
     // Connect to mqtt
     const mqttClientID = 'mqttjs_' + Math.random().toString(16).substr(2, 8);
@@ -357,9 +358,11 @@ class HomebridgeAccessory {
 
       this.logs.info(`MQTT client connected.`);
 
-      mqttTopic && mqttTopic.forEach(({ topic }) => {
-        mqttClient.subscribe(topic)
-      })
+      [... new Set(mqttTopic.map(x => x.topic))].forEach(x => {
+	this.logs.info(`subscribes MQTT topic ${x}.`);
+        mqttClient.subscribe(x);
+      });
+
     })
 
     mqttClient.on('error', () => {
@@ -367,9 +370,11 @@ class HomebridgeAccessory {
     })
 
     mqttClient.on('message', (topic, message) => {
-      const identifier = mqttTopicIdentifiersByTopic[topic];
+      // const identifier = mqttTopicIdentifiersByTopic[topic];
 
-      this.onMQTTMessage(identifier, message);
+      mqttTopic.filter(x => x.topic === topic).forEach(x => {
+	this.onMQTTMessage(x.identifier, message.toString());
+      })
     })
   }
 
@@ -385,7 +390,8 @@ class HomebridgeAccessory {
   }
   
   onMQTTMessage(identifier, message) {
-    this.mqttValuesTemp[identifier] = message.toString();
+    // this.mqttValuesTemp[identifier] = message.toString();
+    this.mqttValuesTemp[identifier] = message;
   }
 
   mqttValueForIdentifier(identifier) {
@@ -394,7 +400,7 @@ class HomebridgeAccessory {
     let value = this.mqttValues[identifier];
 
     // No identifier may have been set in the user's config so let's try "unknown" too
-    if (value === undefined) {value = this.mqttValues.unknown;}
+    // if (value === undefined) {value = this.mqttValues.unknown;}
 
     if (!this.mqttClient.connected) {
       if (!this.isMQTTConnecting) {

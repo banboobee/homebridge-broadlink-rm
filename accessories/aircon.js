@@ -85,7 +85,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.defaultCoolTemperature = config.defaultCoolTemperature || 16;
     config.defaultHeatTemperature = config.defaultHeatTemperature || 30;
     // ignore Humidity if set to not use it, or using Temperature source that doesn't support it
-    if(config.noHumidity /* || config.w1Device */ || config.pseudoDeviceTemperature){
+    if(config.noHumidity || config.pseudoDeviceTemperature){
       state.currentHumidity = null;
       config.noHumidity = true;
     } else {
@@ -475,12 +475,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async monitorTemperature () {
     const { config, host, log, logLevel, name, state } = this;
-    const { temperatureFilePath, pseudoDeviceTemperature/*, w1DeviceID */} = config;
+    const { temperatureFilePath, pseudoDeviceTemperature} = config;
 
     if (pseudoDeviceTemperature !== undefined) {return;}
 
-    //Force w1 and file devices to a minimum 1 minute refresh
-    if (/* w1DeviceID || */ temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
+    //Force file devices to a minimum 1 minute refresh
+    if (temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
 
     const device = getDevice({ host, log });
 
@@ -510,14 +510,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
       temperature += temperatureAdjustment;
       if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
       state.currentTemperature = temperature;
-      this.logs.trace(`onTemperature: ${temperature}`);
+      this.logs.trace(`onTemperature: update temperature ${temperature}`);
       this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
     }
 
     if (!noHumidity && !Number.isNaN(Number(humidity))) {
       humidity += humidityAdjustment;
       state.currentHumidity = humidity;
-      this.logs.trace(`onHumidity: ` + humidity);
+      this.logs.trace(`onTemperature: update humidity ${humidity}`);
       this.serviceManager.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(humidity);
     }
     
@@ -525,7 +525,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (!Number.isNaN(Number(this.state.currentTemperature))) {
       if (!config.noHistory) {
 	//this.lastUpdatedAt = Date.now();
-	this.logs.trace(`Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
+	this.logs.trace(`onTemperature: Logging data to history. temperture: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
 	if (noHumidity) {
           this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
 	} else {
@@ -566,7 +566,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperature () {
     const { config, host, logLevel, log, name, state } = this;
-    const { mqttURL, mqttTopic, temperatureFilePath, /* w1DeviceID, */ noHumidity } = config;
+    const { mqttURL, mqttTopic, temperatureFilePath, noHumidity } = config;
 
     // Read temperature from file
     if (temperatureFilePath) {
@@ -576,11 +576,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     // Read temperature from mqtt
-    if (mqttURL && mqttTopic?.filter(x =>
-      x.identifier === 'temperature' ||	x.identifier === 'unknown').length) {
+    if (mqttURL && mqttTopic?.filter(x => 
+      x.identifier.toLowerCase().match('temp|temperature|unknown') ||
+      x.characteristic?.toLowerCase().match('currenttemperature')).length) {
       const temperature = this.mqttValueForIdentifier('temperature');
-      const humidity = noHumidity ? null : this.mqttValueForIdentifier('humidity');
-      this.onTemperature(temperature || 0,humidity);
+      const humidity = noHumidity ? undefined : this.mqttValueForIdentifier('humidity');
+      this.onTemperature(temperature, humidity);
 
       return;
     }
@@ -601,7 +602,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperatureFromFile () {
     const { config, logLevel, host, log, name, state } = this;
-    const { temperatureFilePath, noHumidity/*, batteryAlerts */} = config;
+    const { temperatureFilePath, noHumidity} = config;
     let humidity = null;
     let temperature = null;
     // let battery = null;
@@ -664,11 +665,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Some devices don't include a thermometer and so we can use `pseudoDeviceTemperature` instead
     if (pseudoDeviceTemperature !== undefined) {
-      this.logs.trace(`getCurrentTemperature (using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config)`);
+      this.logs.trace(`getCurrentTemperature: using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config`);
       return callback(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
     }
 
-    callback(Number.isNaN(Number(this.state.currentTemperature)), this.state.currentTemperature);
+    this.logs.trace(`getCurrentTemperature: ${state.currentTemperature}`);
+    callback(Number.isNaN(Number(this.state.currentTemperature)), state.currentTemperature);
 
     this.updateTemperature();
   }
@@ -677,6 +679,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, host, logLevel, log, name, state } = this;
     const { pseudoDeviceTemperature } = config;
 
+    this.logs.trace(`getCurrentHumidity: ${state.currentHumidity}`);
     return callback(Number.isNaN(Number(this.state.currentHumidity)), state.currentHumidity);
   }
 
@@ -759,28 +762,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
+    this.logs.trace(`onMQTTMessage: Received message {identifier:"${identifier}", message:${message}}`);
 
-    super.onMQTTMessage(identifier, message);
-
-    if (identifier === 'mode' ||
-	// identifier.toLowerCase() === 'currentheatingcoolingstate' ||
-	// identifier.toLowerCase() === 'currentheatercoolerstate') {
+    if (identifier.toLowerCase() === 'mode' ||
 	identifier.toLowerCase() === 'targetheatingcoolingstate' ||
 	identifier.toLowerCase() === 'targetheatercoolerstate') {
-      let mode = this.mqttValuesTemp[identifier].toLowerCase();
+      let mode = message.toLowerCase();
       switch (mode) {
       case 'off':
       case 'heat':
       case 'cool':
       case 'auto':
 	let state = this.HeatingCoolingStates[mode];
-	//this.logs.debug(`onMQTTMessage: set HeatingCoolingState to ${mode}.`);
 	this.reset();
 	if (mqttStateOnly) {
-	  // this.state.currentHeatingCoolingState = state;
-	  // this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
-	  this.state.targetHeatingCoolingState = state;
-	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
+	  this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, state);
 	  await this.updateServiceCurrentHeatingCoolingState(state);
 	} else {
 	  await this.updateServiceTargetHeatingCoolingState(state);
@@ -788,7 +784,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.logs.debug(`onMQTTMessage: set targetHeatingCoolingState to ${this.state.targetHeatingCoolingState}.`);
 	break;
       default:
-	this.logs.error(`onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
+	this.logs.error(`onMQTTMessage: Unexpected targetHeatingCoolingState "${message}".`);
       }
       return;
     }
@@ -796,62 +792,82 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (identifier.toLowerCase() === 'targettemperature' ||
 	identifier.toLowerCase() === 'coolingthresholdtemperature' ||
 	identifier.toLowerCase() === 'heatingthresholdtemperature') {
-      let target = parseInt(this.mqttValuesTemp[identifier].match(/^([0-9]+)$/g));
-      if (target > 0 && target >= config.minTemperature && target <= config.maxTemperature) {
+      let target = Number(message);
+      if (!Number.isNaN(target) && target >= config.minTemperature && target <= config.maxTemperature) {
 	if (mqttStateOnly) {
-	  this.state.targetTemperature = target;
-	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
+	  this.serviceManager.updateCharacteristic(Characteristic.TargetTemperature, target);
 	} else {
 	  this.serviceManager.setCharacteristic(Characteristic.TargetTemperature, target);
 	}
 	this.logs.debug(`onMQTTMessage: set targetTemperature to ${target}.`);
       } else {
-	this.logs.error(`onMQTTMessage (unexpected targetTemperature: ${this.mqttValuesTemp[identifier]})`);
+	this.logs.error(`onMQTTMessage: Unexpected targetTemperature "${message}".)`);
       }
       return;
     }
 
-    if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' /* && identifier !== 'battery' && identifier !== 'combined' */) {
-      this.logs.error(`onMQTTMessage: mqtt message received with unexpected identifier: ${identifier}, ${message.toString()}`);
-
+    if (identifier.toLowerCase() === 'unknown') {
+      try {
+	let temperature = Number(message), humidity = undefined;
+	if (Number.isNaN(temperature)) {
+	  const value = JSON.parse(message);
+	  temperature = Number(this.findKey(value, 'temp|temperature')?.[0]);
+	  this.logs.trace(`onMQTTMessage: parsed temperture ${temperature}`);
+	  if (Number.isNaN(temperature)) {
+	    this.logs.error(`onMQTTMessage: couldn't be found temperature value in ${message}.`);
+	    this.mqttValues['temperature'] = undefined;
+	  } else {
+	    this.mqttValues['temperature'] = temperature;
+	  }
+	  if (!config.noHumidity) {
+	    humidity = Number(this.findKey(value, 'humidity|relativehumidity')?.[0]);
+	    this.logs.trace(`onMQTTMessage: parsed himidity ${humidity}`);
+	    if (Number.isNaN(temperature)) {
+	      this.logs.error(`onMQTTMessage: couldn't be found humidity value in ${message}.`);
+	      this.mqttValues['humidity'] = undefined;
+	    } else {
+	      this.mqttValues['humidity'] = humidity;
+	    }
+	  }
+	  this.onTemperature(temperature, humidity);
+	} else {
+	  this.logs.trace(`onMQTTMessage: parsed temperture ${temperature}`);
+	  this.mqttValues['temperature'] = temperature;
+	  this.onTemperature(temperature, undefined);
+	}
+      } catch (e) {
+	this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed.`);
+	this.mqttValues['temperature'] = undefined;
+	// this.mqttValues['humidity'] = undefined;
+      }
       return;
     }
-
-    // let temperatureValue, humidityValue/*, batteryValue*/;
-    // let objectFound = false;
-    let value = this.mqttValuesTemp[identifier];
-    this.logs.trace(`onMQTTMessage (raw value: ${value})`);
+    
     try {
-      //Attempt to parse JSON - if result is JSON
-      const temperatureJSON = JSON.parse(value);
-
-      if (typeof temperatureJSON === 'object') {
-	if (identifier !== 'temperature') {
-	  let humidity = this.findKey(temperatureJSON, 'humidity|relativehumidity')?.[0];
-	  this.logs.trace(`onMQTTMessage (parsed humidity: ${humidity})`);
-          this.mqttValues.humidity = humidity ? Number(humidity) : undefined;
-	}
-	if (identifier !== 'humidity') {
-	  let temperature = this.findKey(temperatureJSON, 'temperature')?.[0];
-	  this.logs.trace(`onMQTTMessage (parsed temperature: ${temperature})`);
-          this.mqttValues.temperature = temperature ? Number(temperature) : undefined;
-	}
-      } else {
-	if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
-          this.logs.error(`onMQTTMessage: empty ${identifier}`);
-          return;
-	}
-	
-	this.logs.trace(`onMQTTMessage (parsed ${identifier}: ${value})`);
-	this.mqttValues[identifier] = Number(value);
+      let value = Number(message);
+      if (Number.isNaN(value)) {
+	value = Number(this.findKey(JSON.parse(message), identifier)?.[0]);
       }
-    } catch (err) {
-      this.logs.error(`onMQTTMessage: ${value} couldn't be parsed`);
-      
-      return;
-    } //Result couldn't be parsed as JSON
+      this.logs.trace(`onMQTTMessage: parsed ${identifier} ${value}`);
+      if (Number.isNaN(value)) {
+	this.logs.error(`onMQTTMessage: couldn't be found ${identifier} value in ${message}.`);
+	this.mqttValues[identifier] = undefined;
+      } else {
+	this.mqttValues[identifier] = value;
+      }
 
-    this.onTemperature(this.mqttValues.temperature, this.mqttValues.humidity);
+      const characteristic = this.config.mqttTopic.find(x => x.tpoic === identifier)?.characteristic?.toLowerCase();
+      if (identifier.toLowerCase() === 'temperature' || characteristic === 'currenttemperature') {
+	this.onTemperature(value, undefined);
+      } else if (identifier.toLowerCase() === 'humidity' || characteristic === 'currentrelativehumidity') {
+	this.onTemperature(undefined, value);
+      } else {
+	this.logs.error(`onMQTTMessage: Unexpected identifier "${identifier}" with message "${message}".`);
+      }
+    } catch (e) {
+      this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed.`);
+      this.mqttValues[identifier] = undefined;
+    }
   }
 
   findKey = (jsObject, requiredKey, results = undefined) => {
