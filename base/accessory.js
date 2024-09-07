@@ -358,7 +358,7 @@ class HomebridgeAccessory {
 
       this.logs.info(`MQTT client connected.`);
 
-      [... new Set(mqttTopic.map(x => x.topic))].forEach(x => {
+      [... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
 	this.logs.info(`subscribes MQTT topic ${x}.`);
         mqttClient.subscribe(x);
       });
