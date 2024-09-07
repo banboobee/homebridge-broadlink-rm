@@ -1,6 +1,6 @@
 {
-  "name": "homebridge-broadlink-rm-pro",
-  "displayName": "Homebridge Broadlink RM Pro",
+  "name": "homebridge-broadlink-rm-PoC",
+  "displayName": "Homebridge Broadlink RM PoC",
   "version": "4.4.15",
   "description": "Broadlink RM plugin (including the mini and pro) for homebridge with AC Pro and TV features",
   "license": "ISC",
@@ -21,12 +21,12 @@
     "homebridge": ">=1.4.1"
   },
   "author": {
-    "name": "kiwi-cam"
+    "name": "banboobee"
   },
   "funding": "https://paypal.me/kiwicamRM",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kiwi-cam/homebridge-broadlink-rm.git"
+    "url": "git@github.com/banboobee/homebridge-broadlink-rm.git"
   },
   "dependencies": {
     "await-semaphore": "^0.1.3",
