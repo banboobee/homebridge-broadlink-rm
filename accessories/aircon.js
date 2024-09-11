@@ -1,6 +1,5 @@
 // -*- mode: js; js-indent-level : 2 -*-
 const { assert } = require('chai');
-const uuid = require('uuid');
 const fs = require('fs');
 
 const delayForDuration = require('../helpers/delayForDuration');
@@ -710,7 +709,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     } else if (autoCoolTemperature && temperature > autoCoolTemperature) {
       this.state.isRunningAutomatically = true;
 
-      this.log.info(`checkTemperatureForAutoOnOff (${temperature} > ${autoCoolTemperature}: auto cool)`);
+      this.logs.info(`checkTemperatureForAutoOnOff (${temperature} > ${autoCoolTemperature}: auto cool)`);
       serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
     } else {
       this.logs.debug(`checkTemperatureForAutoOnOff (temperature is ok)`);

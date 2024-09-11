@@ -1,5 +1,4 @@
-const learnData = require('../helpers/learnData');
-const learnRFData = require('../helpers/learnRFData');
+const { getDevice } = require('../helpers/getDevice');
 const ServiceManager = require('../helpers/serviceManager');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 
@@ -23,16 +22,12 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     const { config, serviceManager } = this;
     const { disableAutomaticOff, scanRF, scanFrequency, frequency } = config;
 
-    const turnOffCallback = () => {
-      serviceManager.setCharacteristic(Characteristic.On, false);
-    }
-
     if (scanRF || scanFrequency) {
       const scan = frequency ?? undefined;
       if (on) {
-        learnRFData.start(this.host, scan, callback, turnOffCallback, this.log, this.logLevel);
+        this.RFstart(this.host, scan, callback);
       } else {
-        learnRFData.stop(this.log, this.logLevel);
+        this.RFstop();
 
         callback();
       }
@@ -41,14 +36,155 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     }
 
     if (on) {
-      learnData.start(this.host, callback, turnOffCallback, this.log, this.logLevel);
+      this.IRstart(this.host, callback);
     } else {
-      learnData.stop(this.log, this.logLevel);
+      this.IRstop();
 
       callback();
     }
   }
 
+  turnOffCallback = () => {
+    this.serviceManager.setCharacteristic(Characteristic.On, false);
+  }
+
+  timeout = null;
+  currentDevice = null;
+  initialDebug = undefined;
+  
+  IRstop = async () => {
+    if (this.initialDebug !== undefined && this.currentDevice) this.currentDevice.debug = this.initialDebug;
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.logs.log('Canceled');
+    }
+    this.timeout = null;
+  }
+  
+  IRstart = async (host, callback) => {
+    callback();
+    this.IRstop()
+    
+    // Get the Broadlink device
+    const device = getDevice({ host, log: this.log, learnOnly: true });
+    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found)`);
+    if (!device.enterLearning) return this.logs.error(`Learn Code (IR learning not supported for device at ${host})`);
+    
+    this.currentDevice = device
+    this.initialDebug = device.debug;
+    device.debug = this.logLevel;
+    
+    await device.enterLearning(this.logLevel);
+    this.logs.log(`Learning...`);
+    
+    this.timeout = setTimeout(async () => {
+      this.timeout = null;
+    }, 10 * 1000); // 10s
+    while (this.timeout) {
+      await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+      const data = await device.checkData(this.logLevel);
+      if (data) {
+	const hex = data.toString('hex');
+	this.logs.log(`Packet found!`);
+	this.logs.log(`Hex Code: ${hex}`);
+	break;
+      }
+    }
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    } else {
+      this.logs.error('No data received...');
+      await device.cancelLearning(this.logLevel);
+    }
+    this.turnOffCallback();
+  }
+
+  RFstop = async () => {
+    // Reset existing learn requests
+    // if (this.currentDevice) {await this.currentDevice.cancelSweepFrequency(this.logLevel);}
+    if(this.initalDebug !== undefined && this.currentDevice) {this.currentDevice.debug = this.initalDebug;}
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.logs.log('Canceled');
+    }
+    this.currentDevice = null;
+    this.timeout = null;
+  }
+  
+  RFstart = async (host, frequency, callback) => {
+    callback();
+    this.RFstop()
+    
+    // Get the Broadlink device
+    const device = getDevice({ host, log: this.log, learnOnly: true })
+    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found)`);
+    if (!device.enterLearning) return this.logs.error(`Learn Code (IR/RF learning not supported for device at ${host})`);
+    if (!device.enterRFSweep) return this.logs.error(`Scan RF (RF learning not supported for device (${device.type}) at ${host})`);
+    
+    this.currentDevice = device
+    this.initalDebug = device.debug;
+    if (this.logLevel) device.debug = true;
+    
+    if (!frequency) {
+      await device.sweepFrequency(this.logLevel);
+      this.logs.log(`Detecting radiofrequency, press and hold the button to learn...`);
+      
+      this.timeout = setTimeout(async () => {
+	this.timeout = null;
+      }, 30 * 1000); // 30s
+      while (this.timeout) { 
+	await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+	const data = await device.checkFrequency(this.logLevel);
+	if (data) {
+	  const {locked, frequency} = data;
+	  if (locked) {
+	    this.logs.log(`Radiofrequency detected: ${frequency.toFixed(2)}MHz`);
+	    // this.logs.log(`You can now let go of the button`);
+	    this.logs.log(`Pausing 3 seconds.`);
+	    await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+	    this.logs.log(`Press the button again, now a short press.`);
+	    break;
+	  } else {
+	    this.logs.log(`scanning ${frequency.toFixed(2)}MHz ...`);
+	  }
+	}
+      }
+      if (this.timeout) {
+	clearTimeout(this.timeout);
+	this.timeout = null;
+      } else {
+	this.logs.log('Radiofrequency not found');
+	await device.cancelSweepFrequency(this.logLevel);
+	this.turnOffCallback();
+	return;
+      }
+    } else {
+      this.logs.log('Press the button you want to learn, a short press...');
+    }
+    await device.findRFPacket(frequency, this.logLevel);
+    this.timeout = setTimeout(async () => {
+      this.timeout = null;
+    }, 30 * 1000); // 30s
+    while (this.timeout) { 
+      await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+      const data = await device.checkData(this.logLevel);
+      if (data) {
+	const hex = data.toString('hex');
+	this.logs.log(`Packet found!`);
+	this.logs.log(`Hex Code: ${hex}`);
+	break;
+      }
+    }
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    } else {
+      this.logs.error('No data received...');
+    }
+    this.turnOffCallback();
+  }
+  
   setupServiceManager() {
     const { data, name, config, serviceManagerType } = this;
     const { on, off } = data || {};

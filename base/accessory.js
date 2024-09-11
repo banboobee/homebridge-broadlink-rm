@@ -8,8 +8,9 @@ class HomebridgeAccessory {
 
     let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
-    this.log = (!disableLogs && log) ? log : () => { };
-    if (this.logLevel === undefined) {this.logLevel = 2;} //Default to info
+    // this.log = (!disableLogs && log) ? log : () => { };
+    this.log = log;
+    this.logLevel ??= 2; //Default to info
     this.config = config;
 
     this.host = host;
@@ -420,14 +421,17 @@ class HomebridgeAccessory {
   }
 
   logs = {
+    log: (log) => {
+      this.log(`${this.name}`, String(log));
+    },
     trace: (log) => {
-      if (this.logLevel < 1) {
-	this.log.info(`\x1b[90m[TRACE] ${this.name}`, String(log), '\x1b[0m');
+      if (!this.config.disableLogs && this.logLevel < 1) {
+	this.log(`\x1b[90m[TRACE] ${this.name}`, String(log), '\x1b[0m');
       }
     },
     debug: (log) => {
-      if (this.logLevel < 2) {
-	this.log(`\x1b[33m[DEBUG]\x1b[0m ${this.name}`, String(log));
+      if (!this.config.disableLogs && this.logLevel < 2) {
+	this.log(`\x1b[90m[DEBUG] ${this.name}`, String(log), '\x1b[0m');
       }
     },
     info: (log) => {

@@ -44,7 +44,7 @@ class HomebridgePlatform {
         break;
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    if(this.config.disableLogs) {this.logLevel = 6;}
+    // if(this.config.disableLogs) {this.logLevel = 6;}
 
     homebridge.on('didFinishLaunching', async () => {
       // this.log('Executed didFinishLaunching callback');

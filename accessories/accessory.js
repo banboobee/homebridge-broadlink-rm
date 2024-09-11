@@ -3,8 +3,8 @@ const uuid = require('uuid');
 const { HomebridgeAccessory } = require('../base');
 
 const sendData = require('../helpers/sendData');
-const delayForDuration = require('../helpers/delayForDuration');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
+// const delayForDuration = require('../helpers/delayForDuration');
+// const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const { getDevice } = require('../helpers/getDevice');
 
 class BroadlinkRMAccessory extends HomebridgeAccessory {
@@ -58,7 +58,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
         break;
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    if(this.config.disableLogs) {this.logLevel = 6;}  
+    // if(this.config.disableLogs) {this.logLevel = 6;}  
   }
 
   performSetValueAction ({ host, data, log, name, logLevel }) {
