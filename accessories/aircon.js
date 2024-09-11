@@ -575,14 +575,29 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     // Read temperature from mqtt
-    if (mqttURL && mqttTopic?.filter(x => 
-      x.identifier.toLowerCase().match('temp|temperature|unknown') ||
-      x.characteristic?.toLowerCase().match('currenttemperature')).length) {
-      const temperature = this.mqttValueForIdentifier('temperature');
-      const humidity = noHumidity ? undefined : this.mqttValueForIdentifier('humidity');
-      this.onTemperature(temperature, humidity);
-
-      return;
+    if (mqttURL) {
+      let topic, temperature, humidity;
+      if (topic = mqttTopic?.filter(x => x.identifier.match(/^unknown$/i))[0]) {
+	temperature = this.mqttValueForIdentifier('temperature');
+	humidity = noHumidity ? undefined : this.mqttValueForIdentifier('humidity');
+	this.logs.trace(`updateTemperature: {mqttValueForIdentifier: {"tepmerature":${temperature}, "humidity":${humidity}}}`);
+	this.onTemperature(temperature, humidity);
+	return;
+      }
+      if (topic = mqttTopic?.filter(x =>
+	x.identifier.match(/^temperature$/i) ||
+	x.characteristic?.match(/^currenttemperature$/i))[0]) {
+	temperature = this.mqttValueForIdentifier(topic.identifier);
+	this.logs.trace(`updateTemperature: {mqttValueForIdentifier: {"${topic.identifier}":${temperature}}}`);
+	if (topic = mqttTopic?.filter(x => 
+	  x.identifier.match(/^humidity$/i) ||
+	  x.characteristic?.match(/^currentrelativehumidity$/i))[0]) {
+	  humidity = noHumidity ? undefined : this.mqttValueForIdentifier(topic.identifier);
+	  this.logs.trace(`updateTemperature: {mqttValueForIdentifier: {"${topic.identifier}":${humidity}}}`);
+	}
+	this.onTemperature(temperature, humidity);
+	return;
+      }
     }
 
     // Read temperature from Broadlink RM device
@@ -761,7 +776,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
-    this.logs.trace(`onMQTTMessage: Received message {identifier:"${identifier}", message:${message}}`);
+    this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
 
     if (identifier.toLowerCase() === 'mode' ||
 	identifier.toLowerCase() === 'targetheatingcoolingstate' ||
@@ -810,7 +825,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	let temperature = Number(message), humidity = undefined;
 	if (Number.isNaN(temperature)) {
 	  const value = JSON.parse(message);
-	  temperature = Number(this.findKey(value, 'temp|temperature')?.[0]);
+	  temperature = Number(this.findKey(value, '^temp$|^temperature$')?.[0]);
 	  this.logs.trace(`onMQTTMessage: parsed temperture ${temperature}`);
 	  if (Number.isNaN(temperature)) {
 	    this.logs.error(`onMQTTMessage: couldn't be found temperature value in ${message}.`);
@@ -819,7 +834,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	    this.mqttValues['temperature'] = temperature;
 	  }
 	  if (!config.noHumidity) {
-	    humidity = Number(this.findKey(value, 'humidity|relativehumidity')?.[0]);
+	    humidity = Number(this.findKey(value, '^humidity$|^relativehumidity$')?.[0]);
 	    this.logs.trace(`onMQTTMessage: parsed himidity ${humidity}`);
 	    if (Number.isNaN(temperature)) {
 	      this.logs.error(`onMQTTMessage: couldn't be found humidity value in ${message}.`);
