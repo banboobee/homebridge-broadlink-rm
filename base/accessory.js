@@ -421,32 +421,38 @@ class HomebridgeAccessory {
   }
 
   logs = {
-    log: (log) => {
-      this.log(`${this.name}`, String(log));
+    log: (format, ...args) => {
+      format = "%s " + format;
+      this.log(format, `${this.name}`, ...args);
     },
-    trace: (log) => {
+    trace: (format, ...args) => {
       if (!this.config.disableLogs && this.logLevel < 1) {
-	this.log(`\x1b[90m[TRACE] ${this.name}`, String(log), '\x1b[0m');
+	format = "%s " + format;
+	this.log(format, `\x1b[90m[TRACE] ${this.name}`, ...args, '\x1b[0m');
       }
     },
-    debug: (log) => {
+    debug: (format, ...args) => {
       if (!this.config.disableLogs && this.logLevel < 2) {
-	this.log(`\x1b[90m[DEBUG] ${this.name}`, String(log), '\x1b[0m');
+	format = "%s " + format;
+	this.log(format, `\x1b[90m[DEBUG] ${this.name}`, ...args, '\x1b[0m');
       }
     },
-    info: (log) => {
+    info: (format, ...args) => {
       if (this.logLevel < 3) {
-	this.log(`\x1b[35m[INFO]\x1b[0m ${this.name}`, String(log));
+	format = "%s " + format;
+	this.log(format, `\x1b[35m[INFO]\x1b[0m ${this.name}`, ...args);
       }
     },
-    warn: (log) => {
+    warn: (format, ...args) => {
       if (this.logLevel < 4) {
-	this.log(`\x1b[33m[WARN]\x1b[0m ${this.name}`, String(log));
+	format = "%s " + format;
+	this.log(format, `\x1b[33m[WARN]\x1b[0m ${this.name}`, ...args);
       }
     },
-    error: (log) => {
+    error: (format, ...args) => {
       // if (this.logLevel < 5) {
-	this.log(`\x1b[31m[ERROR]\x1b[0m ${this.name}`, String(log));
+        format = "%s " + format;
+        this.log(format, `\x1b[31m[ERROR]\x1b[0m ${this.name}`, ...args);
       // }
     }
   }

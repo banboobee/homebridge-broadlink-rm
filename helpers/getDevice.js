@@ -1,5 +1,5 @@
 const ping = require('ping');
-const broadlink = require('./broadlink');
+const broadlink = new (require('broadlinkjs-rm'));
 const delayForDuration = require('./delayForDuration');
 const dgram = require('dgram');
 const Mutex = require('await-semaphore').Mutex;
@@ -13,18 +13,8 @@ const startKeepAlive = (device, log) => {
     return;
   
   if(!device.host.port) {return;}
-  // setInterval(async () => {await device.mutex?.use(async () => {
-  //   if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
-  //   const socket = dgram.createSocket({ type:'udp4', reuseAddr:true }); 
-  //   let packet = Buffer.alloc(0x30, 0);
-  //   packet[0x26] = 0x1;
-  //   socket.send(packet, 0, packet.length, device.host.port, device.host.address, (err, bytes) => {
-  //     if (err) {log('\x1b[33m[DEBUG]\x1b[0m send keepalive packet error', err)}
-  //   });
-  //   socket.close();
-  // })}, keepAliveFrequency);
   device.ping && setInterval(async () => {
-    if(broadlink.debug < 1) log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port);
+    device.logs.trace('sending keepalive to', device.host.address,':',device.host.port);
     device.ping();
   }, keepAliveFrequency);
 }
@@ -40,23 +30,23 @@ const startPing = (device, log) => {
   device.pauseWhile && setInterval(async () => {device.pauseWhile(async () => {
     try {
       ping.sys.probe(device.host.address, (active, err) => {
-        if(broadlink.debug < 1) log(`\x1b[33m[DEBUG]\x1b[0m pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
+        device.logs.trace(`pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
         if(err){
-          log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
+          device.logs.error(`error pinging Broadlink RM device at ${device.host.address}. ${err}`);
           throw err;
         }
         
         if (!active && device.state === 'active' && device.retryCount === 2) {
-          log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
+	  broadlink.logs.warn(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
 
           device.state = 'inactive';
           device.retryCount = 0;
         } else if (!active && device.state === 'active') {
-	  if (broadlink.debug < 1) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${device.retryCount})`);}
+	  device.logs.trace(`Broadlink RM device at ${device.host.address} is no longer reachable. (attempt ${device.retryCount})`);
 
           device.retryCount += 1;
         } else if (active && device.state !== 'active') {
-          if (device.state === 'inactive') {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);}
+          if (device.state === 'inactive') broadlink.logs.info(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);
 
           device.state = 'active';
           device.retryCount = 0;
@@ -67,7 +57,7 @@ const startPing = (device, log) => {
       }, {timeout: pingTimeout});
       // await new Promise(resolve => setTimeout(resolve, 1 * 1000));
     } catch (err) {
-      log(`Error pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}): ${err}`);
+      device.logs.error(`error pinging Broadlink RM device at ${device.host.address}. ${err}`);
     }
   })}, pingFrequency);
 }
@@ -91,6 +81,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
       clearInterval(this.discoverDevicesInterval);
     });
 
+    // broadlink.discover({local_ip_address: ['0.0.0.0'], discover_ip_address: '192.168.0.255'});
     broadlink.discover();
   }
 
@@ -104,8 +95,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     }
     device.host.macAddress = macAddress;
 
-    const v = await device.getFWversion?.();
-    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
+    const v = await device.getFWversion?.(logLevel);
+    broadlink.logs.info(`Discovered ${device.model} (0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
     addDevice(device);
 
     startPing(device, log);
@@ -139,7 +130,7 @@ const getDevice = ({ host, log, learnOnly }) => {
   } else { // use the first one of no host is provided
     const hosts = Object.keys(discoveredDevices);
     if (hosts.length === 0) {
-      // log(`Send data (no devices found)`);
+      // broadlink.logs.error(`Send data (no devices found)`);
 
       return;
     }
@@ -156,15 +147,15 @@ const getDevice = ({ host, log, learnOnly }) => {
         }
       }
 
-      if (!device) {log(`Learn Code (no device found at ${host})`);}
+      if (!device) broadlink.logs.error(`Learn Code (no device found at ${host})`);
     } else {
       device = discoveredDevices[hosts[0]];
 
-      if (!device) {log(`Send data (no device found at ${host})`);}
+      if (!device) broadlink.logs.error(`Send data (no device found at ${host})`);
     }
   }
 
   return device;
 }
 
-module.exports = { getDevice, discoverDevices, addDevice };
+module.exports = { broadlink, getDevice, discoverDevices, addDevice };

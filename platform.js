@@ -4,8 +4,7 @@ const { assert } = require('chai');
 const npmPackage = require('./package.json');
 const Accessory = require('./accessories');
 // const checkForUpdates = require('./helpers/checkForUpdates');
-const broadlink = require('./helpers/broadlink');
-const { discoverDevices } = require('./helpers/getDevice');
+const { broadlink, discoverDevices } = require('./helpers/getDevice');
 
 const classTypes = {
   'air-conditioner': Accessory.AirCon,

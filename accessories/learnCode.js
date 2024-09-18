@@ -67,8 +67,8 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     
     // Get the Broadlink device
     const device = getDevice({ host, log: this.log, learnOnly: true });
-    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found)`);
-    if (!device.enterLearning) return this.logs.error(`Learn Code (IR learning not supported for device at ${host})`);
+    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found).`);
+      if (!device.enterLearning) return device.logs.error(this.logLevel, `learn Code (IR learning) not supported for device 0x${device.type.toString(16)}.`);
     
     this.currentDevice = device
     this.initialDebug = device.debug;
@@ -94,7 +94,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
       clearTimeout(this.timeout);
       this.timeout = null;
     } else {
-      this.logs.error('No data received...');
+      this.logs.log('No data received...');
       await device.cancelLearning(this.logLevel);
     }
     this.turnOffCallback();
@@ -118,9 +118,9 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     
     // Get the Broadlink device
     const device = getDevice({ host, log: this.log, learnOnly: true })
-    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found)`);
-    if (!device.enterLearning) return this.logs.error(`Learn Code (IR/RF learning not supported for device at ${host})`);
-    if (!device.enterRFSweep) return this.logs.error(`Scan RF (RF learning not supported for device (${device.type}) at ${host})`);
+    if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found).`);
+    if (!device.enterLearning) return device.logs.error(this.logLevel, `learn Code (IR/RF learning) not supported for device 0x${device.type.toString(16)}.`);
+    if (!device.enterRFSweep) return device.logs.error(this.logLevel, `scan RF (RF learning) not supported for device 0x${device.type.toString(16)}.`);
     
     this.currentDevice = device
     this.initalDebug = device.debug;
@@ -180,7 +180,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
       clearTimeout(this.timeout);
       this.timeout = null;
     } else {
-      this.logs.error('No data received...');
+      this.logs.log('No data received...');
     }
     this.turnOffCallback();
   }
