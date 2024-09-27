@@ -58,7 +58,7 @@ class HomebridgePlatform {
 
   async configureAccessory(cache) {
     // this.log(`Loading accessory from cache: ${cache.displayName} context: ${JSON.stringify(cache.context)}`);
-    this.log('Restoring existing accessory from cache:', cache.displayName);
+    this.log(`Restoring existing accessory ${cache.displayName} from cache.`);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     cachedAccessories.push(cache);

@@ -59,15 +59,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // Set config default values
     if (config.turnOnWhenOff === undefined) {config.turnOnWhenOff = config.sendOnWhenOff || false;} // Backwards compatible with `sendOnWhenOff`
     if (config.minimumAutoOnOffDuration === undefined) {config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120;} // Backwards compatible with `autoMinimumDuration`
-    config.minTemperature = config.minTemperature || -15;
-    config.maxTemperature = config.maxTemperature || 50;
-    config.tempStepSize = config.tempStepSize || 1;
-    if(config.mqttURL) {
-      //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
-      config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
-    } else {
-      config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
-    }
+    config.minTemperature = config.minTemperature || 10;	// HAP default
+    config.maxTemperature = config.maxTemperature || 38;	// HAP default
+    config.tempStepSize = config.tempStepSize || 1;	// HAP default: 0.1
+    config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 300;
+    // if(config.mqttURL) {
+    //   //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
+    //   config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
+    // } else {
+    //   config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
+    // }
     config.units = config.units ? config.units.toLowerCase() : 'c';
     config.temperatureAdjustment = config.temperatureAdjustment || 0;
     config.humidityAdjustment = config.humidityAdjustment || 0;
@@ -479,26 +480,40 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (pseudoDeviceTemperature !== undefined) {return;}
 
     //Force file devices to a minimum 1 minute refresh
-    if (temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
+    // if (temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
 
-    const device = getDevice({ host, log });
+    // const device = getDevice({ host, log });
 
     // Try again in a second if we don't have a device yet
-    if (!device) {
+    // if (!device) {
+    //   this.logs.trace(`monitorTemperature: waiting device ${host} to be ready for 1 sec.`);
+    //   await delayForDuration(1);
+
+    //   this.monitorTemperature();
+
+    //   return;
+    // }
+
+    let device;
+    for (let i = 0; !device; i++) {
+      if (device = getDevice({ host, log }))
+	break;
+      if (i > 10) {
+	this.logs.error(`disabled temperature/humidity monitoring. device ${host} not responding.`);
+	return;
+      }
+      this.logs.trace(`waiting device ${host} to be ready for 1 sec. attempt:${i+1}`);
       await delayForDuration(1);
-
-      this.monitorTemperature();
-
-      return;
     }
-
-    this.logs.trace(`monitorTemperature`);
+    this.logs.trace(`monitorTemperature: device ${host} ready.`);
 
     device.on('temperature', this.onTemperature.bind(this));
     // device.checkTemperature(logLevel);
 
-    this.updateTemperatureUI();
-    if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
+    // this.updateTemperatureUI();
+    // if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
+    this.logs.info(`updating temperature/humidity every ${config.temperatureUpdateFrequency} secs.`);
+    if (!config.isUnitTest) setInterval(this.getCurrentTemperature.bind(this), config.temperatureUpdateFrequency * 1000);
   }
 
   async onTemperature(temperature, humidity) {
@@ -610,8 +625,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    device.checkTemperature(logLevel);
-    this.logs.trace(`updateTemperature: requested temperature from device, waiting`);
+    if (device.checkTemperature) {
+      device.checkTemperature(logLevel);
+      this.logs.trace(`updateTemperature: requested temperature from device, waiting`);
+    } else {
+      this.logs.error(`unable to get temperature. checkTemperature/Humidity not supported for device 0x${device.type.toString(16)}.`);
+    }
   }
 
   updateTemperatureFromFile () {
@@ -661,30 +680,30 @@ class AirConAccessory extends BroadlinkRMAccessory {
     });
   }
 
-  updateTemperatureUI () {
-    const { config, serviceManager } = this;
-    const { noHumidity } = config;
+  // updateTemperatureUI () {
+  //   const { config, serviceManager } = this;
+  //   const { noHumidity } = config;
 
-    if (!Number.isNaN(Number(this.state.currentTemperature))) {
-      serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
-    }
-    if (!noHumidity && !Number.isNaN(Number(this.state.currentHumidity))) {
-      serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
-    }
-  }
+  //   if (!Number.isNaN(Number(this.state.currentTemperature))) {
+  //     serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
+  //   }
+  //   if (!noHumidity && !Number.isNaN(Number(this.state.currentHumidity))) {
+  //     serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
+  //   }
+  // }
 
-  getCurrentTemperature (callback) {
+  getCurrentTemperature (callback = undefined) {
     const { config, host, logLevel, log, name, state } = this;
     const { pseudoDeviceTemperature } = config;
 
     // Some devices don't include a thermometer and so we can use `pseudoDeviceTemperature` instead
     if (pseudoDeviceTemperature !== undefined) {
       this.logs.trace(`getCurrentTemperature: using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config`);
-      return callback(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
+      return callback?.(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
     }
 
-    this.logs.trace(`getCurrentTemperature: ${state.currentTemperature}`);
-    callback(Number.isNaN(Number(this.state.currentTemperature)), state.currentTemperature);
+    this.logs.trace(`getCurrentTemperature: ${state.currentTemperature}${callback ? '*' : ''}`);
+    callback?.(Number.isNaN(Number(this.state.currentTemperature)), state.currentTemperature);
 
     this.updateTemperature();
   }
@@ -693,7 +712,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, host, logLevel, log, name, state } = this;
     const { pseudoDeviceTemperature } = config;
 
-    this.logs.trace(`getCurrentHumidity: ${state.currentHumidity}`);
+    this.logs.trace(`getCurrentHumidity: ${state.currentHumidity}*`);
     return callback(Number.isNaN(Number(this.state.currentHumidity)), state.currentHumidity);
   }
 
@@ -1084,7 +1103,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager
       .getCharacteristic(Characteristic.TargetTemperature)
-      .setProps({
+      .setProps({	// safe to be undefined
         minValue: config.minTemperature,
         maxValue: config.maxTemperature,
         minStep: config.tempStepSize || 1

@@ -82,7 +82,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
         // return;
       }
 
-      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
+      log(`${accessory.type} accessory ${accessory.name}${accessory.subType ? " with type "+accessory.subType : ""} ready.`);
       accessories.push(homeKitAccessory);
     });
 

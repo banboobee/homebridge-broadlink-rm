@@ -238,11 +238,11 @@ class HomebridgeAccessory {
 
       setTimeout(() => {
         this.isReloadingState = false;
-
-        this.logs.info(`Accessory Ready`);
+	
+        this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
       }, (resendDataAfterReloadDelay * 1000) + 300);
     } else {
-      this.logs.info(`Accessory Ready`);
+	this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
     }
   }
 

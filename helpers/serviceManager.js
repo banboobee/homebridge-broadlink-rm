@@ -11,7 +11,7 @@ class ServiceManager {
     this.log = log
     this.names = {};
     
-    this.accessory = cachedAccessories.find((cache) => cache.UUID == uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
+    this.accessory = cachedAccessories.find((cache) => cache.UUID === uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
     // this.service = new serviceType(name);
     this.accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
