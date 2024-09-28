@@ -18,7 +18,7 @@
   ],
   "engines": {
     "node": ">=7.6.0",
-    "homebridge": ">=1.4.1"
+    "homebridge": ">=1.4.1 || ^2.0.0-beta.0"
   },
   "author": {
     "name": "banboobee"
@@ -32,7 +32,7 @@
     "await-semaphore": "^0.1.3",
     "broadlinkjs-rm": "github:banboobee/broadlinkjs-rm",
     "chai": "^4.3.7",
-    "fakegato-history": "^0.6.5",
+    "fakegato-history": "github:banboobee/fakegato-history",
     "homebridge-lib": "^6.6.3",
     "find-key": "^2.1.3",
     "mqtt": "^4.3.7",
