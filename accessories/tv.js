@@ -87,7 +87,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       this.pingGraceTimeout = null;
     }
     
-	  if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
+    if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
       this.serviceManager.setCharacteristic(Characteristic.Active, false);
     }
   }
@@ -224,19 +224,52 @@ class TVAccessory extends BroadlinkRMAccessory {
     // log(`${name} select input source to ${data.inputs[newValue].name}(${newValue}).`);
   }
   
+  async onMQTTMessage (identifier, message) {
+    const { state, logLevel, log, name, config } = this;
+    const mqttStateOnly = config.mqttStateOnly === false ? false : true;
+    this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
+
+    if (identifier.toLowerCase() === 'power' || identifier.toLowerCase() === 'active') {
+      let power = message.toLowerCase() === 'on' ? true : false;
+      this.reset();
+      if (mqttStateOnly) {
+	this.serviceManager.updateCharacteristic(Characteristic.Active, power);
+      } else {
+	this.serviceManager.setCharacteristic(Characteristic.Active, power);
+      }
+      this.logs.debug(`onMQTTMessage: set Active to ${this.state.switchState}.`);
+      return;
+    }
+    if (identifier.toLowerCase() === 'source' || identifier.toLowerCase() === 'activeidentifier') {
+      let index = this.config.data.inputs.findIndex(x => x?.name?.toLowerCase() === message.toLowerCase());
+      if (index > 0 && index < this.config.data.inputs.length) {
+	// this.reset();
+	if (mqttStateOnly) {
+	  this.serviceManager.updateCharacteristic(Characteristic.ActiveIdentifier, index);
+	} else {
+	  this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, index);
+	}
+	this.logs.debug(`onMQTTMessage: set ActiveIdentifier to ${this.state.currentInput}.`);
+      } else {
+	this.logs.error(`onMQTTMessage: Unknown source ${message}.`);
+      }
+      return;
+    }
+  }
+
   setupServiceManager() {
     const { data, name, config, serviceManagerType, log } = this;
     const { on, off } = data || {};
     let { subType } = config;
 
     if (!subType) {
-      subType = Accessory.Categories.TELEVISION;
+      subType = HomebridgeAPI.hap.Categories.TELEVISION;
     } else if (subType.toLowerCase() === 'stb') {
-      subType = Accessory.Categories.TV_SET_TOP_BOX;
+      subType = HomebridgeAPI.hap.Categories.TV_SET_TOP_BOX;
     } else if (subType.toLowerCase() === 'receiver') {
-      subType = Accessory.Categories.AUDIO_RECEIVER;
+      subType = HomebridgeAPI.hap.Categories.AUDIO_RECEIVER;
     } else if (subType.toLowerCase() === 'stick') {
-      subType = Accessory.Categories.TV_STREAMING_STICK;
+      subType = HomebridgeAPI.hap.Categories.TV_STREAMING_STICK;
     }
 
     // this.serviceManagers = [];
@@ -246,6 +279,18 @@ class TVAccessory extends BroadlinkRMAccessory {
       log,
       subType
     );
+
+    this.state = persistentState.load({ host: config.host, name }) || {};
+    Object.keys(this.state)
+      .map(x => x.match(/^inputs\/.+\/.+$/)?.[0])
+      .filter(x => x)
+      .forEach(x => {
+	const source = x.match(/^inputs\/(.+)\/(.+)$/);
+	if (!this.config?.data?.inputs.find(y => source[1] === y.name)) {
+          this.logs.info(`removed ${source[2]} of unknown input source ${source[1]}.`);
+	  delete this.state[x];
+	}
+      })
 
     this.serviceManager.setCharacteristic(Characteristic.ConfiguredName, name);
 
@@ -266,6 +311,14 @@ class TVAccessory extends BroadlinkRMAccessory {
         setValuePromise: this.setSwitchState.bind(this)
       }
     });
+    this.serviceManager.getCharacteristic(Characteristic.Active)
+      .on('change', async function (event) {
+	if (event.newValue !== event.oldValue) {
+	  const value = event.newValue;
+	  await this.mqttpublish('Power', value ? "on" : "off");
+	  await this.mqttpublish('Source', this.config.data.inputs[this.state.currentInput].name);
+	}
+      }.bind(this))
 
     this.serviceManager.addToggleCharacteristic({
       name: 'currentInput',
@@ -278,34 +331,13 @@ class TVAccessory extends BroadlinkRMAccessory {
 	ignorePreviousValue: true
       }
     });
-
-    // this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 1);
-
-    // this.serviceManager
-    //   .getCharacteristic(Characteristic.ActiveIdentifier)
-    //   .on('get', (callback) => {
-    //     //console.log(`${name} Input: get ${this.state.input}.`);
-    // 	callback(null, this.state.input || 0);
-    //   })
-    //   .on('set', (newValue, callback) => {
-    //     if (
-    //       !data ||
-    //       !data.inputs ||
-    //       !data.inputs[newValue] ||
-    //       !data.inputs[newValue].data
-    //     ) {
-    //       log(`${name} Input: No input data found. Ignoring request.`);
-    //       callback(null);
-    //       return;
-    //     }
-
-    //     this.state.input = newValue;
-    // 	//this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, newValue);
-    //     this.performSend(data.inputs[newValue].data);
-
-    //     callback(null);
-    //     console.log(`${name} Input: set to ${newValue}.`);
-    //   });
+    this.serviceManager.getCharacteristic(Characteristic.ActiveIdentifier)
+      .on('change', async function (event) {
+	if (event.newValue !== event.oldValue) {
+	  const value = event.newValue;
+	  await this.mqttpublish('Source', this.config.data.inputs[value].name);
+	}
+      }.bind(this))
 
     this.serviceManager
       .getCharacteristic(Characteristic.RemoteKey)
@@ -477,37 +509,102 @@ class TVAccessory extends BroadlinkRMAccessory {
     // this.serviceManagers.push(speakerService);
 
     if (data.inputs && data.inputs instanceof Array) {
-      for (let i = 0; i < data.inputs.length; i++) {
+      data.inputs.unshift(undefined);
+      for (let i = 1; i < data.inputs.length; i++) {
         const input = data.inputs[i];
-        // const inputService = new Service.InputSource(`input${i}`, `input${i}`);
         // const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
         const inputService = this.serviceManager.accessory.addService(Service.InputSource, `${name} input${i}`, `${name} input${i}`);
 
+	const visibility = this.state[`inputs/${input.name}/VisibilityState`] ?? Characteristic.CurrentVisibilityState.SHOWN;
+	if (visibility === Characteristic.CurrentVisibilityState.HIDDEN) {
+	  this.logs.warn(`hiding input source '${input.name}'.`);
+	}
+	const configuredName = this.state[`inputs/${input.name}/ConfiguredName`] ?? input.name;
+	if (configuredName !== input.name) {
+	  this.logs.info(`displaying input source '${input.name}' as '${configuredName}'.`);
+	}
+	
         inputService
           .setCharacteristic(Characteristic.Identifier, i)
-          .setCharacteristic(Characteristic.ConfiguredName, input.name)
+          .setCharacteristic(Characteristic.ConfiguredName, configuredName)
           .setCharacteristic(
             Characteristic.IsConfigured,
             Characteristic.IsConfigured.CONFIGURED
           )
           .setCharacteristic(
-            Characteristic.InputSourceType,
-            getInputType(input.type)
-          );
+	    Characteristic.InputSourceType,
+	    this.getInputType(input.type)
+	  )
+	  .setCharacteristic(Characteristic.TargetVisibilityState, visibility)
+	  .setCharacteristic(Characteristic.CurrentVisibilityState, visibility);
 
+        inputService.getCharacteristic(Characteristic.TargetVisibilityState)
+	  .onSet(state => {
+	    const current = inputService.getCharacteristic(Characteristic.CurrentVisibilityState).value;
+            this.logs.debug(`${input.name} setCurrentVisibilityState: ${state}`);
+	    this.state[`inputs/${input.name}/VisibilityState`] = state;
+	    if (state === Characteristic.CurrentVisibilityState.SHOWN) {
+	      delete this.state[`inputs/${input.name}/VisibilityState`];
+	    }
+	    inputService.updateCharacteristic(Characteristic.CurrentVisibilityState, state);
+	  })
+        inputService.getCharacteristic(Characteristic.ConfiguredName)
+	  .onSet(update => {
+	    const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
+	    if (update !== current) {
+              this.logs.debug(`${input.name} setConfiguredName: ${update}`);
+	      this.state[`inputs/${input.name}/ConfiguredName`] = update;
+	      if (update === input.name) {
+		delete this.state[`inputs/${input.name}/ConfiguredName`];
+	      }
+	    }
+	  })
+	  .onGet(() => {
+	    const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
+            this.logs.trace(`${input.name} getConfiguredName: ${current}`);
+	    return current;
+	  })
+	
         // this.serviceManagers.push(inputService);
         this.serviceManager.service.addLinkedService(inputService);
       }
+
+      const displayOrder = this.IdentifiersOrder(data.inputs.map((x, y) => y));
+      // console.log(displayOrder);
+      this.serviceManager.service.setCharacteristic(Characteristic.DisplayOrder, displayOrder);
     }
   }
-}
 
-function getInputType(type) {
-  if (!type) {
-    return 0;
+  IdentifiersOrder(listOfIdentifiers) {
+    const DisplayOrderTypes = {
+      ARRAY_ELEMENT_START: 0x01,
+      ARRAY_ELEMENT_END: 0x00
+    }
+    let identifiersTLV = Buffer.alloc(0);
+    listOfIdentifiers.forEach((identifier, index) => {
+      if (index !== 0) {
+	identifiersTLV = Buffer.concat([
+          identifiersTLV,
+          HomebridgeAPI.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_END, Buffer.alloc(0)),
+	]);
+      }
+      
+      const element = Buffer.alloc(4);
+      element.writeUInt32LE(identifier, 0);
+      identifiersTLV = Buffer.concat([
+	identifiersTLV,
+	HomebridgeAPI.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_START, element),
+      ]);
+    });
+    return identifiersTLV.toString('base64');
   }
-
-  switch (type.toLowerCase()) {
+  
+  getInputType(type) {
+    if (!type) {
+      return 0;
+    }
+    
+    switch (type.toLowerCase()) {
     case 'other':
       return 0;
     case 'home_screen':
@@ -530,6 +627,7 @@ function getInputType(type) {
       return 9;
     case 'application':
       return 10;
+    }
   }
 }
 
