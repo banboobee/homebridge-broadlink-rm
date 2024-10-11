@@ -354,10 +354,13 @@ class HomebridgeAccessory {
       this.isMQTTConnecting = false;
     }, 2000)
 
-    mqttClient.on('connect', () => {
+    mqttClient.on('connect', (packet) => {
       this.isMQTTConnecting = false;
 
-      this.logs.info(`MQTT client connected.`);
+      if (process.uptime() < 600) { // Only use console during startup
+	this.logs.info(`connected to MQTT broker ${mqttURL}.`);
+	this.logs.trace(`packet: ${JSON.stringify(packet, null, 2)}`);
+      }
 
       [... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
 	this.logs.info(`subscribes MQTT topic ${x}.`);
@@ -366,8 +369,27 @@ class HomebridgeAccessory {
 
     })
 
-    mqttClient.on('error', () => {
-      this.isMQTTConnecting = false;
+    mqttClient.on('disconnect', (packet) => {
+      this.logs.warn(`disconnected from MQTT broker ${mqttURL}. packet: ${JSON.stringify(packet, null, 2)}`);
+      this.isMQTTConnecting = true;
+    })
+
+    mqttClient.on('reconnect', () => {
+      this.logs.warn(`reconnecting to MQTT broker ${mqttURL}.`);
+      this.isMQTTConnecting = true;
+    })
+
+    mqttClient.on('error', (e) => {
+      this.logs.error(`failed to connect MQTT broker ${mqttURL}. ${e}`);
+    })
+
+    mqttClient.on('close', () => {
+      this.logs.info(`closed connection to MQTT broker ${mqttURL}.`);
+      this.isMQTTConnecting = true;
+    })
+
+    HomebridgeAPI.on('shutdown', async () => {
+      this.mqttClient.end();
     })
 
     mqttClient.on('message', (topic, message) => {

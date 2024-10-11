@@ -702,7 +702,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return callback?.(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
     }
 
-    this.logs.trace(`getCurrentTemperature: ${state.currentTemperature}${callback ? '*' : ''}`);
+    this.logs.trace(`${callback ? '*' : ''}getCurrentTemperature: ${state.currentTemperature}`);
     callback?.(Number.isNaN(Number(this.state.currentTemperature)), state.currentTemperature);
 
     this.updateTemperature();
@@ -712,7 +712,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, host, logLevel, log, name, state } = this;
     const { pseudoDeviceTemperature } = config;
 
-    this.logs.trace(`getCurrentHumidity: ${state.currentHumidity}*`);
+    this.logs.trace(`*getCurrentHumidity: ${state.currentHumidity}`);
     return callback(Number.isNaN(Number(this.state.currentHumidity)), state.currentHumidity);
   }
 
