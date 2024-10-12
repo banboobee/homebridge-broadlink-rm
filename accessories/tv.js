@@ -287,7 +287,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       .forEach(x => {
 	const source = x.match(/^inputs\/(.+)\/(.+)$/);
 	if (!this.config?.data?.inputs.find(y => source[1] === y.name)) {
-          this.logs.info(`removed ${source[2]} of unknown input source ${source[1]}.`);
+          this.logs.debug(`removed ${source[2]} of unknown input source ${source[1]}.`);
 	  delete this.state[x];
 	}
       })
@@ -517,11 +517,11 @@ class TVAccessory extends BroadlinkRMAccessory {
 
 	const visibility = this.state[`inputs/${input.name}/VisibilityState`] ?? Characteristic.CurrentVisibilityState.SHOWN;
 	if (visibility === Characteristic.CurrentVisibilityState.HIDDEN) {
-	  this.logs.warn(`hiding input source '${input.name}'.`);
+	  this.logs.debug(`hiding input source '${input.name}'.`);
 	}
 	const configuredName = this.state[`inputs/${input.name}/ConfiguredName`] ?? input.name;
 	if (configuredName !== input.name) {
-	  this.logs.info(`displaying input source '${input.name}' as '${configuredName}'.`);
+	  this.logs.debug(`displaying input source '${input.name}' as '${configuredName}'.`);
 	}
 	
         inputService

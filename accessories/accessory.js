@@ -28,37 +28,37 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     // this.model = 'RM Mini or Pro';
     // this.serialNumber = uuid.v4();
 
-    //Set LogLevel
-    switch(this.config.logLevel){
-      case 'none':
-        this.logLevel = 6;
-        break;
-      case 'critical':
-        this.logLevel = 5;
-        break;
-      case 'error':
-        this.logLevel = 4;
-        break;
-      case 'warning':
-        this.logLevel = 3;
-        break;
-      case 'info':
-        this.logLevel = 2;
-        break;
-      case 'debug':
-        this.logLevel = 1;
-        break;
-      case 'trace':
-        this.logLevel = 0;
-        break;
-      default:
-        //default to 'info':
-        if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
-        this.logLevel = 2;
-        break;
-    }
-    if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    // if(this.config.disableLogs) {this.logLevel = 6;}  
+    // //Set LogLevel
+    // switch(this.config.logLevel){
+    //   case 'none':
+    //     this.logLevel = 6;
+    //     break;
+    //   case 'critical':
+    //     this.logLevel = 5;
+    //     break;
+    //   case 'error':
+    //     this.logLevel = 4;
+    //     break;
+    //   case 'warning':
+    //     this.logLevel = 3;
+    //     break;
+    //   case 'info':
+    //     this.logLevel = 2;
+    //     break;
+    //   case 'debug':
+    //     this.logLevel = 1;
+    //     break;
+    //   case 'trace':
+    //     this.logLevel = 0;
+    //     break;
+    //   default:
+    //     //default to 'info':
+    //     if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
+    //     this.logLevel = 2;
+    //     break;
+    // }
+    // if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
+    // // if(this.config.disableLogs) {this.logLevel = 6;}  
   }
 
   performSetValueAction ({ host, data, log, name, logLevel }) {
