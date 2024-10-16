@@ -205,7 +205,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   //   return services;
   // }
 
-  async setInputSource() {
+  async setInputSource(on, previous) {
     const { data, host, log, name, logLevel } = this;
     const newValue = this.state.currentInput;
   
@@ -215,7 +215,8 @@ class TVAccessory extends BroadlinkRMAccessory {
         !data.inputs[newValue] ||
         !data.inputs[newValue].data
     ) {
-      this.logs.error(`Input: No input data found. Ignoring request.`);
+      this.logs.error(`Input: No input data found. Ignoring request ${newValue}.`);
+      this.state.currentInput = previous;
       return;
     }
   
@@ -316,7 +317,9 @@ class TVAccessory extends BroadlinkRMAccessory {
 	if (event.newValue !== event.oldValue) {
 	  const value = event.newValue;
 	  await this.mqttpublish('Power', value ? "on" : "off");
-	  await this.mqttpublish('Source', this.config.data.inputs[this.state.currentInput].name);
+	  if (this.state.currentInput > 0 && this.state.currentInput < this.config?.data?.inputs?.length) {
+	    await this.mqttpublish('Source', this.config.data.inputs[this.state.currentInput].name);
+	  }
 	}
       }.bind(this))
 
@@ -335,7 +338,9 @@ class TVAccessory extends BroadlinkRMAccessory {
       .on('change', async function (event) {
 	if (event.newValue !== event.oldValue) {
 	  const value = event.newValue;
-	  await this.mqttpublish('Source', this.config.data.inputs[value].name);
+	  if (value > 0 && value < this.config?.data?.inputs?.length) {
+	    await this.mqttpublish('Source', this.config.data.inputs[value].name);
+	  }
 	}
       }.bind(this))
 
