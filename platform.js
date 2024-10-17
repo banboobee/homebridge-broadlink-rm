@@ -30,12 +30,10 @@ const classTypes = {
   'heater-cooler': Accessory.HeaterCooler
 }
 
-let homebridgeRef
-
 const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
-  constructor (log, config = {}) {
-    super(log, config, homebridgeRef);
+  constructor (log, config = {}, homebridge) {
+    super(log, config, homebridge);
   }
 
   addAccessories (accessories) {
@@ -158,10 +156,6 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       log('')
     }, 1500)
   }
-}
-
-BroadlinkRMPlatform.setHomebridge = (homebridge) => {
-  homebridgeRef = homebridge
 }
 
 module.exports = BroadlinkRMPlatform

@@ -12,7 +12,5 @@ module.exports = (homebridge) => {
   global.Accessory = homebridge.hap.Accessory;
   global.Characteristic = homebridge.hap.Characteristic;
 
-  BroadlinkRMPlatform.setHomebridge(homebridge);
-
   homebridge.registerPlatform("homebridge-broadlink-rm", "BroadlinkRM", BroadlinkRMPlatform);
 }
