@@ -2,32 +2,28 @@ const { HomebridgePlatform } = require('./base');
 const { assert } = require('chai');
 
 const npmPackage = require('./package.json');
-const Accessory = require('./accessories');
 // const checkForUpdates = require('./helpers/checkForUpdates');
 const { broadlink, discoverDevices } = require('./helpers/getDevice');
 
 const classTypes = {
-  'air-conditioner': Accessory.AirCon,
-  'air-purifier': Accessory.AirPurifier,
-  'humidifier-dehumidifier': Accessory.HumidifierDehumidifier,
-  'learn-ir': Accessory.LearnCode,
-  'learn-code': Accessory.LearnCode,
-  'switch': Accessory.Switch,
-  'garage-door-opener': Accessory.GarageDoorOpener,
-  'lock': Accessory.Lock,
-  'switch-multi': Accessory.SwitchMulti,
-  'switch-multi-repeat': Accessory.SwitchMultiRepeat,
-  'switch-repeat': Accessory.SwitchRepeat,
-  'fan': Accessory.Fan,
-  'fanv1': Accessory.Fanv1,
-  'outlet': Accessory.Outlet,
-  'light': Accessory.Light,
-  'window': Accessory.Window,
-  'window-covering': Accessory.WindowCovering,
-  'tv': Accessory.TV,
-  'temperatureSensor': Accessory.TemperatureSensor,
-  'humiditySensor': Accessory.HumiditySensor,
-  'heater-cooler': Accessory.HeaterCooler
+  'air-conditioner': require('./accessories/aircon'),
+  'air-purifier': require('./accessories/air-purifier'),
+  'humidifier-dehumidifier': require('./accessories/humidifier-dehumidifier'),
+  'learn-ir': require('./accessories/learnCode'),
+  'learn-code': require('./accessories/learnCode'),
+  'switch': require('./accessories/switch'),
+  'garage-door-opener': require('./accessories/garageDoorOpener'),
+  'lock': require('./accessories/lock'),
+  'fan': require('./accessories/fan'),
+  'fanv1': require('./accessories/fanv1'),
+  'outlet': require('./accessories/outlet'),
+  'light': require('./accessories/light'),
+  'window': require('./accessories/window'),
+  'window-covering': require('./accessories/windowCovering'),
+  'tv': require('./accessories/tv'),
+  'temperatureSensor': require('./accessories/temperatureSensor.js'),
+  'humiditySensor': require('./accessories/humiditySensor.js'),
+  'heater-cooler': require('./accessories/heater-cooler')
 }
 
 const BroadlinkRMPlatform = class extends HomebridgePlatform {
