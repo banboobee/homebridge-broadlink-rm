@@ -1,23 +1,43 @@
+// const ServiceManager = require('../helpers/serviceManager');
 const persistentState = require('./helpers/persistentState');
 const mqtt = require('mqtt');
 
 class HomebridgeAccessory {
 
-  constructor(log, config = {}, serviceManagerType = 'ServiceManager') {
-    this.serviceManagerType = serviceManagerType;
-
+  static isUnitTest = false;
+  // static ServiceManager = ServiceManager;
+  constructor(log, config = {}, platform){
+    if (this.constructor.isUnitTest) {
+      this.serviceManagerType = 'FakeServiceManager';
+    } else {
+      this.serviceManagerType = 'ServiceManager';
+    }
+    // if (this.constructor.ServiceManager === ServiceManager) {
+    //   this.isUnitTest = false;
+    // } else {
+    //   this.isUnitTest = true;
+    // }
+    // this.serviceManagerType = this.constructor.ServiceManager;
+    
     let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
     // this.log = (!disableLogs && log) ? log : () => { };
     this.log = log;
     this.logLevel ??= 2; //Default to info
     this.config = config;
+    this.platform = platform;
 
     this.host = host;
     this.name = name;
     this.data = data;
 
     this.state = {}
+
+    // short cuts
+    this.Service = platform.api.hap.Service;
+    this.Accessory = platform.api.hap.Accessory;
+    this.Characteristic = platform.api.hap.Characteristic;
+    this.Categories = platform.api.hap.Categories;
 
     //Set LogLevel
     switch (this.config.logLevel) {

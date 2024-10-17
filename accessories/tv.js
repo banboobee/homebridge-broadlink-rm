@@ -7,8 +7,8 @@ const BroadlinkRMAccessory = require('./accessory');
 const persistentState = require('../base/helpers/persistentState');
 
 class TVAccessory extends BroadlinkRMAccessory {
-  constructor(log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor(log, config = {}, platform) {
+    super(log, config, platform);
 
     if (!config.isUnitTest) {this.checkPing(ping);}
     this.lastPingResponse = undefined;
@@ -264,16 +264,17 @@ class TVAccessory extends BroadlinkRMAccessory {
     let { subType } = config;
 
     if (!subType) {
-      subType = HomebridgeAPI.hap.Categories.TELEVISION;
+      subType = this.Categories.TELEVISION;
     } else if (subType.toLowerCase() === 'stb') {
-      subType = HomebridgeAPI.hap.Categories.TV_SET_TOP_BOX;
+      subType = this.Categories.TV_SET_TOP_BOX;
     } else if (subType.toLowerCase() === 'receiver') {
-      subType = HomebridgeAPI.hap.Categories.AUDIO_RECEIVER;
+      subType = this.Categories.AUDIO_RECEIVER;
     } else if (subType.toLowerCase() === 'stick') {
-      subType = HomebridgeAPI.hap.Categories.TV_STREAMING_STICK;
+      subType = this.Categories.TV_STREAMING_STICK;
     }
 
     // this.serviceManagers = [];
+    // this.serviceManager = new this.serviceManagerType(
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](
       name,
       Service.Television,

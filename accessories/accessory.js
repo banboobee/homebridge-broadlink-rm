@@ -9,7 +9,7 @@ const { getDevice } = require('../helpers/getDevice');
 
 class BroadlinkRMAccessory extends HomebridgeAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
+  constructor(log, config = {}, platform) {
     if (!config.name) {config.name = "Unknown Accessory"}
 
     config.resendDataAfterReload = config.resendHexAfterReload;
@@ -21,7 +21,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       }
     }
 
-    super(log, config, serviceManagerType);
+    super(log, config, platform);
     if (config.debug) {this.debug = true}
 
     // this.manufacturer = 'Broadlink';

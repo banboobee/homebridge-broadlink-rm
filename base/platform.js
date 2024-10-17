@@ -8,7 +8,11 @@ class HomebridgePlatform {
   constructor (log, config = {}, homebridge) {
     this.log = log;
     this.config = config;
-    this.homebridge = homebridge;
+    // this.homebridge = homebridge;
+    this.api = homebridge;
+    this.cachedAccessories = cachedAccessories;
+    this.eve = eve;
+    this.HistoryService = HistoryService;
 
     const { homebridgeDirectory } = config;
 

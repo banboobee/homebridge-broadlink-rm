@@ -64,7 +64,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       if (accessory.disabled) {return;}
       if (!classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
 
-      const homeKitAccessory = new classTypes[accessory.type](log, accessory);
+      const homeKitAccessory = new classTypes[accessory.type](log, accessory, this);
 
       if (classTypes[accessory.type] === classTypes.tv) {
 	// if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
