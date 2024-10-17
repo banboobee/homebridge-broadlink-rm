@@ -119,13 +119,13 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	    
 	    if (j < sendCount) {
 	      await new Promise(resolve => setTimeout(resolve, interval * 1000));
-	      if (logLevel < 2) log(`${name} interval (${host}) ${interval * 1000} ms`);
+	      this.logs.debug(`repeating #${j+1} with intervals of ${interval * 1000} ms.`);
 	    }
 	  }
 	  
           if (pause) {
 	    await new Promise(resolve => setTimeout(resolve, pause * 1000));
-	    if (logLevel < 2) log(`${name} pause (${device.host.address}; ${device.host.macAddress}) ${pause * 1000} ms`);
+	    this.logs.debug(`pausing ${pause * 1000} ms.`);
           }
 	}
       }
