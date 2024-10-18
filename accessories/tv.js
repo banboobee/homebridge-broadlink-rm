@@ -1,4 +1,3 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const ping = require('../helpers/ping');
@@ -274,8 +273,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     }
 
     // this.serviceManagers = [];
-    // this.serviceManager = new this.serviceManagerType(
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](
+    this.serviceManager = new this.serviceManagerClass(
       name,
       Service.Television,
       log,

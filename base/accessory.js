@@ -1,23 +1,19 @@
-// const ServiceManager = require('../helpers/serviceManager');
+const ServiceManager = require('../helpers/serviceManager');
 const persistentState = require('./helpers/persistentState');
 const mqtt = require('mqtt');
 
 class HomebridgeAccessory {
 
-  static isUnitTest = false;
-  // static ServiceManager = ServiceManager;
+  static ServiceManagerClass = ServiceManager;
   constructor(log, config = {}, platform){
-    if (this.constructor.isUnitTest) {
-      this.serviceManagerType = 'FakeServiceManager';
-    } else {
+    if (this.constructor.ServiceManagerClass === ServiceManager) {
+      this.isUnitTest = false;
       this.serviceManagerType = 'ServiceManager';
+    } else {
+      this.isUnitTest = true;
+      this.serviceManagerType = 'FakeServiceManager';
     }
-    // if (this.constructor.ServiceManager === ServiceManager) {
-    //   this.isUnitTest = false;
-    // } else {
-    //   this.isUnitTest = true;
-    // }
-    // this.serviceManagerType = this.constructor.ServiceManager;
+    this.serviceManagerClass = this.constructor.ServiceManagerClass;
     
     let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
