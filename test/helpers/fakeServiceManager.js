@@ -2,7 +2,7 @@ const assert = require('assert')
 const ServiceManager = require('../../helpers/serviceManager')
 
 class FakeServiceManager extends ServiceManager {
-
+  static isUnitTest = true;
   constructor (name, serviceType, log) {
     super(name, serviceType, log)
 
@@ -87,7 +87,7 @@ class FakeCharacteristic {
   }
 
   setProps () {
-    
+    return {on: () => {}};
   }
 }
 

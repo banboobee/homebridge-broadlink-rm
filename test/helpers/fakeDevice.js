@@ -2,7 +2,7 @@ const uuid = require('uuid')
 
 class FakeDevice {
 
-  constructor () {
+  constructor (log) {
     const identifier = uuid.v4()
 
     this.host = {
@@ -15,6 +15,8 @@ class FakeDevice {
     this.isUnitTestDevice = true;
 
     this.resetSentHexCodes();
+
+    this.log = log;
   }
 
   resetSentHexCodes () {
@@ -57,6 +59,15 @@ class FakeDevice {
 
   checkTemperature () {
     
+  }
+
+  logs = {
+    debug: (level, ...args) => {
+      this.log(...args);
+    },
+    error: (level, ...args) => {
+      this.log(...args);
+    }
   }
 }
 

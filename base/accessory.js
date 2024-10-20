@@ -185,7 +185,7 @@ class HomebridgeAccessory {
       }
       // callback(null);
     } catch (err) {
-      this.logs.error('setCharacteristicValue error:', err.message);
+      this.logs.error('setCharacteristicValue error:', err);
       // callback(err)
     }
   }
@@ -225,6 +225,7 @@ class HomebridgeAccessory {
     // Set defaults
     if (persistState === undefined) {persistState = true;}
     if (!resendDataAfterReloadDelay) {resendDataAfterReloadDelay = 2}
+    this.serviceManager.state = this.state;
 
     if (!persistState) {return;}
 

@@ -6,18 +6,21 @@ class ServiceManager {
     assert(name, 'ServiceManager requires a "name" to be provided.')
     assert(serviceType, 'ServiceManager requires the "type" to be provided.')
     assert(log, 'ServiceManager requires "log" to be provided.')
-    const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
     
     this.log = log
     this.names = {};
     
-    this.accessory = cachedAccessories.find((cache) => cache.UUID === uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
-    // this.service = new serviceType(name);
-    this.accessory.getService(Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
-      .setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
-      .setCharacteristic(Characteristic.SerialNumber, uuid);
-    this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
+    if (this.constructor.isUnitTest) {
+      this.service = new serviceType(name);
+    } else {
+      const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
+      this.accessory = cachedAccessories.find((cache) => cache.UUID === uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
+      this.accessory.getService(Service.AccessoryInformation)
+	.setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
+	.setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
+	.setCharacteristic(Characteristic.SerialNumber, uuid);
+      this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
+    }
     this.characteristics = {}
 
     this.addNameCharacteristic(name);
@@ -39,11 +42,15 @@ class ServiceManager {
   }
 
   refreshCharacteristicUI (characteristic) {
-    // this.getCharacteristic(characteristic).value;
-    // const name = this.getCharacteristic(Characteristic.Name).value;
-    const value = this.state[this.names[characteristic.UUID]];
-    this.getCharacteristic(characteristic).updateValue(value);
-    //this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} refreshCharacteristicUI: ${this.names[characteristic.UUID]} ${value}`);
+    if (this.constructor.isUnitTest) {
+      this.getCharacteristic(characteristic);
+    } else {
+      // this.getCharacteristic(characteristic).value;
+      // const name = this.getCharacteristic(Characteristic.Name).value;
+      const value = this.state[this.names[characteristic.UUID]];
+      this.getCharacteristic(characteristic).updateValue(value);
+      //this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} refreshCharacteristicUI: ${this.names[characteristic.UUID]} ${value}`);
+    }
   }
 
   // Convenience
