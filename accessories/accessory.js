@@ -100,7 +100,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     return await device.mutex.use(async () => {	// Queue command sequence
       let timeout = setTimeout(() => {
 	timeout = null;
-	log.error(`${name} Failed to execute command sequence. Timed out of 60 second(s).`);
+	this.logs.error(`${name} Failed to execute command sequence. Timed out of 60 second(s).`);
       }, 60*1000);
       
       if (typeof data === 'string') {
