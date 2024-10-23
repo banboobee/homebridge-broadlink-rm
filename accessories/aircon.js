@@ -402,7 +402,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
     }
 
-    if((previousTemperature !== finalTemperature) || (state.firstTemperatureUpdate && !preventResendHex)){
+    if((previousTemperature !== finalTemperature) || state.firstTemperatureUpdate || !preventResendHex){
       //Set the temperature
       await this.performSend(hexData.data);
       this.logs.info(`sentTemperature (${state.targetTemperature})`);
