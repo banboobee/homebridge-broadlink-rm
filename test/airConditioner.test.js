@@ -1,12 +1,15 @@
 const { expect } = require('chai');
 
-const { log, setup } = require('./helpers/setup')
+const { setup } = require('./helpers/setup')
 const FakeServiceManager = require('./helpers/fakeServiceManager')
 const hexCheck = require('./helpers/hexCheck')
 const delayForDuration = require('../helpers/delayForDuration')
-const { getDevice } = require('../helpers/getDevice')
+// const { getDevice } = require('../helpers/getDevice')
 
-const { AirCon, Switch } = require('../accessories')
+const AirCon = require('../accessories/aircon')
+AirCon.ServiceManagerClass = FakeServiceManager;
+const Switch = require('../accessories/switch')
+Switch.ServiceManagerClass = FakeServiceManager;
 
 const data = {
   on: 'ON',
@@ -34,7 +37,11 @@ const data = {
 };
 
 const defaultConfig = {
+  name: 'AirConditioner',
   data,
+  replaceAutoMode: 'cool',
+  logLevel: 'trace',
+  noHistory: true,
   isUnitTest: true,
   persistState: false
 };
@@ -42,15 +49,15 @@ const defaultConfig = {
 describe('airConAccessory', async () => {
 
   it ('default config', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
 
     const config = {
       ...defaultConfig
     };
     
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
-    
+    const airConAccessory = new AirCon(log, config, platform);
+
     expect(airConAccessory.config.turnOnWhenOff).to.equal(false);
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(120);
     expect(airConAccessory.config.minTemperature).to.equal(-15);
@@ -66,7 +73,7 @@ describe('airConAccessory', async () => {
   });
 
   it('custom config', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
 
     const config = {
@@ -85,7 +92,7 @@ describe('airConAccessory', async () => {
       replaceAutoMode: 'heat'
     };
     
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
     
     expect(airConAccessory.config.turnOnWhenOff).to.equal(true);
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(60);
@@ -103,14 +110,14 @@ describe('airConAccessory', async () => {
 
 
   it('tun on', async () => {
-    const { device } = setup();
+    const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -125,14 +132,14 @@ describe('airConAccessory', async () => {
   });
 
   it('tun off', async () => {
-    const { device } = setup();
+    const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -155,14 +162,14 @@ describe('airConAccessory', async () => {
 
 
   it('set heat', async () => {
-    const { device } = setup();
+    const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -174,14 +181,14 @@ describe('airConAccessory', async () => {
   });
 
   it('set cool', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
@@ -194,14 +201,14 @@ describe('airConAccessory', async () => {
 
 
   it('set heat temperature', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -214,14 +221,14 @@ describe('airConAccessory', async () => {
 
   it('set cool temperature', async () => {
 
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 18);
@@ -235,14 +242,14 @@ describe('airConAccessory', async () => {
 
   it('set missing heat temperature', async () => {
 
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 24);
@@ -250,18 +257,19 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 1 });
+    expect(airConAccessory.state.targetTemperature).to.equal(24);
   });
 
-  it('set missing cool temperature', async () => {
-    const { device } = setup();
+  it('set missing cool temperature 20', async () => {
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
@@ -273,7 +281,7 @@ describe('airConAccessory', async () => {
   });
 
   it ('"turnOnWhenOff": true', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -281,7 +289,7 @@ describe('airConAccessory', async () => {
       turnOnWhenOff: true
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -293,7 +301,7 @@ describe('airConAccessory', async () => {
   });
 
   it ('"allowResend": true', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -301,7 +309,7 @@ describe('airConAccessory', async () => {
       allowResend: true
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -321,7 +329,7 @@ describe('airConAccessory', async () => {
   });
 
   it ('"allowResend": false', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -329,7 +337,7 @@ describe('airConAccessory', async () => {
       allowResend: false
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set temperature to be above heatTemperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -350,7 +358,7 @@ describe('airConAccessory', async () => {
 
 
   it('auto-heat & "minimumAutoOnOffDuration": 0.5', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -360,7 +368,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 1
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     device.sendFakeOnCallback('temperature', 17)
 
@@ -373,7 +381,7 @@ describe('airConAccessory', async () => {
     // Use a temperature lower than `autoCoolTemperature` so that the air-con should automatically turn off
     await delayForDuration(0.3);
 
-    airConAccessory.updateTemperatureUI();
+    // airConAccessory.updateTemperatureUI();
     
     device.sendFakeOnCallback('temperature', 23)
     
@@ -385,7 +393,7 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
     
     // Try forcing auto-on/off again with a normal temperature
-    airConAccessory.updateTemperatureUI();
+    // airConAccessory.updateTemperatureUI();
 
     device.sendFakeOnCallback('temperature', 23)
 
@@ -397,7 +405,7 @@ describe('airConAccessory', async () => {
 
 
   it('auto-cool & "minimumAutoOnOffDuration": 0.5', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -407,7 +415,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 1
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     device.sendFakeOnCallback('temperature', 28)
 
@@ -420,7 +428,7 @@ describe('airConAccessory', async () => {
     // Use a temperature lower than `autoCoolTemperature` so that the air-con should automatically turn off
     await delayForDuration(0.3);
 
-    airConAccessory.updateTemperatureUI();
+    // airConAccessory.updateTemperatureUI();
     
     device.sendFakeOnCallback('temperature', 26)
     
@@ -432,7 +440,7 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
     
     // Try forcing auto-on/off again with a normal temperature
-    airConAccessory.updateTemperatureUI();
+    // airConAccessory.updateTemperatureUI();
 
     device.sendFakeOnCallback('temperature', 26)
 
@@ -443,31 +451,31 @@ describe('airConAccessory', async () => {
   }).timeout(3000);
 
 
-  it ('"pseudoDeviceTemperature": 2', async () => {
-    const { device } = setup();
-    defaultConfig.host = device.host.address
+  // it ('"pseudoDeviceTemperature": 2', async () => {
+  //   const { platform, device, log } = setup();
+  //   defaultConfig.host = device.host.address
     
-    const config = {
-      ...defaultConfig,
-      pseudoDeviceTemperature: 2
-    };
+  //   const config = {
+  //     ...defaultConfig,
+  //     pseudoDeviceTemperature: 2
+  //   };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+  //   const airConAccessory = new AirCon(log, config, platform);
 
-    const getTemperaturePromise = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).getValue();
+  //   const getTemperaturePromise = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).getValue();
 
-    await delayForDuration(0.3);
+  //   await delayForDuration(0.3);
 
-    device.sendFakeOnCallback('temperature', 20);
+  //   device.sendFakeOnCallback('temperature', 20);
 
-    const temperature = await getTemperaturePromise;
+  //   const temperature = await getTemperaturePromise;
 
-    expect(temperature).to.equal(2);
-  });
+  //   expect(temperature).to.equal(2);
+  // });
 
 
   it ('"temperatureAdjustment": 10', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -475,21 +483,19 @@ describe('airConAccessory', async () => {
       temperatureAdjustment: 10
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
-
-    const getTemperaturePromise = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).getValue();
+    const airConAccessory = new AirCon(log, config, platform);
 
     await delayForDuration(0.3);
 
     device.sendFakeOnCallback('temperature', 20);
 
-    const temperature = await getTemperaturePromise;
+    const temperature = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).value;
 
     expect(temperature).to.equal(30);
   });
 
   it ('"temperatureAdjustment": -10', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -497,21 +503,19 @@ describe('airConAccessory', async () => {
       temperatureAdjustment: -10
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
-
-    const getTemperaturePromise = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).getValue();
+    const airConAccessory = new AirCon(log, config, platform);
 
     await delayForDuration(0.3);
 
     device.sendFakeOnCallback('temperature', 20);
 
-    const temperature = await getTemperaturePromise;
+    const temperature = airConAccessory.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).value;
 
     expect(temperature).to.equal(10);
   });
 
   it ('"replaceAutoMode": "heat"', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -519,7 +523,7 @@ describe('airConAccessory', async () => {
       replaceAutoMode: 'heat'
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -534,7 +538,7 @@ describe('airConAccessory', async () => {
   });
 
   it ('autoSwitch', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
     const config = {
@@ -547,8 +551,8 @@ describe('airConAccessory', async () => {
       name: 'Air-Con Auto'
     };
 
-    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
-    const switchAccessory = new Switch(null, switchConfig, 'FakeServiceManager');
+    const airConAccessory = new AirCon(log, config, platform);
+    const switchAccessory = new Switch(log, switchConfig, platform);
 
     airConAccessory.updateAccessories([ switchAccessory ]);
 

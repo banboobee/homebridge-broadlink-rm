@@ -57,17 +57,20 @@ class FakeCharacteristic {
 
   get () {
     return this.getMethod(() => {
-      this.log('Fake Get Callback Received')
+      // this.log('Fake Get Callback Received')
+      this.log(`FakeServiceManager: get${this.type.name} received callback.`);
     })
   }
 
   set (value) {
-    this.log('Set Fake Value Received')
+    // this.log('Set Fake Value Received', value, this.type.name)
+    this.log(`FakeServiceManager: set${this.type.name} ${value}`);
 
     return this.setMethod(value, (err, value) => {
       if (err) {return this.log(err.message)}
 
-      this.log('Fake Set Callback Received: ', value)
+      // this.log('Fake Set Callback Received: ', value)
+      this.log(`FakeServiceManager: set${this.type.name} received callback ${value}.`);
     })
   }
 
@@ -76,16 +79,29 @@ class FakeCharacteristic {
     if (getSet === 'set') {this.setMethod = method}
   }
 
-  getValue () {
+  // getValue () {
+  //   return new Promise((resolve, reject) => {
+  //     this.getMethod((error, value) => {
+  //       if (error) {return reject(error)}
+
+  //       resolve(value)
+  //     })
+  //   })
+  // }
+
+  updateValue () {
     return new Promise((resolve, reject) => {
       this.getMethod((error, value) => {
         if (error) {return reject(error)}
 
-        resolve(value)
+	this.value = value;
+	resolve(value)
       })
     })
   }
 
+  value;
+  
   setProps () {
     return {on: () => {}};
   }
