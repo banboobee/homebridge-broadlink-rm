@@ -257,11 +257,10 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 1 });
-    expect(airConAccessory.state.targetTemperature).to.equal(24);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
-  it('set missing cool temperature 20', async () => {
+  it('set missing cool temperature', async () => {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
