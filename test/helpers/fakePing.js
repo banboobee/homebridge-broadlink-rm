@@ -1,12 +1,22 @@
 const ping = require('ping');
+const delayForDuration = require('../../helpers/delayForDuration')
 
-const pingIPAddress = function (ipAddress, interval, callback) {
+const pingIPAddress = async function (ipAddress, interval, callback) {
   performPing(this.isActive, callback)
   
-  return setInterval(() => {
+  for (let i = 0; i < 2; i++) {
     performPing(this.isActive, callback)
-  }, interval * 1000);
+    await delayForDuration(1.0);
+  }
 }
+
+// const pingIPAddress = function (ipAddress, interval, callback) {
+//   performPing(this.isActive, callback)
+  
+//   return setInterval(() => {
+//     performPing(this.isActive, callback)
+//   }, interval * 1000);
+// }
 
 const performPing = (isActive, callback) => {
   // Fake Latency

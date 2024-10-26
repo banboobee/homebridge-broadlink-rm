@@ -1,15 +1,8 @@
 const { expect } = require('chai');
 
-const { setup } = require('./helpers/setup')
-const FakeServiceManager = require('./helpers/fakeServiceManager')
-const hexCheck = require('./helpers/hexCheck')
-const delayForDuration = require('../helpers/delayForDuration')
-// const { getDevice } = require('../helpers/getDevice')
-
-const AirCon = require('../accessories/aircon')
-AirCon.ServiceManagerClass = FakeServiceManager;
-const Switch = require('../accessories/switch')
-Switch.ServiceManagerClass = FakeServiceManager;
+const { setup } = require('./helpers/setup');
+const hexCheck = require('./helpers/hexCheck');
+const delayForDuration = require('../helpers/delayForDuration');
 
 const data = {
   on: 'ON',
@@ -56,7 +49,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
     
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     expect(airConAccessory.config.turnOnWhenOff).to.equal(false);
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(120);
@@ -92,7 +85,7 @@ describe('airConAccessory', async () => {
       replaceAutoMode: 'heat'
     };
     
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
     
     expect(airConAccessory.config.turnOnWhenOff).to.equal(true);
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(60);
@@ -117,7 +110,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -139,7 +132,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -169,7 +162,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set air-con mode to "heat"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -188,7 +181,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set air-con mode to "cool"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
@@ -208,7 +201,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -229,7 +222,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
@@ -251,7 +244,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set missing temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -273,7 +266,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set missing temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
@@ -294,7 +287,7 @@ describe('airConAccessory', async () => {
       ...defaultConfig
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set missing temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
@@ -315,7 +308,7 @@ describe('airConAccessory', async () => {
       turnOnWhenOff: true
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -336,7 +329,7 @@ describe('airConAccessory', async () => {
       allowResend: true
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -365,7 +358,7 @@ describe('airConAccessory', async () => {
       allowResend: false
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -397,7 +390,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 2
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     device.sendFakeOnCallback('temperature', 17)
 
@@ -444,7 +437,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 2
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     device.sendFakeOnCallback('temperature', 28)
 
@@ -489,7 +482,7 @@ describe('airConAccessory', async () => {
       pseudoDeviceTemperature: 10
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     airConAccessory.getCurrentTemperature();
 
@@ -512,7 +505,7 @@ describe('airConAccessory', async () => {
       temperatureAdjustment: 10
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     await delayForDuration(0.3);
 
@@ -532,7 +525,7 @@ describe('airConAccessory', async () => {
       temperatureAdjustment: -10
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     await delayForDuration(0.3);
 
@@ -552,7 +545,7 @@ describe('airConAccessory', async () => {
       replaceAutoMode: 'heat'
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -580,8 +573,8 @@ describe('airConAccessory', async () => {
       name: 'Air-Con Auto'
     };
 
-    const airConAccessory = new AirCon(log, config, platform);
-    const switchAccessory = new Switch(log, switchConfig, platform);
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    const switchAccessory = new platform.classTypes['switch'](log, switchConfig, platform);
 
     airConAccessory.updateAccessories([ switchAccessory ]);
 

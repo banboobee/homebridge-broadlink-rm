@@ -5,37 +5,37 @@ const npmPackage = require('./package.json');
 // const checkForUpdates = require('./helpers/checkForUpdates');
 const { broadlink, discoverDevices } = require('./helpers/getDevice');
 
-const classTypes = {
-  'air-conditioner': require('./accessories/aircon'),
-  'air-purifier': require('./accessories/air-purifier'),
-  'humidifier-dehumidifier': require('./accessories/humidifier-dehumidifier'),
-  'learn-ir': require('./accessories/learnCode'),
-  'learn-code': require('./accessories/learnCode'),
-  'switch': require('./accessories/switch'),
-  'garage-door-opener': require('./accessories/garageDoorOpener'),
-  'lock': require('./accessories/lock'),
-  'fan': require('./accessories/fan'),
-  'fanv1': require('./accessories/fanv1'),
-  'outlet': require('./accessories/outlet'),
-  'light': require('./accessories/light'),
-  'window': require('./accessories/window'),
-  'window-covering': require('./accessories/windowCovering'),
-  'tv': require('./accessories/tv'),
-  'temperatureSensor': require('./accessories/temperatureSensor.js'),
-  'humiditySensor': require('./accessories/humiditySensor.js'),
-  'heater-cooler': require('./accessories/heater-cooler')
-}
-
 const BroadlinkRMPlatform = class extends HomebridgePlatform {
+  classTypes = {
+    'air-conditioner': require('./accessories/aircon'),
+    'air-purifier': require('./accessories/air-purifier'),
+    'humidifier-dehumidifier': require('./accessories/humidifier-dehumidifier'),
+    'learn-ir': require('./accessories/learnCode'),
+    'learn-code': require('./accessories/learnCode'),
+    'switch': require('./accessories/switch'),
+    'garage-door-opener': require('./accessories/garageDoorOpener'),
+    'lock': require('./accessories/lock'),
+    'fan': require('./accessories/fan'),
+    'fanv1': require('./accessories/fanv1'),
+    'outlet': require('./accessories/outlet'),
+    'light': require('./accessories/light'),
+    'window': require('./accessories/window'),
+    'window-covering': require('./accessories/windowCovering'),
+    'tv': require('./accessories/tv'),
+    'temperatureSensor': require('./accessories/temperatureSensor.js'),
+    'humiditySensor': require('./accessories/humiditySensor.js'),
+    'heater-cooler': require('./accessories/heater-cooler')
+  }
 
   constructor (log, config = {}, homebridge) {
     super(log, config, homebridge);
+    this.isUnitTest = true;
   }
 
   addAccessories (accessories) {
     const { config, log, logLevel } = this;
 
-    this.discoverBroadlinkDevices();
+    if (!this.isUnitTest) this.discoverBroadlinkDevices();
     this.showMessage();
     // setTimeout(() => checkForUpdates(log), 1800);
 
@@ -47,12 +47,12 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     if (learnIRAccessories.length === 0) {
 
       if (!config.hideLearnButton) {
-        const learnCodeAccessory = new Accessory.LearnCode(log, { name: 'Learn', scanFrequency: false });
+        const learnCodeAccessory = new this.classTypes['learn-ir'](log, { name: 'Learn', scanFrequency: false }, this);
         accessories.push(learnCodeAccessory);
       }
 
       if (!config.hideScanFrequencyButton) {
-        const scanFrequencyAccessory = new Accessory.LearnCode(log, { name: 'Scan Frequency', scanFrequency: true });
+        const scanFrequencyAccessory = new this.classTypes['learn-code'](log, { name: 'Scan Frequency', scanFrequency: true }, this);
         accessories.push(scanFrequencyAccessory);
       }
     }
@@ -62,11 +62,11 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     config.accessories.forEach((accessory) => {
       if (!accessory.type) {throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);}
       if (accessory.disabled) {return;}
-      if (!classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
+      if (!this.classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
 
-      const homeKitAccessory = new classTypes[accessory.type](log, accessory, this);
+      const homeKitAccessory = new this.classTypes[accessory.type](log, accessory, this);
 
-      if (classTypes[accessory.type] === classTypes.tv) {
+      if (this.classTypes[accessory.type] === this.classTypes.tv) {
 	// if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
 	// if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
 	// if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}

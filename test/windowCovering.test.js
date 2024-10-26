@@ -1,11 +1,7 @@
 const { expect } = require('chai');
 
-const { log, setup } = require('./helpers/setup')
-const FakeServiceManager = require('./helpers/fakeServiceManager')
-const delayForDuration = require('../helpers/delayForDuration')
-const { getDevice } = require('../helpers/getDevice')
-
-const { WindowCovering } = require('../accessories')
+const { log, setup } = require('./helpers/setup');
+const delayForDuration = require('../helpers/delayForDuration');
 
 const data = {
   open: 'OPEN',
@@ -20,9 +16,10 @@ const data = {
 describe('windowCoveringAccessory', () => {
 
   it ('default config', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 5,
       totalDurationClose: 5,
@@ -30,15 +27,16 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager');
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
     
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.1);
   })
 
   it ('custom config', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       initialDelay: 0.5,
       totalDurationOpen: 5,
@@ -47,15 +45,16 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager');
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
     
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.5);
   })
 
   it ('determineOpenCloseDurationPerPercent', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 5,
       totalDurationClose: 5,
@@ -63,7 +62,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     };
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager');
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
 
     const totalDurationOpen = 5;
     const totalDurationClose = 8;
@@ -87,9 +86,10 @@ describe('windowCoveringAccessory', () => {
 
   // Open blinds to 50%
   it('0% -> 50%', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 2,
       totalDurationClose: 1,
@@ -97,7 +97,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager')
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -106,7 +106,7 @@ describe('windowCoveringAccessory', () => {
     });
 
     // Set Blinds to 50%
-    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 50)
+    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 50);
 
     // Wait for initialDelay
     await delayForDuration(windowCoveringAccessory.config.initialDelay);
@@ -129,9 +129,10 @@ describe('windowCoveringAccessory', () => {
 
   // Open blinds to 20% then 50%
   it('0% -> 20% -> 50%', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 2, 
       totalDurationClose: 1,
@@ -139,7 +140,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager')
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -183,9 +184,10 @@ describe('windowCoveringAccessory', () => {
 
   // Open blinds to 90% then close to 50%
   it('0% -> 90% -> 60%', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 2, 
       totalDurationClose: 3, 
@@ -193,7 +195,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager');
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
 
     const openDurationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -242,9 +244,10 @@ describe('windowCoveringAccessory', () => {
 
   // Test initialDelay
   it('"initialDelay": 1', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
   
     const config = {
+      name: 'WindowCovering',
       data,
       initialDelay: 1,
       totalDurationOpen: 2, 
@@ -253,7 +256,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager')
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
   
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -262,7 +265,7 @@ describe('windowCoveringAccessory', () => {
     });
   
     // Set Blinds to 10%
-    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 10)
+    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 10);
   
     // Wait for initialDelay. Subtract .1 to allow for minor timeout discrepancies.
     await delayForDuration(windowCoveringAccessory.config.initialDelay - .1);
@@ -277,9 +280,10 @@ describe('windowCoveringAccessory', () => {
   
   // Open blinds to 100%
   it('0% -> 100%', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 1,
       totalDurationClose: 1,
@@ -289,7 +293,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager')
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -298,7 +302,7 @@ describe('windowCoveringAccessory', () => {
     });
 
     // Set Blinds to 100%
-    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 100)
+    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 100);
 
     // Wait for initialDelay
     await delayForDuration(windowCoveringAccessory.config.initialDelay);
@@ -318,9 +322,10 @@ describe('windowCoveringAccessory', () => {
 
   // Open blinds to 0%
   it('0% -> 100% -> 0%', async () => {
-    const { device } = setup();
+    const { platform, device, log } = setup();
 
     const config = {
+      name: 'WindowCovering',
       data,
       totalDurationOpen: 1, 
       totalDurationClose: 1,
@@ -330,7 +335,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new WindowCovering(null, config, 'FakeServiceManager')
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
@@ -339,7 +344,7 @@ describe('windowCoveringAccessory', () => {
     });
 
     // Set Blinds to 100%
-    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 100)
+    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 100);
 
     // Wait for initialDelay
     await delayForDuration(windowCoveringAccessory.config.initialDelay);
@@ -356,7 +361,7 @@ describe('windowCoveringAccessory', () => {
     expect(sentHexCodeCount).to.equal(2);
 
     // Set Blinds to 0%
-    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 0)
+    windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 0);
 
     // Wait for initialDelay
     await delayForDuration(windowCoveringAccessory.config.initialDelay);
