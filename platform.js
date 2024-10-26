@@ -29,7 +29,6 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
     super(log, config, homebridge);
-    this.isUnitTest = true;
   }
 
   addAccessories (accessories) {
