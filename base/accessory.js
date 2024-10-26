@@ -185,7 +185,8 @@ class HomebridgeAccessory {
       }
       // callback(null);
     } catch (err) {
-      this.logs.error('setCharacteristicValue error:', err);
+      this.logs.error('failed setCharacteristicValue.', err.message);
+      this.logs.trace(err.stack)
       // callback(err)
     }
   }
