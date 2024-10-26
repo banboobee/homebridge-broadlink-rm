@@ -3,17 +3,17 @@ const { assert } = require('chai');
 const fs = require('fs');
 
 const delayForDuration = require('../helpers/delayForDuration');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
+// const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
 class AirConAccessory extends BroadlinkRMAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor (log, config = {}, platform) {
+    super(log, config, platform);
 
     // Characteristic isn't defined until runtime so we set these the instance scope
+    const { Characteristic } = this;
     const HeatingCoolingStates = {
       off: Characteristic.TargetHeatingCoolingState.OFF,
       cool: Characteristic.TargetHeatingCoolingState.COOL,
@@ -33,7 +33,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // Fakegato setup
     if(config.noHistory !== true) {
-      this.historyService = new HistoryService(
+      this.historyService = new this.platform.HistoryService(
 	config.enableModeHistory ? 'custom' : 'room',
 	this.serviceManager.accessory,
 	{storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
@@ -54,6 +54,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   setDefaults () {
+    const { Characteristic } = this;
     const { config, state } = this;
 
     // Set config default values
@@ -98,7 +99,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Set state default values
     // state.targetTemperature = state.targetTemperature || config.minTemperature;
-    state.targetTemperature = state.targetTemperature || config.maxTemperature || config.minTemperature;
+    // state.targetTemperature = state.targetTemperature || config.maxTemperature || config.minTemperature;
     state.currentHeatingCoolingState = state.currentHeatingCoolingState || Characteristic.CurrentHeatingCoolingState.OFF;
     state.targetHeatingCoolingState = state.targetHeatingCoolingState || Characteristic.TargetHeatingCoolingState.OFF;
     state.firstTemperatureUpdate = true;
@@ -141,6 +142,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async updateServiceTargetHeatingCoolingState (value) {
+    const { Characteristic } = this;
     const { serviceManager, state, log } = this;
     // this.logs.debug(`updateServiceTargetHeatingCoolingState current:${keys[this.state['targetHeatingCoolingState']]} target:${keys[value]}`);
 
@@ -150,6 +152,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async updateServiceCurrentHeatingCoolingState (value) {
+    const { Characteristic } = this;
     const { serviceManager, name, state, log, logLevel } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let update = value;
@@ -169,6 +172,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async getCurrentHeatingCoolingState (current) {
+    const { Characteristic } = this;
     const { serviceManager, name, state, log, logLevel } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let target = state.targetHeatingCoolingState;
@@ -212,6 +216,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async setTargetTemperature (HexData,previousValue) {
+    const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, data, config, log, logLevel, name, serviceManager, state } = this;
     const { preventResendHex, minTemperature, maxTemperature } = config;
 
@@ -227,20 +232,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-    // const r = new RegExp(`${mode}`);
-    // const k = Object.keys(data).sort().filter(x => x.match(r));
-    // const modemin = parseInt(k[0].match(/\d+/)[0]);
-    // const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
     const x = this.dataKeys(`${mode}`).sort();
     const modemin = parseInt(x[0]);
     const modemax = parseInt(x[x.length - 1]);
     const temperature = state.targetTemperature;
     if (temperature < modemin) {
       state.targetTemperature = previousValue;
-      throw new Error(`${name} Target temperature (${temperature}) is below minimal ${mode} temperature (${modemin})`);
+      throw new Error(`Target temperature ${temperature} is below minimal ${mode} temperature ${modemin}`);
     } else if (temperature > modemax) {
       state.targetTemperature = previousValue;
-      throw new Error(`${name} Target temperature (${temperature}) is above maxmum ${mode} temperature (${modemax})`);
+      throw new Error(`Target temperature ${temperature} is above maxmum ${mode} temperature ${modemax}`);
     }
 	
     // Used within correctReloadedState() so that when re-launching the accessory it uses
@@ -253,6 +254,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async setTargetHeatingCoolingState (hexData, previousValue) {
+    const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, host, log, logLevel, name, serviceManager, state, debug } = this;
     const { preventResendHex, defaultCoolTemperature, defaultHeatTemperature, replaceAutoMode } = config;
 
@@ -298,16 +300,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
+    state.targetTemperature = state.targetTemperature ?? (targetHeatingCoolingState === 'heat' ? config.defaultHeatTemperature : config.defaultCoolTemperature);
     let temperature = state.targetTemperature;
     const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-    // const r = new RegExp(`${mode}`);
-    // const k = Object.keys(data).sort().filter(x => x.match(r));
-    // const modemin = parseInt(k[0].match(/\d+/)[0]);
-    // const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
     const x = this.dataKeys(`${mode}`).sort();
     const modemin = parseInt(x[0]);
     const modemax = parseInt(x[x.length - 1]);
-    this.logs.debug(`setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}]`);
+    this.logs.debug(`setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}] target(${temperature})`);
     // serviceManager.getCharacteristic(Characteristic.TargetTemperature).setProps({
     //   minValue: modemin,
     //   maxValue: modemax,
@@ -404,8 +403,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if((previousTemperature !== finalTemperature) || state.firstTemperatureUpdate || !preventResendHex){
       //Set the temperature
-      await this.performSend(hexData.data);
       this.logs.info(`sentTemperature (${state.targetTemperature})`);
+      await this.performSend(hexData.data);
       state.firstTemperatureUpdate = false;
     }
   }
@@ -422,18 +421,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const x = this.dataKeys(`${mode}`);
     const closest = x.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev);
     // let hexData = data[`${mode}${temperature}`];
-    const hexData = data[`${mode}${closest}`];
-    // console.log(v, temperature, closest);
+    let hexData = data[`${mode}${closest}`];
+    // console.log(x, temperature, closest);
+    this.logs.debug(`getTemperatureHexData mode(${mode}) choice[${x}] temperature(${temperature}) closest(${closest})`);
 
     if (!hexData) {
       // Mode based code not found, try mode-less
-      this.logs.warn(`No ${mode} HEX code found for ${temperature}`);
-      hexData = data[`temperature${temperature}`];
-    } else {
-      if (hexData['pseudo-mode']) {
-        this.logs.info(`Configuration found for ${mode}${temperature} with pseudo-mode. Pseudo-mode will replace the configured mode.`);
-      }
+      this.logs.warn(`No ${mode}${closest} HEX code found. Use temperature${closest} HEX code instead.`);
+      hexData = data[`temperature${closest}`];
     }
+    // else {
+    //   if (hexData['pseudo-mode']) {
+    //     this.logs.info(`Configuration found for ${mode}${temperature} with pseudo-mode. Pseudo-mode will replace the configured mode.`);
+    //   }
+    // }
 
     // You may not want to set the hex data for every single mode...
     if (!hexData) {
@@ -453,6 +454,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async checkTurnOnWhenOff () {
+    const { Characteristic } = this;
     const { config, data, host, log, logLevel, name, state } = this;
     const { on } = data;
 
@@ -513,10 +515,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // this.updateTemperatureUI();
     // if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
     this.logs.info(`updating temperature/humidity every ${config.temperatureUpdateFrequency} secs.`);
-    if (!config.isUnitTest) setInterval(this.getCurrentTemperature.bind(this), config.temperatureUpdateFrequency * 1000);
+    if (!this.isUnitTest) setInterval(this.getCurrentTemperature.bind(this), config.temperatureUpdateFrequency * 1000);
   }
 
   async onTemperature(temperature, humidity) {
+    const { Characteristic } = this;
     const { config, host, logLevel, log, name, state } = this;
     const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
@@ -693,12 +696,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // }
 
   getCurrentTemperature (callback = undefined) {
+    const { Characteristic } = this;
     const { config, host, logLevel, log, name, state } = this;
     const { pseudoDeviceTemperature } = config;
 
     // Some devices don't include a thermometer and so we can use `pseudoDeviceTemperature` instead
     if (pseudoDeviceTemperature !== undefined) {
       this.logs.trace(`getCurrentTemperature: using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config`);
+      this.serviceManager.updateCharacteristic(Characteristic.CurrentTemperature, pseudoDeviceTemperature);
       return callback?.(Number.isNaN(Number(pseudoDeviceTemperature)), pseudoDeviceTemperature);
     }
 
@@ -717,6 +722,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async checkTemperatureForAutoOnOff (temperature) {
+    const { Characteristic } = this;
     const { config, host, log, logLevel, name, serviceManager, state } = this;
     let { autoHeatTemperature, autoCoolTemperature, minimumAutoOnOffDuration } = config;
 
@@ -765,6 +771,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   getTemperatureDisplayUnits (callback) {
+    const { Characteristic } = this;
     const { config } = this;
     const temperatureDisplayUnits = (config.units.toLowerCase() === 'f') ? Characteristic.TemperatureDisplayUnits.FAHRENHEIT : Characteristic.TemperatureDisplayUnits.CELSIUS;
 
@@ -778,21 +785,24 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (!filter) {return allHexKeys;}
 
     // Create an array of value specified in the data config
-    const foundValues = [];
-
-    allHexKeys.forEach((key) => {
-      const parts = key.split(filter);
-
-      if (parts.length !== 2) {return;}
-
-      foundValues.push(parts[1]);
-    })
-
-    return foundValues
+    return allHexKeys
+      // .map(x => x.match(new RegExp(`^(${filter}|temperature)([\\d\\.]+)$`), 'i')?.[2])
+      .map(x => {
+	const y = x.match(new RegExp(`^(${filter}|temperature)([\\d\\.]+)$`), 'i');
+	if (!y) {
+	  return null;
+	} else if (y[1] === 'temperature') {
+	  return data[x]['pseudo-mode'] === filter ? y[2] : null;
+	} else {
+	  return y[2];
+	}
+      })
+      .filter(x => x);
   }
 
   // MQTT
   async onMQTTMessage (identifier, message) {
+    const { Characteristic } = this;
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
     this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
@@ -946,9 +956,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
-    const { config, name, serviceManagerType } = this;
+    const { Service, Characteristic } = this;
+    const { config, name } = this;
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Thermostat, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Thermostat, this.log);
 
     config.enableTargetTemperatureHistory = config.enableTargetTemperatureHistory === true || false;
     config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
@@ -961,29 +972,29 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     if(config.noHistory !== true && config.enableModeHistory) {
-      this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ValvePosition);
+      this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ValvePosition);
       this.serviceManager.addGetCharacteristic({
 	name: 'currentValvePosition',
-	type: eve.Characteristics.ValvePosition,
+	type: this.platform.eve.Characteristics.ValvePosition,
 	// type: ValvePositionCharacteristic,
 	method: this.getValvePosition,
 	bind: this
       });
       
       if (config.enableTargetTemperatureHistory) {
-	this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ProgramData);
+	this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ProgramData);
 	this.serviceManager.addGetCharacteristic({
 	  name: 'setProgramData',
-	  type: eve.Characteristics.ProgramData,
+	  type: this.platform.eve.Characteristics.ProgramData,
 	  // type: ProgramDataCharacteristic,
 	  method: this.getProgramData,
 	  bind: this,
 	});
 	
-	this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.ProgramCommand);
+	this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ProgramCommand);
 	this.serviceManager.addSetCharacteristic({
 	  name: 'setProgramCommand',
-	  type: eve.Characteristics.ProgramCommand,
+	  type: this.platform.eve.Characteristics.ProgramCommand,
 	  // type: ProgramCommandCharacteristic,
 	  method: this.setProgramCommand,
 	  bind: this,

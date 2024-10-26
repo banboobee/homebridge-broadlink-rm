@@ -61,6 +61,8 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   reset() {
+    const { Characteristic } = this;
+
     super.reset();
 
     this.stateChangeInProgress = true;
@@ -110,6 +112,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   async pingCallback(active) {
+    const { Characteristic } = this;
     const { name, config, state, serviceManager, log } = this;
     
     if (this.stateChangeInProgress){ 
@@ -164,6 +167,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
   
   async checkAutoOff() {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       let { disableAutomaticOff, enableAutoOff, onDuration } = config;
@@ -180,6 +184,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   async checkAutoOn() {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       let { disableAutomaticOn, enableAutoOn, offDuration } = config;
@@ -205,6 +210,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   // }
 
   async setInputSource(on, previous) {
+    // const { Characteristic } = this;
     const { data, host, log, name, logLevel } = this;
     const newValue = this.state.currentInput;
   
@@ -225,6 +231,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
   
   async onMQTTMessage (identifier, message) {
+    const { Characteristic } = this;
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
     this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
@@ -258,18 +265,19 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager() {
-    const { data, name, config, serviceManagerType, log } = this;
+    const { Service, Characteristic, Categories } = this;
+    const { data, name, config, log } = this;
     const { on, off } = data || {};
     let { subType } = config;
 
     if (!subType) {
-      subType = this.Categories.TELEVISION;
+      subType = Categories.TELEVISION;
     } else if (subType.toLowerCase() === 'stb') {
-      subType = this.Categories.TV_SET_TOP_BOX;
+      subType = Categories.TV_SET_TOP_BOX;
     } else if (subType.toLowerCase() === 'receiver') {
-      subType = this.Categories.AUDIO_RECEIVER;
+      subType = Categories.AUDIO_RECEIVER;
     } else if (subType.toLowerCase() === 'stick') {
-      subType = this.Categories.TV_STREAMING_STICK;
+      subType = Categories.TV_STREAMING_STICK;
     }
 
     // this.serviceManagers = [];
@@ -589,7 +597,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       if (index !== 0) {
 	identifiersTLV = Buffer.concat([
           identifiersTLV,
-          HomebridgeAPI.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_END, Buffer.alloc(0)),
+          this.platform.api.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_END, Buffer.alloc(0)),
 	]);
       }
       
@@ -597,7 +605,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       element.writeUInt32LE(identifier, 0);
       identifiersTLV = Buffer.concat([
 	identifiersTLV,
-	HomebridgeAPI.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_START, element),
+	this.platform.api.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_START, element),
       ]);
     });
     return identifiersTLV.toString('base64');
