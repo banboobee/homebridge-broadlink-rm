@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 
+const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 
 // const log = () => {
@@ -8,6 +9,30 @@ const { getAccessories } = require('./helpers/setup');
 
 // disableLogs
 describe('disableLogs', () => {
+
+  it('UnitTest', async () => {
+    const config = {
+      isUnitTest: true,
+      hideScanFrequencyButton: true,
+      disableLogs: true,
+      hideLearnButton: true,
+      accessories: [
+        {
+          name: 'Test',
+          type: 'switch',
+	  persistState: false,
+          disableLogs: true
+        }
+      ]
+    };
+  
+    const { platform, device, log } = setup();
+    expect(platform.isUnitTest).to.equal(true);
+    
+    const accessories = await getAccessories(config);
+    expect(accessories[0].isUnitTest).to.equal(true);
+    
+  });
 
   it('disableLogs true returns empty function', async () => {
     const config = {

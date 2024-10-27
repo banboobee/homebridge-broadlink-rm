@@ -6,6 +6,11 @@ const persistentState = require('./helpers/persistentState')
 class HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
+    if (this.constructor.isUnitTest === true) {
+      this.isUnitTest = true;
+    } else {
+      this.isUnitTest = false;
+    }
     this.log = log;
     this.config = config;
     // this.homebridge = homebridge;

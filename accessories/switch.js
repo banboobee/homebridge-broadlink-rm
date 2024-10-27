@@ -19,7 +19,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 	{time: Math.round(new Date().valueOf()/1000),
 	 status: this.state.switchState ? 1 : 0})
       
-      if (!config.isUnitTest) {this.checkPing(ping)}
+      if (!this.isUnitTest) {this.checkPing(ping)}
     } 
   }
 

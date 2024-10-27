@@ -5,7 +5,7 @@ const { addDevice } = require('../../helpers/getDevice')
 
 const homebridge = {hap: hap,
 		    on: () => {},
-		    user: {storagePath: () => {}}
+		    user: {storagePath: () => {return './'}}
 		   };
 // const log = (format, ...args) => {
 //   const now = `[${(new Date()).toLocaleString()}]`;

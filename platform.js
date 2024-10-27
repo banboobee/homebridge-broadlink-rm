@@ -129,7 +129,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
   showMessage () {
     const { config, log } = this;
 
-    if (config && (config.hideWelcomeMessage || config.isUnitTest || this.logLevel >=4)) {
+    if (config && (config.hideWelcomeMessage || this.isUnitTest || this.logLevel >=4)) {
       log(`\x1b[35m[INFO]\x1b[0m Running Homebridge Broadlink RM Plugin version \x1b[32m${npmPackage.version}\x1b[0m`)
 
       return
