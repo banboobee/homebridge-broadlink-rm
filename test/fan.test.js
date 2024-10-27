@@ -317,37 +317,37 @@ describe('fanAccessory', () => {
 
 
   // Persist State 
-  // it('"persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     ...defaultConfig,
-  //     name: 'Unit Test Fan',
-  //     host: device.host.address,
-  //     persistState: true
-  //   }
+    const config = {
+      ...defaultConfig,
+      name: 'Unit Test Fan',
+      host: device.host.address,
+      persistState: true
+    }
     
-  //   let fanAccessory
+    let fanAccessory
 
-  //   // Turn On Fan
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Turn On Fan
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
+    expect(fanAccessory.state.switchState).to.equal(true);
 
-  //   await delayForDuration(.1);
+    await delayForDuration(.1);
 
-  //   // Should still be on when loading within a new instance
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Should still be on when loading within a new instance
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    expect(fanAccessory.state.switchState).to.equal(true);
     
-  //   // Turn Off Fan
-  //   fanAccessory.serviceManager.setCharacteristic(Characteristic.On, false)
-  //   expect(fanAccessory.state.switchState).to.equal(false);
+    // Turn Off Fan
+    fanAccessory.serviceManager.setCharacteristic(Characteristic.On, false)
+    expect(fanAccessory.state.switchState).to.equal(false);
 
-  //   // Should still be off when loading within a new instance
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   expect(fanAccessory.state.switchState).to.equal(false);
-  // });
+    // Should still be off when loading within a new instance
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    expect(fanAccessory.state.switchState).to.equal(false);
+  });
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
@@ -372,85 +372,85 @@ describe('fanAccessory', () => {
 
 
   // Ensure the hex is resent after reload
-  // it('"resendHexAfterReload": true, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"resendHexAfterReload": true, "persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     ...defaultConfig,
-  //     host: device.host.address,
-  //     persistState: true,
-  //     resendHexAfterReload: true,
-  //     resendDataAfterReloadDelay: 0.1
-  //   }
+    const config = {
+      ...defaultConfig,
+      host: device.host.address,
+      persistState: true,
+      resendHexAfterReload: true,
+      resendDataAfterReloadDelay: 0.1
+    }
 
-  //   let fanAccessory
+    let fanAccessory
 
-  //   // Turn On Fan
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Turn On Fan
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
+    expect(fanAccessory.state.switchState).to.equal(true);
 
-  //   // Wait for resendDataAfterReloadDelay
-  //   await delayForDuration(0.3)
+    // Wait for resendDataAfterReloadDelay
+    await delayForDuration(0.3)
 
-  //   device.resetSentHexCodes()
+    device.resetSentHexCodes()
 
-  //   // Should be on still with a new instance
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    expect(fanAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has been called after a duration of resendDataAfterReloadDelay
-  //   await delayForDuration(0.3)
-  //   expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    // We should find that setCharacteristic has been called after a duration of resendDataAfterReloadDelay
+    await delayForDuration(0.3)
+    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
 
-  //   // Check ON hex code was sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(true);
+    // Check ON hex code was sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(true);
 
-  //   // Check that only one code has been sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(1);
-  // });
+    // Check that only one code has been sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(1);
+  });
 
 
   // Ensure the hex is not resent after reload
-  // it('"resendHexAfterReload": false, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"resendHexAfterReload": false, "persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     ...defaultConfig,
-  //     host: device.host.address,
-  //     persistState: true,
-  //     resendHexAfterReload: false,
-  //     resendDataAfterReloadDelay: 0.1
-  //   }
+    const config = {
+      ...defaultConfig,
+      host: device.host.address,
+      persistState: true,
+      resendHexAfterReload: false,
+      resendDataAfterReloadDelay: 0.1
+    }
     
-  //   let fanAccessory
+    let fanAccessory
 
-  //   // Turn On Fan
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Turn On Fan
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    fanAccessory.serviceManager.setCharacteristic(Characteristic.On, true)
+    expect(fanAccessory.state.switchState).to.equal(true);
 
-  //   // Wait for resendDataAfterReloadDelay
-  //   await delayForDuration(0.3)
+    // Wait for resendDataAfterReloadDelay
+    await delayForDuration(0.3)
 
-  //   device.resetSentHexCodes()
+    device.resetSentHexCodes()
 
-  //   // Should be on still with a new instance
-  //   fanAccessory = new platform.classTypes['fan'](log, config, platform);
-  //   expect(fanAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    fanAccessory = new platform.classTypes['fan'](log, config, platform);
+    expect(fanAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.3)
-  //   expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.3)
+    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
 
-  //   // Check ON hex code was not sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(false);
+    // Check ON hex code was not sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(false);
 
-  //   // Check that no code was sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(0);
-  // });
+    // Check that no code was sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(0);
+  });
 })

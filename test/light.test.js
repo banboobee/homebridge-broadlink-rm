@@ -525,160 +525,160 @@ describe('lightAccessory', () => {
   });
 
 
-  // // Persist State 
-  // it('"persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  // Persist State 
+  it('"persistState": true', async () => {
+    const { platform, device, log } = setup();
 
 
-  //   const config = {
-  //     name: 'Light',
-  //     ...defaultConfig,
-  //     host: device.host.address,
-  //     name: 'Unit Test Light',
-//       pingGrace: 0.1,
-  //     persistState: true
-  //   }
+    const config = {
+      name: 'Light',
+      ...defaultConfig,
+      host: device.host.address,
+      name: 'Unit Test Light',
+      pingGrace: 0.1,
+      persistState: true
+    }
     
-  //   let lightAccessory
+    let lightAccessory
 
-  //   // Turn On Light
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Turn On Light
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // Should still be on when loading within a new instance
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Should still be on when loading within a new instance
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    expect(lightAccessory.state.switchState).to.equal(true);
     
-  //   // Turn Off Light
-  //   lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
-  //   expect(lightAccessory.state.switchState).to.equal(false);
+    // Turn Off Light
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
+    expect(lightAccessory.state.switchState).to.equal(false);
 
-  //   // Should still be off when loading within a new instance
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   expect(lightAccessory.state.switchState).to.equal(false);
-  // });
+    // Should still be off when loading within a new instance
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    expect(lightAccessory.state.switchState).to.equal(false);
+  });
 
-  // it('"persistState": false', async () => {
-  //       const { platform, device, log } = setup();
+  it('"persistState": false', async () => {
+        const { platform, device, log } = setup();
 
 
-  //   const config = {
-  //     name: 'Light',
-  //     ...defaultConfig,
-  //     host: device.host.address,
-//       pingGrace: 0.1,
-  //     name: 'Unit Test Light'
-  //   }
+    const config = {
+      name: 'Light',
+      ...defaultConfig,
+      host: device.host.address,
+      pingGrace: 0.1,
+      name: 'Unit Test Light'
+    }
     
-  //   let lightAccessory
+    let lightAccessory
 
-  //   // Turn On Light
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Turn On Light
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // Should be off again with a new instance
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   expect(lightAccessory.state.switchState).to.equal(undefined);
-  // });
+    // Should be off again with a new instance
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    expect(lightAccessory.state.switchState).to.equal(undefined);
+  });
 
 
-  // // Ensure the hex is resent after reload
-  // it('"resendHexAfterReload": true, "persistState": true', async () => {
-  //       const { platform, device, log } = setup();
+  // Ensure the hex is resent after reload
+  it('"resendHexAfterReload": true, "persistState": true', async () => {
+        const { platform, device, log } = setup();
 
     
-  //   const config = {
-  //     name: 'Light',
-  //     ...defaultConfig,
-  //     host: device.host.address,
-  //     persistState: true,
-  //     onDelay: 0.1,
-//       pingGrace: 0.1,
-  //     resendHexAfterReload: true,
-  //     resendDataAfterReloadDelay: 0.1
-  //   }
+    const config = {
+      name: 'Light',
+      ...defaultConfig,
+      host: device.host.address,
+      persistState: true,
+      onDelay: 0.1,
+      pingGrace: 0.1,
+      resendHexAfterReload: true,
+      resendDataAfterReloadDelay: 0.1
+    }
 
-  //   let lightAccessory;
+    let lightAccessory;
 
-  //   // Turn On Light
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Turn On Light
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // Wait for resendDataAfterReloadDelay and onDelay
-  //   await delayForDuration(0.3);
+    // Wait for resendDataAfterReloadDelay and onDelay
+    await delayForDuration(0.3);
 
-  //   device.resetSentHexCodes();
+    device.resetSentHexCodes();
     
-  //   // Check that no code has been sent
-  //   let sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(0);
+    // Check that no code has been sent
+    let sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(0);
 
-  //   // Should be on still with a new instance
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.2);
+    // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.2);
 
-  //   // Wait for onDelay
-  //   await delayForDuration(0.2);
+    // Wait for onDelay
+    await delayForDuration(0.2);
 
-  //   expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
 
-  //   // Check ON hex code was sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(true);
+    // Check ON hex code was sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(true);
 
-  //   // Check that only one code has been sent
-  //   sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(2);
-  // });
-
-
-  // // Ensure the hex is not resent after reload
-  // it('"resendHexAfterReload": false, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+    // Check that only one code has been sent
+    sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(2);
+  });
 
 
-  //   const config = {
-  //     name: 'Light',
-  //     ...defaultConfig,
-  //     host: device.host.address,
-  //     persistState: true,
-//       pingGrace: 0.1,
-  //     resendHexAfterReload: false,
-  //     resendDataAfterReloadDelay: 0.1
-  //   }
+  // Ensure the hex is not resent after reload
+  it('"resendHexAfterReload": false, "persistState": true', async () => {
+    const { platform, device, log } = setup();
+
+
+    const config = {
+      name: 'Light',
+      ...defaultConfig,
+      host: device.host.address,
+      persistState: true,
+      pingGrace: 0.1,
+      resendHexAfterReload: false,
+      resendDataAfterReloadDelay: 0.1
+    }
     
-  //   let lightAccessory
+    let lightAccessory
 
-  //   // Turn On Light
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Turn On Light
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // Wait for resendDataAfterReloadDelay
-  //   await delayForDuration(0.3);
+    // Wait for resendDataAfterReloadDelay
+    await delayForDuration(0.3);
 
-  //   device.resetSentHexCodes();
+    device.resetSentHexCodes();
 
-  //   // Should be on still with a new instance
-  //   lightAccessory = new platform.classTypes['light'](log, config, platform);
-  //   expect(lightAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+    expect(lightAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.3);
-  //   expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.3);
+    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
 
-  //   // Check ON hex code was not sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(false);
+    // Check ON hex code was not sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(false);
 
-  //   // Check that no code was sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(0);
-  // });
+    // Check that no code was sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(0);
+  });
 })

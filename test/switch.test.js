@@ -150,37 +150,37 @@ describe('switchAccessory', () => {
 
 
   // Persist State 
-  // it('"persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     data,
-  //     host: device.host.address,
-  //     name: 'Unit Test Switch',
-  //     logLevel: 'trace',
-  //     pingGrace: 0.1,
-  //     persistState: true
-  //   }
+    const config = {
+      data,
+      host: device.host.address,
+      name: 'Unit Test Switch',
+      logLevel: 'trace',
+      pingGrace: 0.1,
+      persistState: true
+    }
     
-  //   let switchAccessory
+    let switchAccessory
 
-  //   // Turn On Switch
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Turn On Switch
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(switchAccessory.state.switchState).to.equal(true);
 
-  //   // Should still be on when loading within a new instance
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Should still be on when loading within a new instance
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    expect(switchAccessory.state.switchState).to.equal(true);
     
-  //   // Turn Off Switch
-  //   switchAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
-  //   expect(switchAccessory.state.switchState).to.equal(false);
+    // Turn Off Switch
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
+    expect(switchAccessory.state.switchState).to.equal(false);
 
-  //   // Should still be off when loading within a new instance
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   expect(switchAccessory.state.switchState).to.equal(false);
-  // });
+    // Should still be off when loading within a new instance
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    expect(switchAccessory.state.switchState).to.equal(false);
+  });
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
@@ -315,86 +315,92 @@ describe('switchAccessory', () => {
   });
 
 
-  // // Ensure the hex is resent after reload
-  // it('"resendHexAfterReload": true, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  // Ensure the hex is resent after reload
+  it('"resendHexAfterReload": true, "persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     data,
-      // logLevel: 'trace',
-      // pingGrace: 0.1,
-  //     persistState: true,
-  //     host: device.host.address,
-  //     resendHexAfterReload: true,
-  //     resendDataAfterReloadDelay: 0.1,
-  //     isUnitTest: true
-  //   }
+    const config = {
+      name: 'Switch',
+      type: 'switch',
+      data,
+      logLevel: 'trace',
+      pingGrace: 0.1,
+      persistState: true,
+      host: device.host.address,
+      resendHexAfterReload: true,
+      resendDataAfterReloadDelay: 0.1,
+      isUnitTest: true
+    }
     
-  //   let switchAccessory
+    let switchAccessory
 
-  //   // Turn On Switch
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Turn On Switch
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.1);
+    expect(switchAccessory.state.switchState).to.equal(true);
 
-  //   device.resetSentHexCodes();
+    device.resetSentHexCodes();
 
-  //   // Should be on still with a new instance
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    expect(switchAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.3);
-  //   expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.3);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
 
-  //   // Check ON hex code was sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(true);
+    // Check ON hex code was sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(true);
 
-  //   // Check that only one code has been sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(1);
-  // });
+    // Check that only one code has been sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(1);
+  });
 
 
-  // // Ensure the hex is not resent after reload
-  // it('"resendHexAfterReload": false, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  // Ensure the hex is not resent after reload
+  it('"resendHexAfterReload": false, "persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     data,
-      // logLevel: 'trace',
-      // pingGrace: 0.1,
-  //     persistState: true,
-  //     host: device.host.address,
-  //     resendHexAfterReload: false,
-  //     resendDataAfterReloadDelay: 0.1,
-  //     isUnitTest: true
-  //   }
+    const config = {
+      name: 'Switch',
+      type: 'switch',
+      data,
+      logLevel: 'trace',
+      pingGrace: 0.1,
+      persistState: true,
+      host: device.host.address,
+      resendHexAfterReload: false,
+      resendDataAfterReloadDelay: 0.1,
+      isUnitTest: true
+    }
 
-  //   let switchAccessory
+    let switchAccessory
 
-  //   // Turn On Switch
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Turn On Switch
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.1);
+    expect(switchAccessory.state.switchState).to.equal(true);
 
-  //   // Should be on still with a new instance
-  //   switchAccessory = new platform.classTypes['switch'](log, config, platform);
-  //   expect(switchAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    expect(switchAccessory.state.switchState).to.equal(true);
 
-  //   device.resetSentHexCodes();
+    device.resetSentHexCodes();
 
-  //   // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.3);
-  //   expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.3);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
 
-  //   // Check ON hex code was not sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(false);
+    // Check ON hex code was not sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(false);
 
-  //   // Check that no code was sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(0);
-  // });
+    // Check that no code was sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(0);
+  });
 })

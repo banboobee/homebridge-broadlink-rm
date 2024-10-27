@@ -173,35 +173,35 @@ describe('outletAccessory', () => {
 
 
   // Persist State 
-  // it('"persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     name: 'Unit Test Outlet',
-  //     host: device.host.address,
-  //     pingGrace: 0.1,
-  //     persistState: true
-  //   }
+    const config = {
+      name: 'Unit Test Outlet',
+      host: device.host.address,
+      pingGrace: 0.1,
+      persistState: true
+    }
     
-  //   let outletAccessory
+    let outletAccessory
 
-  //   // Turn On Outlet
-  //   outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(outletAccessory.state.switchState).to.equal(true);
+    // Turn On Outlet
+    outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(outletAccessory.state.switchState).to.equal(true);
 
-  //   // Should still be on when loading within a new instance
-  //   outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   expect(outletAccessory.state.switchState).to.equal(true);
+    // Should still be on when loading within a new instance
+    outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    expect(outletAccessory.state.switchState).to.equal(true);
     
-  //   // Turn Off Outlet
-  //   outletAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
-  //   expect(outletAccessory.state.switchState).to.equal(false);
+    // Turn Off Outlet
+    outletAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
+    expect(outletAccessory.state.switchState).to.equal(false);
 
-  //   // Should still be off when loading within a new instance
-  //   outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   expect(outletAccessory.state.switchState).to.equal(false);
-  // });
+    // Should still be off when loading within a new instance
+    outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    expect(outletAccessory.state.switchState).to.equal(false);
+  });
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
@@ -226,27 +226,27 @@ describe('outletAccessory', () => {
 
 
   // IP Address used to for state
-  // it('"pingIPAddress": "192.168.1.1", host up', async () => {
-  //   const { platform, device, log } = setup();
+  it('"pingIPAddress": "192.168.1.1", host up', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     name: 'Outlet',
-  //     pingIPAddress: '192.168.1.1',
-  //     host: device.host.address,
-  //     pingGrace: 0.1,
-  //     persistState: false,
-  //     isUnitTest: true
-  //   }
+    const config = {
+      name: 'Outlet',
+      pingIPAddress: '192.168.1.1',
+      host: device.host.address,
+      pingGrace: 0.1,
+      persistState: false,
+      isUnitTest: true
+    }
     
-  //   let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
+    let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
-  //   await delayForDuration(0.3);
-  //   expect(outletAccessory.state.outletInUse).to.equal(true);
+    await delayForDuration(0.3);
+    expect(outletAccessory.state.outletInUse).to.equal(true);
 
-  //   // Stop the ping setInterval
-  //   clearInterval(pingInterval);
-  // });
+    // Stop the ping setInterval
+    clearInterval(pingInterval);
+  });
 
   it('"pingIPAddress": "192.168.1.1", host down', async () => {
     const { platform, device, log } = setup();
@@ -325,48 +325,48 @@ describe('outletAccessory', () => {
 
 
   // Ensure the hex is resent after reload
-  // it('"resendHexAfterReload": true, "persistState": true', async () => {
-  //   const { platform, device, log } = setup();
+  it('"resendHexAfterReload": true, "persistState": true', async () => {
+    const { platform, device, log } = setup();
 
-  //   const config = {
-  //     name: 'Outlet',
-  //     data: {
-  //       on: 'ON',
-  //       off: 'OFF'
-  //     },
-  //     pingGrace: 0.1,
-  //     persistState: true,
-  //     resendHexAfterReload: true,
-  //     host: device.host.address,
-  //     resendDataAfterReloadDelay: 0.1,
-  //     isUnitTest: true
-  //   }
+    const config = {
+      name: 'Outlet',
+      data: {
+        on: 'ON',
+        off: 'OFF'
+      },
+      pingGrace: 0.1,
+      persistState: true,
+      resendHexAfterReload: true,
+      host: device.host.address,
+      resendDataAfterReloadDelay: 0.1,
+      isUnitTest: true
+    }
 
     
     
-  //   let outletAccessory
+    let outletAccessory
 
-  //   // Turn On Outlet
-  //   outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-  //   expect(outletAccessory.state.switchState).to.equal(true);
+    // Turn On Outlet
+    outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    expect(outletAccessory.state.switchState).to.equal(true);
 
-  //   device.resetSentHexCodes();
+    device.resetSentHexCodes();
 
-  //   // Should be on still with a new instance
-  //   outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-  //   expect(outletAccessory.state.switchState).to.equal(true);
+    // Should be on still with a new instance
+    outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    expect(outletAccessory.state.switchState).to.equal(true);
 
-  //   // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
-  //   await delayForDuration(0.3);
-  //   expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
+    await delayForDuration(0.3);
+    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
 
-  //   // Check ON hex code was sent
-  //   const hasSentOnCode = device.hasSentCode('ON');
-  //   expect(hasSentOnCode).to.equal(true);
+    // Check ON hex code was sent
+    const hasSentOnCode = device.hasSentCode('ON');
+    expect(hasSentOnCode).to.equal(true);
 
-  //   // Check that only one code has been sent
-  //   const sentHexCodeCount = device.getSentHexCodeCount();
-  //   expect(sentHexCodeCount).to.equal(1);
-  // });
+    // Check that only one code has been sent
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(1);
+  });
 })
