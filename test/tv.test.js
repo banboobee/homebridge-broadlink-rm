@@ -193,6 +193,9 @@ describe('TVAccessory', async () => {
     expect(TVAccessory.state.currentInput).to.equal(2);
     expect(TVAccessory.state.Mute).to.equal(true);
 
+    // Check hex codes were sent
+    hexCheck({ device, codes: [ 'ON', 'Channel-B', 'MUTE' ], count: 3 });
+
     device.resetSentHexCodes();
 
     // Should be on still with a new instance
@@ -201,5 +204,26 @@ describe('TVAccessory', async () => {
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
     expect(TVAccessory.state.switchState).to.equal(true);
     expect(TVAccessory.state.Mute).to.equal(true);
+    expect(TVAccessory.state.currentInput).to.equal(2);
+  });
+
+  it('automation', async () => {
+    const { log, device, platform } = setup();
+    defaultConfig.host = device.host.address
+    let config = JSON.parse(JSON.stringify(defaultConfig));
+    config.persistState = true;
+
+    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+
+    // Simultaneously Turn on and select channel
+    TVAccessory.serviceManager.setCharacteristic(Characteristic.Active, true);
+    TVAccessory.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 2);
+    expect(TVAccessory.state.switchState).to.equal(true);
+    expect(TVAccessory.state.currentInput).to.equal(2);
+
+    await delayForDuration(0.1);
+
+    // Check hex codes were sent
+    hexCheck({ device, codes: [ 'ON', 'Channel-B' ], count: 2 });
   });
 })

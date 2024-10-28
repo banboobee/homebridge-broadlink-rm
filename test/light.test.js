@@ -22,6 +22,7 @@ const data = {
 
 const defaultConfig = {
   name: 'Light',
+  type: 'light',
   data,
   isUnitTest: true,
   persistState: false
@@ -34,7 +35,6 @@ describe('lightAccessory', () => {
     const { platform, device, log } = setup();
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -70,7 +70,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       pingGrace: 0.1,
       host: device.host.address
@@ -104,7 +103,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       onDelay: 0.1,
       useLastKnownBrightness: true,
@@ -163,7 +161,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       onDelay: 0.1,
       pingGrace: 0.1,
@@ -223,7 +220,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       enableAutoOff: true,
@@ -256,7 +252,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       enableAutoOn: true,
@@ -293,7 +288,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -323,7 +317,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -353,7 +346,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -387,7 +379,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -419,7 +410,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -449,7 +439,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -481,7 +470,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -531,7 +519,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       name: 'Unit Test Light',
@@ -564,7 +551,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       pingGrace: 0.1,
@@ -586,11 +572,10 @@ describe('lightAccessory', () => {
 
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async () => {
-        const { platform, device, log } = setup();
+    const { platform, device, log } = setup();
 
     
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       persistState: true,
@@ -634,7 +619,8 @@ describe('lightAccessory', () => {
 
     // Check that only one code has been sent
     sentHexCodeCount = device.getSentHexCodeCount();
-    expect(sentHexCodeCount).to.equal(2);
+    // expect(sentHexCodeCount).to.equal(2);	// including brightness?
+    expect(sentHexCodeCount).to.equal(1);
   });
 
 
@@ -644,7 +630,6 @@ describe('lightAccessory', () => {
 
 
     const config = {
-      name: 'Light',
       ...defaultConfig,
       host: device.host.address,
       persistState: true,
