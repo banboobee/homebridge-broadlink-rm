@@ -1,5 +1,4 @@
 // -*- js-indent-level : 2 -*-
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const ping = require('../helpers/ping')
@@ -8,8 +7,8 @@ const BroadlinkRMAccessory = require('./accessory');
 
 class SwitchAccessory extends BroadlinkRMAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {    
-    super(log, config, serviceManagerType);
+  constructor (log, config = {}, platform) {    
+    super(log, config, platform);
 
       // Fakegato setup
     if (config.history === true || config.noHistory === false) {
@@ -45,6 +44,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   reset () {
+    const { Characteristic } = this;
     super.reset();
 
     this.stateChangeInProgress = true;
@@ -99,6 +99,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   pingCallback (active) {
+    const { Characteristic } = this;
     const { config, state, serviceManager } = this;
 
     if (this.stateChangeInProgress){ 
@@ -117,6 +118,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   async setSwitchState (hexData) {
+    const { Characteristic } = this;
     const { data, host, log, name, logLevel, config, state, serviceManager } = this;
     this.stateChangeInProgress = true;
     this.reset();
@@ -149,6 +151,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
     
   async checkAutoOff () {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       let { disableAutomaticOff, enableAutoOff, onDuration } = config;
@@ -165,6 +168,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   async checkAutoOn () {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       let { disableAutomaticOn, enableAutoOn, offDuration } = config;
@@ -188,6 +192,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   // localCharacteristic(key, uuid, props) {
+  //   const { Characteristic } = this;
   //   let characteristic = class extends Characteristic {
   //     constructor() {
   // 	super(key, uuid);
@@ -201,6 +206,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
   // MQTT
   onMQTTMessage (identifier, message) {
+    const { Characteristic } = this;
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
@@ -221,11 +227,12 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager () {
-    const { data, name, config, serviceManagerType } = this;
+    const { Service, Characteristic } = this;
+    const { data, name, config } = this;
     const { on, off } = data || { };
     const history = config.history === true || config.noHistory === false;
     
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Switch, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Switch, this.log);
 
     if (history) {
       // const LastActivationCharacteristic = this.localCharacteristic(

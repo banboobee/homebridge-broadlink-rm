@@ -1,6 +1,5 @@
 // -*- js-indent-level : 2 -*-
 const { assert } = require('chai');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError')
 
@@ -54,6 +53,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setExclusivesOFF () {
+    const { Characteristic } = this;
     const { log, name, logLevel } = this;
     if (this.exclusives) {
       this.exclusives.forEach(async (x) => {
@@ -70,6 +70,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setSwitchState (hexData, previousValue) {
+    const { Characteristic } = this;
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
     let { defaultColorTemperature, useLastKnownColorTemperature } = config;    
@@ -113,6 +114,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setHue () {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager} = this;
       const { onDelay } = config;
@@ -153,6 +155,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setBrightness (dummy, previousValue) {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager } = this;
       const { off, on } = data;
@@ -242,6 +245,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setColorTemperature(dummy, previousValue) {
+    const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager} = this;
       const { onDelay } = config;
@@ -327,6 +331,7 @@ class LightAccessory extends SwitchAccessory {
 
   // MQTT
   onMQTTMessage (identifier, message) {
+    const { Characteristic } = this;
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
@@ -347,6 +352,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   // localCharacteristic(key, uuid, props) {
+  //   const { Characteristic } = this;
   //   let characteristic = class extends Characteristic {
   //     constructor() {
   // 	super(key, uuid);
@@ -359,12 +365,13 @@ class LightAccessory extends SwitchAccessory {
   // }
 
   setupServiceManager () {
-    const { data, name, config, serviceManagerType } = this;
+    const { Service, Characteristic } = this;
+    const { data, name, config } = this;
     const { on, off } = data || { };
     const history = config.history === true || config.noHistory === false;
     
-    //this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Lightbulb, this.log);
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, history ? Service.Switch : Service.Lightbulb, this.log);
+    //this.serviceManager = new this.serviceManagerClass(name, Service.Lightbulb, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, history ? Service.Switch : Service.Lightbulb, this.log);
 
     if (history) {
       // const LastActivationCharacteristic = this.localCharacteristic(

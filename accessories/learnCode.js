@@ -1,17 +1,15 @@
 const { getDevice } = require('../helpers/getDevice');
-const ServiceManager = require('../helpers/serviceManager');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 
 const BroadlinkRMAccessory = require('./accessory');
 
 class LearnIRAccessory extends BroadlinkRMAccessory {
 
-  constructor(log, config = {}, serviceManagerType) {
+  constructor(log, config = {}, platform) {
     // Set a default name for the accessory
     if (!config.name) {config.name = 'Learn Code';}
     config.persistState = false;
 
-    super(log, config, serviceManagerType);
+    super(log, config, platform);
   }
 
   setDefaults() {
@@ -45,6 +43,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   }
 
   turnOffCallback = () => {
+    const { Characteristic } = this;
     this.serviceManager.setCharacteristic(Characteristic.On, false);
   }
 
@@ -186,10 +185,11 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   }
   
   setupServiceManager() {
-    const { data, name, config, serviceManagerType } = this;
+    const { Service, Characteristic } = this;
+    const { data, name, config } = this;
     const { on, off } = data || {};
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Switch, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Switch, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
