@@ -104,24 +104,24 @@ class HomebridgePlatform {
     })
 
     // Register new accessories
-    // HomebridgeAPI.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM',
+    // this.api.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM',
     // 					      accessories
     // 					      .filter(x => !cachedAccessories.find(y => y === x.serviceManager.accessory))
     // 					      .filter(x => x.config.type !== 'tv')
     // 					      .map(x => x.serviceManager.accessory));
     // Register external accessories
-    // HomebridgeAPI.publishExternalAccessories('homebridge-broadlink-rm', 
+    // this.api.publishExternalAccessories('homebridge-broadlink-rm', 
     // 					     accessories
     // 					     .filter(x => x.config.type === 'tv')
     // 					     .map(x => x.serviceManager.accessory));
     accessories.forEach(x => {
       if (x.config.type === 'tv') {
 	// Register external accessories
-	HomebridgeAPI.publishExternalAccessories('homebridge-broadlink-rm', [x.serviceManager.accessory]);
+	this.api.publishExternalAccessories('homebridge-broadlink-rm', [x.serviceManager.accessory]);
 	this.log(`Registered ${x.config.type} accessory ${x.config.name} with type ${x.config.subType}.`);
       } else if (!cachedAccessories.find(y => y === x.serviceManager.accessory)) {
 	// Register new accessories
-	HomebridgeAPI.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x.serviceManager.accessory]);
+	this.api.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x.serviceManager.accessory]);
 	this.log(`Registered ${x.config.type} accessory ${x.config.name}.`)
       }
     });
@@ -129,7 +129,7 @@ class HomebridgePlatform {
     // Unregister deleted accessories
     cachedAccessories.forEach(x => {
       if (!accessories.find(y => y.serviceManager.accessory.UUID === x.UUID)) {
-	HomebridgeAPI.unregisterPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x]);
+	this.api.unregisterPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x]);
 	this.log(`Removed existing accessory ${x.displayName} from cache.`);
       }
     });
