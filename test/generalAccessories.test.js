@@ -27,10 +27,8 @@ describe('disableLogs', () => {
       ]
     };
   
-    const { platform, device, log } = setup();
+    const {platform, device, log, accessories} = await getAccessories(config);
     expect(platform.isUnitTest).to.equal(true);
-    
-    const accessories = await getAccessories(config);
     expect(accessories[0].isUnitTest).to.equal(true);
     
   });
@@ -51,7 +49,7 @@ describe('disableLogs', () => {
       ]
     };
   
-    const accessories = await getAccessories(config);
+    const {platform, device, log, accessories} = await getAccessories(config);
     const logFunctionAsString = accessories[0].log.toString();
     const isEmptyFunction = logFunctionAsString === '() => {}';
     
@@ -72,7 +70,7 @@ describe('disableLogs', () => {
       ]
     };
 
-    const accessories = await getAccessories(config);
+    const {platform, device, log, accessories} = await getAccessories(config);
     const logFunctionAsString = accessories[0].log.toString();
     const isEmptyFunction = logFunctionAsString === '() => {}';
 
@@ -80,7 +78,6 @@ describe('disableLogs', () => {
   });
 
   it('Advanced HEX', async () => {
-    const { platform, device, log } = setup();
     const config = {
       isUnitTest: true,
       hideScanFrequencyButton: true,
@@ -93,7 +90,6 @@ describe('disableLogs', () => {
 	  persistState: false,
 	  logLevel: 'trace',
 	  pingGrace: 0.1,
-	  host: device.host.address,
 	  data: {
 	    on: [
 	      {data: 'ON11',
@@ -124,7 +120,6 @@ describe('disableLogs', () => {
           disableLogs: false,
 	  logLevel: 'trace',
 	  pingGrace: 0.1,
-	  host: device.host.address,
 	  data: {
 	    on: [
 	      {data: 'ON21',
@@ -151,7 +146,7 @@ describe('disableLogs', () => {
       ]
     };
     
-    const accessories = await getAccessories(config);
+    const {platform, device, log, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
 

@@ -94,9 +94,10 @@ class FakePlatform extends BroadlinkRMPlatform {
 }
 
 const setup = (config) => {
-  const platform = new FakePlatform(log, config, homebridge);
-
   const device = new FakeDevice(log)
+  config?.accessories?.forEach((x) => x.host = device.host.address);
+
+  const platform = new FakePlatform(log, config, homebridge);
   addDevice(device)
 
   return { platform, device, log }
@@ -108,8 +109,7 @@ const getAccessories = (config) => {
   const accessories = [];
   platform.addAccessories(accessories);
   
-  return accessories;
+  return { platform, device, log, accessories };
 }
 
-// module.exports = { log, setup, getAccessories }
 module.exports = { setup, getAccessories }
