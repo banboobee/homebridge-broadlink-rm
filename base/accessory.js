@@ -232,13 +232,12 @@ class HomebridgeAccessory {
 
     // Load state from file
     const restoreStateOrder = this.restoreStateOrder();
-    const state = !Object.keys(this.serviceManager.accessory.context).length ?
+    const state = !Object.keys(this.serviceManager.accessory?.context ?? {}).length ?
 	  persistentState.load({ host, name }) || {} :
 	  {...this.serviceManager.accessory.context}
 
     // Allow each accessory to correct the state if necessary
     this.correctReloadedState(state);
-    this.serviceManager.accessory.context = {...state};
     // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
     // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
 
@@ -246,17 +245,32 @@ class HomebridgeAccessory {
     // this.state = addSaveProxy(name, state, (state) => {
     //   persistentState.save({ host, name, state });
     // });
-    this.state = new Proxy(state, {
-      set: async function(target, key, value) {
-	Reflect.set(target, key, value);
-	// persistentState.save({ host, name, state });
-	this.serviceManager.accessory.context[key] = value;
-	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-
-	return true
-      }.bind(this)
-    })
+    if (this.isUnitTest) {
+      this.state = new Proxy(state, {
+	set: async function(target, key, value) {
+	  Reflect.set(target, key, value);
+	  persistentState.save({ host, name, state });
+	  // this.serviceManager.accessory.context[key] = value;
+	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	  
+	  return true
+	}.bind(this)
+      })
+    } else {
+      this.serviceManager.accessory.context = {...state};
+      this.state = new Proxy(state, {
+	set: async function(target, key, value) {
+	  Reflect.set(target, key, value);
+	  // persistentState.save({ host, name, state });
+	  this.serviceManager.accessory.context[key] = value;
+	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	  
+	  return true
+	}.bind(this)
+      })
+    }
     this.serviceManager.state = this.state;
 
     // Refresh the UI and resend data based on existing state
@@ -438,7 +452,7 @@ class HomebridgeAccessory {
       this.isMQTTConnecting = true;
     })
 
-    HomebridgeAPI.on('shutdown', async () => {
+    this.platform.api.on('shutdown', async () => {
       this.mqttClient.end();
     })
 

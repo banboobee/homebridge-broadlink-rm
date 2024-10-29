@@ -9,26 +9,29 @@ class TVAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, platform) {
     super(log, config, platform);
 
-    if (!config.isUnitTest) {this.checkPing(ping);}
+    if (!this.isUnitTest) {this.checkPing(ping);}
     this.lastPingResponse = undefined;
 
     const {name} = this;
     const {host, persistState} = config;
     if (persistState === false) {return;}
 
-    const state = {...this.serviceManager.accessory.context};
-    this.state = new Proxy(state, {	// replace proxy for external accessories
-      set: async function(target, key, value) {
-	Reflect.set(target, key, value);
-	persistentState.save({ host, name, state });
-	this.serviceManager.accessory.context[key] = value;
-	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-	
-	return true
-      }.bind(this)
-    })
-    this.serviceManager.state = this.state;
+    if (!this.isUnitTest) {	// to avoid duplicate state persisting
+      // const state = {...this.serviceManager.accessory.context};
+      const state = {...this.serviceManager.state};
+      this.state = new Proxy(state, {	// replace proxy for external accessories
+	set: async function(target, key, value) {
+	  Reflect.set(target, key, value);
+	  persistentState.save({ host, name, state });
+	  this.serviceManager.accessory.context[key] = value;
+	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	  
+	  return true
+	}.bind(this)
+      })
+      this.serviceManager.state = this.state;
+    }
 }
 
   setDefaults() {
@@ -452,19 +455,22 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     // const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
     // const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
-    const speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');
+    if (this.isUnitTest) {	// external control in UnitTest
+      this.speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
+    } else {
+      this.speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');
+    }
 
-    speakerService.setCharacteristic(
+    this.speakerService.setCharacteristic(
       Characteristic.Active,
       Characteristic.Active.ACTIVE
     );
-    speakerService.setCharacteristic(
+    this.speakerService.setCharacteristic(
       Characteristic.VolumeControlType,
       Characteristic.VolumeControlType.ABSOLUTE
     );
 
-    speakerService
-      .getCharacteristic(Characteristic.VolumeSelector)
+    this.speakerService.getCharacteristic(Characteristic.VolumeSelector)
       .on('set', async (newValue, callback) => {
         if (!data || !data.volume) {
           this.logs.error(`VolumeSelector: No settings data found. Ignoring request.`);
@@ -492,9 +498,8 @@ class TVAccessory extends BroadlinkRMAccessory {
         callback(null);
       });
     
-    speakerService.setCharacteristic(Characteristic.Mute, false);
-    speakerService
-      .getCharacteristic(Characteristic.Mute)
+    this.speakerService.setCharacteristic(Characteristic.Mute, false);
+    this.speakerService.getCharacteristic(Characteristic.Mute)
       .on('get', (callback) => {
 	// console.log(`${name} Mute: get ${this.state.Mute}.`);
 	callback(null, this.state.Mute || false);
@@ -518,14 +523,14 @@ class TVAccessory extends BroadlinkRMAccessory {
         callback(null);         
       });
 
-    // this.serviceManagers.push(speakerService);
+    // this.serviceManagers.push(this.speakerService);
 
     if (data.inputs && data.inputs instanceof Array) {
       data.inputs.unshift(undefined);
       for (let i = 1; i < data.inputs.length; i++) {
         const input = data.inputs[i];
         // const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
-        const inputService = this.serviceManager.accessory.addService(Service.InputSource, `${name} input${i}`, `${name} input${i}`);
+        const inputService = this.serviceManager.accessory?.addService(Service.InputSource, `${name} input${i}`, `${name} input${i}`);
 
 	const visibility = this.state[`inputs/${input.name}/VisibilityState`] ?? Characteristic.CurrentVisibilityState.SHOWN;
 	if (visibility === Characteristic.CurrentVisibilityState.HIDDEN) {
@@ -536,8 +541,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	  this.logs.debug(`displaying input source '${input.name}' as '${configuredName}'.`);
 	}
 	
-        inputService
-          .setCharacteristic(Characteristic.Identifier, i)
+        inputService?.setCharacteristic(Characteristic.Identifier, i)
           .setCharacteristic(Characteristic.ConfiguredName, configuredName)
           .setCharacteristic(
             Characteristic.IsConfigured,
@@ -550,7 +554,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	  .setCharacteristic(Characteristic.TargetVisibilityState, visibility)
 	  .setCharacteristic(Characteristic.CurrentVisibilityState, visibility);
 
-        inputService.getCharacteristic(Characteristic.TargetVisibilityState)
+        inputService?.getCharacteristic(Characteristic.TargetVisibilityState)
 	  .onSet(state => {
 	    const current = inputService.getCharacteristic(Characteristic.CurrentVisibilityState).value;
             this.logs.debug(`${input.name} setCurrentVisibilityState: ${state}`);
@@ -560,7 +564,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	    }
 	    inputService.updateCharacteristic(Characteristic.CurrentVisibilityState, state);
 	  })
-        inputService.getCharacteristic(Characteristic.ConfiguredName)
+        inputService?.getCharacteristic(Characteristic.ConfiguredName)
 	  .onSet(update => {
 	    const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
 	    if (update !== current) {
@@ -578,7 +582,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	  })
 	
         // this.serviceManagers.push(inputService);
-        this.serviceManager.service.addLinkedService(inputService);
+        this.serviceManager.service.addLinkedService?.(inputService);
       }
 
       const displayOrder = this.IdentifiersOrder(data.inputs.map((x, y) => y));
