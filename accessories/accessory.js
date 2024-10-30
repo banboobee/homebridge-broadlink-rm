@@ -23,42 +23,6 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 
     super(log, config, platform);
     if (config.debug) {this.debug = true}
-
-    // this.manufacturer = 'Broadlink';
-    // this.model = 'RM Mini or Pro';
-    // this.serialNumber = uuid.v4();
-
-    // //Set LogLevel
-    // switch(this.config.logLevel){
-    //   case 'none':
-    //     this.logLevel = 6;
-    //     break;
-    //   case 'critical':
-    //     this.logLevel = 5;
-    //     break;
-    //   case 'error':
-    //     this.logLevel = 4;
-    //     break;
-    //   case 'warning':
-    //     this.logLevel = 3;
-    //     break;
-    //   case 'info':
-    //     this.logLevel = 2;
-    //     break;
-    //   case 'debug':
-    //     this.logLevel = 1;
-    //     break;
-    //   case 'trace':
-    //     this.logLevel = 0;
-    //     break;
-    //   default:
-    //     //default to 'info':
-    //     if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
-    //     this.logLevel = 2;
-    //     break;
-    // }
-    // if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    // // if(this.config.disableLogs) {this.logLevel = 6;}  
   }
 
   performSetValueAction ({ host, data, log, name, logLevel }) {
@@ -98,10 +62,11 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     }
 
     return await device.mutex.use(async () => {	// Queue command sequence
+      const maxduration = data[0].timeout ?? 60;// 'xyz'[0] will be undefined.
       let timeout = setTimeout(() => {
 	timeout = null;
-	this.logs.error(`${name} Failed to execute command sequence. Timed out of 60 second(s).`);
-      }, 60*1000);
+	this.logs.error(`Failed to execute command sequence. Timed out of ${maxduration} second(s).`);
+      }, maxduration*1000);
       
       if (typeof data === 'string') {
 	r += await sendData({ host, hexData: data, log, name, logLevel });
@@ -117,13 +82,13 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	    r += await sendData({ host, hexData: hex, log, name, logLevel });
 	    x++;
 	    
-	    if (j < sendCount) {
+	    if (timeout && j < sendCount - 1) {
 	      await new Promise(resolve => setTimeout(resolve, interval * 1000));
 	      this.logs.debug(`repeating #${j+1} with intervals of ${interval * 1000} ms.`);
 	    }
 	  }
 	  
-          if (pause) {
+          if (timeout && pause) {
 	    await new Promise(resolve => setTimeout(resolve, pause * 1000));
 	    this.logs.debug(`pausing ${pause * 1000} ms.`);
           }
@@ -138,24 +103,6 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       };
     });
   }
-  
-//   async performRepeatSend (parentData, actionCallback) {
-//     const { host, log, name, logLevel } = this;
-//     let { data, interval, sendCount } = parentData;
-
-//     sendCount = sendCount || 1
-//     if (sendCount > 1) {interval = interval || 0.1;}
-
-//     // Itterate through each hex config in the array
-//     for (let index = 0; data && index < sendCount; index++) {
-//       await sendData({ host, hexData: data, log, name, logLevel });
-
-//       if (interval && index < sendCount) {
-// 	await new Promise(resolve => setTimeout(resolve, interval * 1000));
-// 	if (logLevel < 2) log(`${name} interval (${host}) ${interval * 1000} ms`);
-//       }
-//     }
-//   }
 }
 
 module.exports = BroadlinkRMAccessory;

@@ -14,25 +14,24 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     const {name} = this;
     const {host, persistState} = config;
-    if (persistState === false) {return;}
-
-    if (!this.isUnitTest) {	// to avoid duplicate state persisting
-      // const state = {...this.serviceManager.accessory.context};
-      const state = {...this.serviceManager.state};
-      this.state = new Proxy(state, {	// replace proxy for external accessories
-	set: async function(target, key, value) {
-	  Reflect.set(target, key, value);
-	  persistentState.save({ host, name, state });
-	  this.serviceManager.accessory.context[key] = value;
-	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-	  
-	  return true
-	}.bind(this)
-      })
-      this.serviceManager.state = this.state;
-    }
-}
+    if (persistState === false) return;
+    if (this.isUnitTest) return;	// to avoid duplicate state persisting
+    
+    // const state = {...this.serviceManager.accessory.context};
+    const state = {...this.serviceManager.state};
+    this.state = new Proxy(state, {	// replace proxy for external accessories
+      set: async function(target, key, value) {
+	Reflect.set(target, key, value);
+	persistentState.save({ host, name, state });
+	this.serviceManager.accessory.context[key] = value;
+	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+	
+	return true
+      }.bind(this)
+    })
+    this.serviceManager.state = this.state;
+  }
 
   setDefaults() {
     const { config } = this;
