@@ -2,11 +2,17 @@
 const { assert } = require('chai');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError')
+const Mutex = require('await-semaphore').Mutex;
 
 const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
     
+  constructor (log, config = {}, platform) {    
+    super(log, config, platform);
+    this.mutex = new Mutex();
+  }
+  
   setDefaults () {
     super.setDefaults();
     
@@ -196,31 +202,36 @@ class LightAccessory extends SwitchAccessory {
 	if (data['brightness+'] || data['brightness-'] || data['availableBrightnessSteps']) {
           assert(data['brightness+'] && data['brightness-'] && data['availableBrightnessSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and availableBrightnessSteps\x1b[0m need to be set.`);
 	  
-	  const n = data['availableBrightnessSteps'] + 1;
-	  const r = 1000 % n;
-	  const delta = (1000 - r)/n;
-	  const increment = data['brightness+'];
-	  const decrement = data['brightness-'];
-	  const current = previousValue > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
-	  const target = state.brightness > 0 ? Math.floor(Math.min(state.brightness*10, delta*n - 1)/delta) + 1 : 0;
-
-	  this.logs.debug(`setBrightness: current:${String(previousValue).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(state.brightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
-	  if (current != target) {	// need incremental operation
-	    const d = target - current;
-            const {attempt, fail, timeout} = await this.performSend([
-	      {'data': d > 0 ? increment : decrement,
-	       'interval': onDelay,
-	       'sendCount': Math.abs(d),
-	      }]);
-	    const c = d > 0 ? d - attempt - fail : d + attempt + fail;
-	    const u = Math.floor((Math.min(state.brightness*10, delta*n - 1) - c*delta)/10);
-	    this.logs.debug(`setBrightness: current:${state.brightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
-	    if (fail || timeout) {	// nned correction?
+	  const targetBrightness = state.brightness;
+	  await this.mutex.use(async () => {
+	    let previous = previousValue ?? config.defaultBrightness;
+	    if (targetBrightness !== state.brightness) {
+	      previous = state.brightness;	// queued attemps.
+	    }
+	    const n = data['availableBrightnessSteps'] + 1;
+	    const r = 1000 % n;
+	    const delta = (1000 - r)/n;
+	    const increment = data['brightness+'];
+	    const decrement = data['brightness-'];
+	    const current = previous > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
+	    const target = targetBrightness > 0 ? Math.floor(Math.min(targetBrightness*10, delta*n - 1)/delta) + 1 : 0;
+	    
+	    this.logs.debug(`setBrightness: current:${String(previous).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(targetBrightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
+	    if (current != target) {	// need incremental operation
+	      const d = target - current;
+              const {attempt, fail, timeout} = await this.performSend([
+		{'data': d > 0 ? increment : decrement,
+		 'interval': onDelay,
+		 'sendCount': Math.abs(d),
+		}]);
+	      const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+	      const u = Math.floor((Math.min(targetBrightness*10, delta*n - 1) - c*delta)/10);
+	      this.logs.debug(`setBrightness: current:${targetBrightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
 	      state.brightness = u;
 	      serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
 	    }
-	  }
-	  await this.mqttpublish('Brightness', state.brightness);
+	    await this.mqttpublish('Brightness', state.brightness);
+	  })
 	} else {
           // Find brightness closest to the one requested
           const foundValues = this.dataKeys('brightness')
@@ -268,23 +279,36 @@ class LightAccessory extends SwitchAccessory {
       }
       if (data['colorTemperature+'] || data['colorTemperature-'] || data['availableColorTemperatureSteps']) {
         assert(data['colorTemperature+'] && data['colorTemperature-'] && data['availableColorTemperatureSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature+, colorTemperature- and availableColorTemperatureSteps\x1b[0m need to be set.`);
-	const min = 140, max = 500;
-	const n = data['availableColorTemperatureSteps'] + 1;
-	const r = 1000 % n;
-	const delta = (1000 - r)/n;
-	const increment = data['colorTemperature+'];
-	const decrement = data['colorTemperature-'];
-	const current = Math.floor(Math.min((previousValue - min)/(max - min)*1000, delta*n - 1)/delta);
-	const target = Math.floor(Math.min((state.colorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
-	
-	this.logs.debug(`setColorTemperature: (current:${previousValue}(${current}) target:${state.colorTemperature}(${target}) increment:${target - current} interval:${onDelay}s)`);
-	if (current != target) {	// need incremental operation
-          await this.performSend([
-	    {'data': target > current ? increment : decrement,
-	     'interval': onDelay,
-	     'sendCount': Math.abs(target - current),
-	    }]);
-	}
+	const targetColorTemperature = state.colorTemperature;
+	await this.mutex.use(async () => {
+	  let previous = previousValue ?? config.defaultColorTemperature;
+	  if (targetColorTemperature !== state.colorTemperature) {
+	    previous = state.colorTemperature;	// queued attemps.
+	  }
+	  const min = 140, max = 500;
+	  const n = data['availableColorTemperatureSteps'] + 1;
+	  const r = 1000 % n;
+	  const delta = (1000 - r)/n;
+	  const increment = data['colorTemperature+'];
+	  const decrement = data['colorTemperature-'];
+	  const current = Math.floor(Math.min((previous - min)/(max - min)*1000, delta*n - 1)/delta);
+	  const target = Math.floor(Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
+	  
+	  this.logs.debug(`setColorTemperature: current:${String(previous).padStart(3, ' ')}(${String(current).padStart(2, ' ')}), target:${String(targetColorTemperature).padStart(3, ' ')}(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
+	  if (current != target) {	// need incremental operation
+	    const d = target - current;
+            let {attempt, fail, timeout} = await this.performSend([
+	      {'data': target > current ? increment : decrement,
+	       'interval': onDelay,
+	       'sendCount': Math.abs(target - current),
+	      }]);
+	    const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+	    const u = Math.floor((Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1) - c*delta)*(max - min)/1000) + min;
+	    this.logs.debug(`setColorTemperature: current:${targetColorTemperature}, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}.`);
+	    state.colorTemperature = u;
+	    serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+	  }
+	})
       } else {
         // Find closest to the one requested
         const foundValues = this.dataKeys('colorTemperature')

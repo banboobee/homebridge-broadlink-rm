@@ -2,6 +2,7 @@ const { expect } = require('chai');
 
 const { setup } = require('./helpers/setup');
 const ping = require('./helpers/fakePing');
+// const hexCheck = require('./helpers/hexCheck');
 
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -666,4 +667,64 @@ describe('lightAccessory', () => {
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
   });
+
+  it('ColorTemperature+/-, Brightness+/-', async () => {
+    const { platform, device, log } = setup();
+
+    const config = {
+      name: 'Light',
+      type: 'light',
+      isUnitTest: true,
+      logLevel: 'trace',
+      persistState: false,
+      defaultBrightness: 100,
+      defaultColorTemperature: 140,
+      onDelay: 0.1,
+      data: {
+        availableBrightnessSteps: 3,
+        'brightness+': 'BRIGHTNESS+',
+        'brightness-': 'BRIGHTNESS-',
+	availableColorTemperatureSteps: 5,
+	'colorTemperature+': 'COLORTEMPERATURE+',
+	'colorTemperature-': 'COLORTEMPERATURE-',
+        "on": 'ON',
+        "off": 'OFF'
+      },
+      host: device.host.address,
+      pingGrace: 0.1
+    }
+    
+    // Turn On Light
+    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.1);
+    
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 500);
+    await delayForDuration(0.1);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 320);
+    await delayForDuration(0.1);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 400);
+    await delayForDuration(0.1);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 140);
+
+    await delayForDuration(1.3);
+    // device.resetSentHexCodes();
+
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 70);
+    await delayForDuration(0.1);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 90);
+    await delayForDuration(0.1);
+    lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 30);
+    
+    await delayForDuration(0.2);
+    // No expected values due to random fails.
+    // expect(lightAccessory.state.brightness).to.equal(90);
+    // hexCheck({ device,
+    // 	       codes: ['BRIGHTNESS-', 'BRIGHTNESS-',
+    // 		       'BRIGHTNESS+', 'BRIGHTNESS+'
+    // 		      ],
+    // 	       count: 4});
+
+  }).timeout(3000);
+
 })

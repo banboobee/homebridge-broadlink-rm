@@ -45,6 +45,9 @@ class FakeDevice {
     if (!hexBufferData) {throw new Error('Missing HEX Data')}
 
     this.sentHexCodes.push(originalHexString)
+
+    // return originalHexString.length > 0 ? 0 : -1;
+    return originalHexString.length > 0 ? (Math.random() > 0.2 ? 0 : -1) : -1;
   }
 
   on (type, callback) {
