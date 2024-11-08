@@ -1,7 +1,7 @@
 const hap = require('hap-nodejs');
 const BroadlinkRMPlatform = require('../../platform');
 const FakeDevice = require('./fakeDevice')
-const { addDevice } = require('../../helpers/getDevice')
+const { broadlink, addDevice, discoverDevices } = require('../../helpers/getDevice')
 
 const homebridge = {hap: hap,
 		    on: () => {},
@@ -112,4 +112,12 @@ const getAccessories = (config) => {
   return { platform, device, log, accessories };
 }
 
-module.exports = { setup, getAccessories }
+const getDevices = (config) => {
+  const { platform, device, log } = setup(config)
+
+  discoverDevices(true, log, 0, 1);
+  
+  return { platform, device, log, broadlink };
+}
+
+module.exports = { setup, getAccessories, getDevices }
