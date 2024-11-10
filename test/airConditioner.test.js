@@ -580,4 +580,85 @@ describe('airConAccessory', async () => {
 
     expect(airConAccessory.autoSwitchAccessory).to.equal(switchAccessory)
   });
+
+  it('set auto', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      data: {
+	on: 'ON',
+	off: 'OFF',
+	heat16: {
+	  'data': 'HEAT_16'
+	},
+	heat18: {
+	  'data': 'HEAT_18'
+	},
+	heat23: {
+	  'data': 'HEAT_23'
+	},
+	heat26: {
+	  'data': 'HEAT_26'
+	},
+	heat30: {
+	  'data': 'HEAT_30'
+	},
+	cool16: {
+	  'data': 'COOL_16'
+	},
+	cool18: {
+	  'data': 'COOL_18'
+	},
+	cool23: {
+	  'data': 'COOL_23'
+	},
+	cool26: {
+	  'data': 'COOL_26'
+	},
+	cool30: {
+	  'data': 'COOL_30'
+	},
+	auto16: {
+	  'data': 'AUTO_16'
+	},
+	auto18: {
+	  'data': 'AUTO_18'
+	},
+	auto23: {
+	  'data': 'AUTO_23'
+	},
+	auto26: {
+	  'data': 'AUTO_26'
+	},
+	auto30: {
+	  'data': 'AUTO_30'
+	}
+      },
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    device.sendFakeOnCallback('temperature', 25)
+
+    // Set air-con mode to "auto"
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+
+    await delayForDuration(2);	// wait enough to settle mode and temperature
+
+    device.sendFakeOnCallback('temperature', 20)
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+
+    device.sendFakeOnCallback('temperature', 18)
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+
+    await delayForDuration(1.0);
+  }).timeout(5000);
 })

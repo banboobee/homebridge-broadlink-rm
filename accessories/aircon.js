@@ -144,6 +144,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async updateServiceTargetHeatingCoolingState (value) {
     const { Characteristic } = this;
     const { serviceManager, state, log } = this;
+    const keys = this.HeatingCoolingConfigKeys;
     // this.logs.debug(`updateServiceTargetHeatingCoolingState current:${keys[this.state['targetHeatingCoolingState']]} target:${keys[value]}`);
 
     await delayForDuration(0.2).then(() => {
@@ -556,6 +557,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
     }
     
+    this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
     this.checkTemperatureForAutoOnOff(temperature);
   }
 
