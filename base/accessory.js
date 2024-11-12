@@ -151,7 +151,7 @@ class HomebridgeAccessory {
       if (this.isReloadingState && !resendDataAfterReload) {
         this.state[propertyName] = value;
 
-        this.logs.warn(`set${capitalizedPropertyName}: already ${value} (no data sent - A)`);
+        this.logs.debug(`set${capitalizedPropertyName}: already ${value} (no data sent - A)`);
 
         callback(null);
         return;
@@ -159,7 +159,7 @@ class HomebridgeAccessory {
 
       if (!ignorePreviousValue && this.state[propertyName] == value && !this.isReloadingState) {
         if (!allowResend) {
-          this.logs.warn(`set${capitalizedPropertyName}: already ${value} (no data sent - B)`);
+          this.logs.debug(`set${capitalizedPropertyName}: already ${value} (no data sent - B)`);
 
           callback(null);
           return;
@@ -424,12 +424,12 @@ class HomebridgeAccessory {
       if (process.uptime() < 600) { // Only use console during startup
 	this.logs.info(`connected to MQTT broker ${mqttURL}.`);
 	this.logs.trace(`packet: ${JSON.stringify(packet, null, 2)}`);
-      }
 
-      [... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
-	this.logs.info(`subscribes MQTT topic ${x}.`);
-        mqttClient.subscribe(x);
-      });
+	[... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
+	  this.logs.info(`subscribes MQTT topic ${x}.`);
+          mqttClient.subscribe(x);
+	});
+      }
 
     })
 
