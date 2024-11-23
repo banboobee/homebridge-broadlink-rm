@@ -1,8 +1,10 @@
 const { expect } = require('chai');
 
 const { setup } = require('./helpers/setup');
+const { getAccessories } = require('./helpers/setup');
+const { MQTTpublish } = require('./helpers/setup');
 const ping = require('./helpers/fakePing');
-// const hexCheck = require('./helpers/hexCheck');
+const hexCheck = require('./helpers/hexCheck');
 
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -622,7 +624,7 @@ describe('lightAccessory', () => {
     sentHexCodeCount = device.getSentHexCodeCount();
     // expect(sentHexCodeCount).to.equal(2);	// including brightness?
     expect(sentHexCodeCount).to.equal(1);
-  });
+  }).timeout(2000);
 
 
   // Ensure the hex is not resent after reload
@@ -726,5 +728,163 @@ describe('lightAccessory', () => {
     // 	       count: 4});
 
   }).timeout(3000);
+
+  it('"mqttStateOnly": false', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      ...defaultConfig,
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "On",
+          "topic": "homebridge-broadlink-rm/UT/On"
+        },
+        {
+          "identifier": "Brightness",
+          "topic": "homebridge-broadlink-rm/UT/Brightness"
+        }
+      ],
+      pingGrace: 0.1,
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttStateOnly: false,
+      host: device.host.address
+    };
+    
+    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    await delayForDuration(0.3);
+    
+    MQTTpublish(log, 'On', 'true');
+    MQTTpublish(log, 'Brightness', 1);
+    await delayForDuration(0.3);
+    expect(lightAccessory.state.switchState).to.equal(true);
+
+    // Check hex codes were sent
+    hexCheck({ device,
+	       codes: [
+		 'ON', 'BRIGHTNESS5'
+	       ],
+	       count: 2
+	     });
+
+    lightAccessory.mqttClient.end();
+  });
+
+  it('"mqttStateOnly": true', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'Light',
+      type: 'light',
+      data: {
+	on: 'ON',
+	off: 'OFF',
+	brightness5: 'BRIGHTNESS5',
+	brightness40: 'BRIGHTNESS40'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "On",
+          "topic": "homebridge-broadlink-rm/UT/On"
+        },
+        {
+          "identifier": "Brightness",
+          "topic": "homebridge-broadlink-rm/UT/Brightness"
+        }
+      ],
+      pingGrace: 0.1,
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttStateOnly: true,
+      host: device.host.address
+    };
+    
+    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    await delayForDuration(0.3);
+    
+    MQTTpublish(log, 'On', 'true');
+    MQTTpublish(log, 'Brightness', 1);
+    await delayForDuration(0.3);
+    expect(lightAccessory.state.switchState).to.equal(true);
+
+    // Check hex codes were sent
+    hexCheck({ device,
+	       codes: [
+	       ],
+	       count: 0
+	     });
+
+    lightAccessory.mqttClient.end();
+  });
+  
+  it('exclusives', async () => {
+    const config = {
+      isUnitTest: true,
+      hideScanFrequencyButton: true,
+      disableLogs: true,
+      hideLearnButton: true,
+      accessories: [
+        {
+          name: 'Light1',
+          type: 'light',
+	  persistState: false,
+	  logLevel: 'trace',
+	  pingGrace: 0.1,
+	  data: {
+	      on: 'ON@LIGHT1',
+	      off: 'OFF@LIGHT1',
+	      brightness5: 'BRIGHTNESS5@LIGHT1',
+	      brightness40: 'BRIGHTNESS40@LIGHT1'
+	  }
+        },
+        {
+          name: 'Light2',
+          type: 'light',
+	  persistState: false,
+	  logLevel: 'trace',
+	  pingGrace: 0.1,
+	  exclusives: [
+	    "Light1"
+	  ],
+	  data: {
+	      on: 'ON@LIGHT2',
+	      off: 'OFF@LIGHT2',
+	      brightness5: 'BRIGHTNESS5@LIGHT2',
+	      brightness40: 'BRIGHTNESS40@LIGHT2'
+	  }
+        }
+      ]
+    };
+    
+    const {platform, device, log, accessories} = await getAccessories(config);
+    accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.3);
+    expect(accessories[0].state.switchState).to.equal(true);
+
+    
+    accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.3);
+    expect(accessories[0].state.switchState).to.equal(false);
+    expect(accessories[1].state.switchState).to.equal(true);
+
+    accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(0.3);
+    expect(accessories[0].state.switchState).to.equal(true);
+    expect(accessories[1].state.switchState).to.equal(false);
+
+    // await delayForDuration(0.9);
+
+    // Check hex codes were sent
+    hexCheck({ device,
+	       codes: [
+		 'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1',
+		 'ON@LIGHT2', 'BRIGHTNESS40@LIGHT2',
+		 'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1'
+	       ],
+	       count: 6
+	     });
+  });
 
 })

@@ -35,6 +35,10 @@ class HomebridgeAccessory {
     this.Characteristic = platform.api.hap.Characteristic;
     this.Categories = platform.api.hap.Categories;
 
+    // MQTT Support
+    this.mqttValues = {};
+    this.mqttValuesTemp = {};
+    
     //Set LogLevel
     switch (this.config.logLevel) {
       case 'none':
@@ -340,8 +344,8 @@ class HomebridgeAccessory {
 
     if (!mqttURL) {return;}
 
-    this.mqttValues = {};
-    this.mqttValuesTemp = {};
+    // this.mqttValues = {};
+    // this.mqttValuesTemp = {};
 
     // Perform some validation of the mqttTopic option in the config. 
     if (mqttTopic && typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {

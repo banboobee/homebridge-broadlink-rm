@@ -1,4 +1,5 @@
 const hap = require('hap-nodejs');
+const { exec } = require('child_process');
 const BroadlinkRMPlatform = require('../../platform');
 const FakeDevice = require('./fakeDevice')
 const { broadlink, addDevice, discoverDevices } = require('../../helpers/getDevice')
@@ -103,12 +104,17 @@ const setup = (config) => {
   return { platform, device, log }
 }
 
-const getAccessories = (config) => {
+const getAccessories = async (config) => {
   const { platform, device, log } = setup(config)
 
   const accessories = [];
   platform.addAccessories(accessories);
-  
+  accessories.forEach(async (accessory) => {
+    if (accessory.updateAccessories) {
+      await accessory.updateAccessories(accessories);
+    }
+  })
+
   return { platform, device, log, accessories };
 }
 
@@ -120,4 +126,11 @@ const getDevices = (config) => {
   return { platform, device, log, broadlink };
 }
 
-module.exports = { setup, getAccessories, getDevices }
+const MQTTpublish = async (log, topic, message) => {
+  const command = `mosquitto_pub -h localhost -t 'homebridge-broadlink-rm/UT/${topic}' -m ${message}`;
+  exec(command, function (error, stdout, stderr) {
+    log(`MQTT publish: ${command}, stdout:${stdout}, stderr:${stderr}, error:${error}`);
+  });
+}
+
+module.exports = { setup, getAccessories, getDevices, MQTTpublish }

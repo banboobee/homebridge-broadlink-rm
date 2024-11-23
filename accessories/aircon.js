@@ -406,7 +406,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if((previousTemperature !== finalTemperature) || state.firstTemperatureUpdate || !preventResendHex){
       //Set the temperature
       this.logs.info(`sentTemperature (${state.targetTemperature})`);
-      await this.performSend(hexData.data);
+      await this.performSend(hexData.data || hexData);
       state.firstTemperatureUpdate = false;
     }
   }
@@ -882,7 +882,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  this.onTemperature(temperature, undefined);
 	}
       } catch (e) {
-	this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed.`);
+	this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed. ${e}`);
 	this.mqttValues['temperature'] = undefined;
 	// this.mqttValues['humidity'] = undefined;
       }
@@ -902,7 +902,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.mqttValues[identifier] = value;
       }
 
-      const characteristic = this.config.mqttTopic.find(x => x.tpoic === identifier)?.characteristic?.toLowerCase();
+      const characteristic = this.config.mqttTopic.find(x => x.identifier === identifier)?.characteristic?.toLowerCase();
       if (identifier.toLowerCase() === 'temperature' || characteristic === 'currenttemperature') {
 	this.onTemperature(value, undefined);
       } else if (identifier.toLowerCase() === 'humidity' || characteristic === 'currentrelativehumidity') {
@@ -911,7 +911,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.logs.error(`onMQTTMessage: Unexpected identifier "${identifier}" with message "${message}".`);
       }
     } catch (e) {
-      this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed.`);
+      this.logs.error(`onMQTTMessage: "${identifier}:${message}" couldn't be parsed. ${e}`);
       this.mqttValues[identifier] = undefined;
     }
   }

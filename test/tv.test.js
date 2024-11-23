@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 
 const { setup } = require('./helpers/setup');
+const { MQTTpublish } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -225,5 +226,80 @@ describe('TVAccessory', async () => {
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'ON', 'Channel-B' ], count: 2 });
+  });
+
+  it('"mqttStateOnly": true', async () => {
+    const { platform, device, log } = setup();
+    const config = JSON.parse(JSON.stringify(defaultConfig));
+    config.host = device.host.address
+    config.mqttStateOnly = true;
+    config.mqttURL =  "mqtt://localhost";
+    config.mqttTopic = [
+      {
+        "identifier": "Power",
+        "topic": "homebridge-broadlink-rm/UT/Power"
+      },
+      {
+        "identifier": "Source",
+        "topic": "homebridge-broadlink-rm/UT/Source"
+      }
+    ];
+    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    await delayForDuration(0.1);
+    
+    await MQTTpublish(log, 'Power', 'on');
+    await delayForDuration(0.1);
+    await MQTTpublish(log, 'Source', '\"Channel A\"');
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.switchState).to.equal(true);
+    expect(TVAccessory.state.currentInput).to.equal(1);
+
+    TVAccessory.mqttClient.end();
+  });
+
+  it('"mqttStateOnly": false', async () => {
+    const { platform, device, log } = setup();
+    const config = JSON.parse(JSON.stringify(defaultConfig));
+    config.host = device.host.address
+    config.mqttStateOnly = false;
+    config.mqttURL =  "mqtt://localhost";
+    config.mqttTopic = [
+      {
+        "identifier": "Power",
+        "topic": "homebridge-broadlink-rm/UT/Power"
+      },
+      {
+        "identifier": "Source",
+        "topic": "homebridge-broadlink-rm/UT/Source"
+      }
+    ];
+    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    await delayForDuration(0.1);
+    
+    MQTTpublish(log, 'Power', 'on');
+    await delayForDuration(0.1);
+    MQTTpublish(log, 'Source', 'Channel\\ A');
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.switchState).to.equal(true);
+    expect(TVAccessory.state.currentInput).to.equal(1);
+    MQTTpublish(log, 'Source', 'Channel\\ C');
+    await delayForDuration(0.1);
+    MQTTpublish(log, 'Power', 'off');
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.switchState).to.equal(false);
+    expect(TVAccessory.state.currentInput).to.equal(3);
+
+    // Check hex codes were sent
+    hexCheck({ device,
+	       codes: [
+		 'ON',
+		 'Channel-A',
+		 'Channel-C',
+		 'OFF'
+	       ],
+	       count: 4
+	     });
+
+    TVAccessory.mqttClient.end();
   });
 })

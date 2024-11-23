@@ -1,6 +1,8 @@
 const { expect } = require('chai');
 
 const { setup } = require('./helpers/setup');
+const { getAccessories } = require('./helpers/setup');
+const { MQTTpublish } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -581,6 +583,53 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.autoSwitchAccessory).to.equal(switchAccessory)
   });
 
+  it('autoSwitch on/off ', async () => {
+    const config = {
+      hideScanFrequencyButton: true,
+      disableLogs: true,
+      hideLearnButton: true,
+      accessories: [
+        {
+	  type: 'air-conditioner',
+	  ...defaultConfig,
+	  autoHeatTemperature: 18,
+	  autoCoolTemperature: 27,
+	  minimumAutoOnOffDuration: 1,
+	  autoSwitch: 'Air-Con Auto'
+        },
+        {
+	  name: 'Air-Con Auto',
+	  type: 'switch',
+	  logLevel: 'trace',
+	  pingGrace: 0.1
+        }
+      ]
+    };
+    const {platform, device, log, accessories} = await getAccessories(config);
+    const airConAccessory = accessories[0];
+    const switchAccessory = accessories[1];
+    
+    expect(airConAccessory.autoSwitchAccessory).to.equal(switchAccessory)
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+
+    // Check auto-on was performed by ensuring hex codes were sent
+    device.sendFakeOnCallback('temperature', 17)
+    await delayForDuration(1.3);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
+
+    // Try forcing auto-on/off again with a normal temperature
+    device.sendFakeOnCallback('temperature', 23)
+    await delayForDuration(0.3);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30', 'OFF' ], count: 2 });
+
+    // No more hex codes should have been sent due to disabling autoswitch
+    switchAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
+    device.sendFakeOnCallback('temperature', 17)
+    await delayForDuration(0.3);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30', 'OFF' ], count: 2 });
+
+  }).timeout(3000);
+
   it('set auto', async () => {
     const { platform, device, log } = setup();
     const config = {
@@ -588,51 +637,21 @@ describe('airConAccessory', async () => {
       data: {
 	on: 'ON',
 	off: 'OFF',
-	heat16: {
-	  'data': 'HEAT_16'
-	},
-	heat18: {
-	  'data': 'HEAT_18'
-	},
-	heat23: {
-	  'data': 'HEAT_23'
-	},
-	heat26: {
-	  'data': 'HEAT_26'
-	},
-	heat30: {
-	  'data': 'HEAT_30'
-	},
-	cool16: {
-	  'data': 'COOL_16'
-	},
-	cool18: {
-	  'data': 'COOL_18'
-	},
-	cool23: {
-	  'data': 'COOL_23'
-	},
-	cool26: {
-	  'data': 'COOL_26'
-	},
-	cool30: {
-	  'data': 'COOL_30'
-	},
-	auto16: {
-	  'data': 'AUTO_16'
-	},
-	auto18: {
-	  'data': 'AUTO_18'
-	},
-	auto23: {
-	  'data': 'AUTO_23'
-	},
-	auto26: {
-	  'data': 'AUTO_26'
-	},
-	auto30: {
-	  'data': 'AUTO_30'
-	}
+	heat16: 'HEAT_16',
+	heat18: 'HEAT_18',
+	heat23: 'HEAT_23',
+	heat26: 'HEAT_26',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool18: 'COOL_18',
+	cool23: 'COOL_23',
+	cool26: 'COOL_26',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto18: 'AUTO_18',
+	auto23: 'AUTO_23',
+	auto26: 'AUTO_26',
+	auto30: 'AUTO_30'
       },
       logLevel: 'trace',
       noHistory: true,
@@ -643,10 +662,22 @@ describe('airConAccessory', async () => {
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
     device.sendFakeOnCallback('temperature', 25)
 
+    // Set air-con mode to "heat"
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+
+    // Set air-con mode to "cool"
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
-    await delayForDuration(0.3);
+    await delayForDuration(0.6);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
 
     await delayForDuration(2);	// wait enough to settle mode and temperature
@@ -660,5 +691,347 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
 
     await delayForDuration(1.0);
-  }).timeout(5000);
+  }).timeout(6000);
+
+  it('"enableAutoOff": true', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      data: {
+	// on: 'ON',
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat18: 'HEAT_18',
+	heat23: 'HEAT_23',
+	heat26: 'HEAT_26',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool18: 'COOL_18',
+	cool23: 'COOL_23',
+	cool26: 'COOL_26',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto18: 'AUTO_18',
+	auto23: 'AUTO_23',
+	auto26: 'AUTO_26',
+	auto30: 'AUTO_30'
+      },
+      enableAutoOff: true,
+      onDuration: 3,
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    device.sendFakeOnCallback('temperature', 25)
+
+    // Set air-con mode to "cool"
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    await delayForDuration(0.3);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+
+    await delayForDuration(3.0);
+    await delayForDuration(0.5);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+  }).timeout(4000);
+
+  it('"mqttStateOnly": false', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "mode",
+          "topic": "homebridge-broadlink-rm/UT/mode"
+        },
+        {
+          "identifier": "targetTemperature",
+          "topic": "homebridge-broadlink-rm/UT/targetTemperature"
+        }
+      ],
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttStateOnly: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'mode', 'cool');
+    MQTTpublish(log, 'targetTemperature', 20);
+    await delayForDuration(1.2);
+
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+    expect(airConAccessory.state.targetTemperature).to.equal(20);
+    hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
+    
+    airConAccessory.mqttClient.end();
+  }).timeout(3000);
+
+  it('"mqttStateOnly": true', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "mode",
+          "topic": "homebridge-broadlink-rm/UT/mode"
+        },
+        {
+          "identifier": "targetTemperature",
+          "topic": "homebridge-broadlink-rm/UT/targetTemperature"
+        }
+      ],
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'mode', 'cool');
+    MQTTpublish(log, 'targetTemperature', 20);
+    await delayForDuration(1.2);
+
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+    expect(airConAccessory.state.targetTemperature).to.equal(20);
+    hexCheck({ device, codes: [ ], count: 0 });
+    
+    airConAccessory.mqttClient.end();
+  }).timeout(3000);
+
+  it('"mqttTopic": string form', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: "homebridge-broadlink-rm/UT/x",
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'x', '{\\"temperature\\":20.5,\\"humidity\\":59}');
+    await delayForDuration(0.3);
+    
+    expect(airConAccessory.state.currentTemperature).to.equal(20.5);
+    expect(airConAccessory.state.currentHumidity).to.equal(59);
+
+    airConAccessory.mqttClient.end();
+  });
+
+  it('"mqttTopic": convenient array form', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "unknown",
+          "topic": "homebridge-broadlink-rm/UT/x"
+        }
+      ],
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'x', '{\\"temp\\":20.5,\\"relativehumidity\\":59}');
+    await delayForDuration(0.3);
+
+    expect(airConAccessory.state.currentTemperature).to.equal(20.5);
+    expect(airConAccessory.state.currentHumidity).to.equal(59);
+    
+    airConAccessory.mqttClient.end();
+  });
+
+  it('"mqttTopic": standard array form', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "temperature",
+          "topic": "homebridge-broadlink-rm/UT/temperature"
+        },
+        {
+          "identifier": "humidity",
+          "topic": "homebridge-broadlink-rm/UT/temperature"
+        }
+      ],
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'temperature', '{\\"temperature\\":20.5,\\"humidity\\":59}');
+    await delayForDuration(0.3);
+    
+    expect(airConAccessory.state.currentTemperature).to.equal(20.5);
+    expect(airConAccessory.state.currentHumidity).to.equal(59);
+
+    airConAccessory.mqttClient.end();
+  });
+
+  it('"mqttTopic": characteristic form', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "x",
+          "characteristic": "currentTemperature",
+          "topic": "homebridge-broadlink-rm/UT/weather"
+        },
+        {
+          "identifier": "y",
+          "characteristic": "currentRelativeHumidity",
+          "topic": "homebridge-broadlink-rm/UT/weather"
+        }
+      ],
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'weather', '{\\"x\\":20.5,\\"y\\":59}');
+    await delayForDuration(0.3);
+    
+    expect(airConAccessory.state.currentTemperature).to.equal(20.5);
+    expect(airConAccessory.state.currentHumidity).to.equal(59);
+
+    airConAccessory.mqttClient.end();
+  });
+
+  it('"mqttTopic": numeric form', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+        {
+          "identifier": "temperature",
+          "topic": "homebridge-broadlink-rm/UT/temperature"
+        },
+        {
+          "identifier": "humidity",
+          "topic": "homebridge-broadlink-rm/UT/humidity"
+        }
+      ],
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.3);
+
+    MQTTpublish(log, 'temperature', 20.5);
+    MQTTpublish(log, 'humidity', 59);
+    await delayForDuration(0.3);
+    
+    expect(airConAccessory.state.currentTemperature).to.equal(20.5);
+    expect(airConAccessory.state.currentHumidity).to.equal(59);
+
+    airConAccessory.mqttClient.end();
+  });
+
 })
