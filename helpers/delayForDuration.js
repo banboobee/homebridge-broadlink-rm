@@ -1,7 +1,7 @@
 const { TIMEOUT_CANCELLATION } = require('./errors')
 
 function delayForDuration(duration) {
-  let timerID, endTimer, timer;
+  let timerID, endTimer;
 
   const promiseFunc = function (resolve, reject) {
     endTimer = reject;
@@ -26,7 +26,7 @@ function delayForDuration(duration) {
     }
   }
 
-  timer = new Timer(promiseFunc);
+  const timer = new Timer(promiseFunc);
   timer.isCancelled = false;
 
   return timer;

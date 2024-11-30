@@ -104,7 +104,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   checkPing(ping) {
     const { config } = this;
-    let { pingIPAddress, pingFrequency, pingUseArp } = config;
+    const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return;}
 
@@ -117,8 +117,8 @@ class TVAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     const { name, config, state, serviceManager, log } = this;
     
-    if (this.stateChangeInProgress){ 
-      return; 
+    if (this.stateChangeInProgress){
+      return;
     }
 
     if (this.lastPingResponse !== undefined && this.lastPingResponse !== active) {
@@ -156,7 +156,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
 
-      let { pingGrace } = config;
+      const { pingGrace } = config;
 
       if (pingGrace) {
 
@@ -172,7 +172,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
@@ -189,7 +189,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         this.logs.info(`setSwitchState: (automatically turn on in ${offDuration} seconds)`);
@@ -239,7 +239,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
 
     if (identifier.toLowerCase() === 'power' || identifier.toLowerCase() === 'active') {
-      let power = message.toLowerCase() === 'on' ? true : false;
+      const power = message.toLowerCase() === 'on' ? true : false;
       this.reset();
       if (mqttStateOnly) {
 	this.serviceManager.updateCharacteristic(Characteristic.Active, power);
@@ -250,7 +250,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       return;
     }
     if (identifier.toLowerCase() === 'source' || identifier.toLowerCase() === 'activeidentifier') {
-      let index = this.config.data.inputs.findIndex(x => x?.name?.toLowerCase() === message.toLowerCase());
+      const index = this.config.data.inputs.findIndex(x => x?.name?.toLowerCase() === message.toLowerCase());
       if (index > 0 && index < this.config.data.inputs.length) {
 	// this.reset();
 	if (mqttStateOnly) {
@@ -510,7 +510,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
       
-        let hexData = data.volume.mute;
+        const hexData = data.volume.mute;
         if (!hexData) {
           this.logs.error(`VolumeSelector: No IR code found for mute!`);
           callback(null);
@@ -519,7 +519,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
 	this.state.Mute = newValue;
         await this.performSend(hexData);
-        callback(null);         
+        callback(null);
       });
 
     // this.serviceManagers.push(this.speakerService);

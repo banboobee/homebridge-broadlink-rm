@@ -7,7 +7,7 @@ const BroadlinkRMAccessory = require('./accessory');
 
 class SwitchAccessory extends BroadlinkRMAccessory {
 
-  constructor (log, config = {}, platform) {    
+  constructor (log, config = {}, platform) {
     super(log, config, platform);
 
       // Fakegato setup
@@ -19,7 +19,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 	 status: this.state.switchState ? 1 : 0})
       
       if (!this.isUnitTest) {this.checkPing(ping)}
-    } 
+    }
   }
 
   setDefaults () {
@@ -86,7 +86,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   
   checkPing (ping) {
     const { config } = this
-    let { pingIPAddress, pingFrequency, pingUseArp } = config;
+    const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return}
     
@@ -102,8 +102,8 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     const { config, state, serviceManager } = this;
 
-    if (this.stateChangeInProgress){ 
-      return; 
+    if (this.stateChangeInProgress){
+      return;
     }
     
     if (config.pingIPAddressStateOnly) {
@@ -126,7 +126,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     if (hexData) {await this.performSend(hexData);}
     await this.mqttpublish('On', state.switchState ? 'true' : 'false')
     
-    if (config.stateless === true) { 
+    if (config.stateless === true) {
       state.switchState = false;
       serviceManager.refreshCharacteristicUI(Characteristic.On);
       await this.mqttpublish('On', 'false')
@@ -139,7 +139,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       
-      let { pingGrace } = config;
+      const { pingGrace } = config;
 
       if (pingGrace) {
         this.pingGraceTimeoutPromise = delayForDuration(pingGrace);
@@ -149,12 +149,12 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       }
     });
   }
-    
+  
   async checkAutoOff () {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
@@ -171,7 +171,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         this.logs.info(`setSwitchState: automatically turn on in ${offDuration} seconds`);

@@ -27,6 +27,7 @@ describe('outletAccessory', () => {
     
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(.1);
     
     expect(outletAccessory.state.switchState).to.equal(true);
 
@@ -60,10 +61,12 @@ describe('outletAccessory', () => {
     
     // Turn On Outlet
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(.1);
     expect(outletAccessory.state.switchState).to.equal(true);
     
     // Turn Off Outlet
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
+    await delayForDuration(.1);
     expect(outletAccessory.state.switchState).to.equal(false);
 
     // Check hex code was sent
@@ -172,7 +175,7 @@ describe('outletAccessory', () => {
   }).timeout(4000);
 
 
-  // Persist State 
+  // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
 
@@ -238,7 +241,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -259,7 +262,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: false }));
@@ -280,11 +283,11 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false,
       host: device.host.address,
-      pingIPAddressStateOnly: true,      
+      pingIPAddressStateOnly: true,
       isUnitTest: true
     }
     
-    let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
@@ -306,11 +309,11 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false,
       host: device.host.address,
-      pingIPAddressStateOnly: false,      
+      pingIPAddressStateOnly: false,
       isUnitTest: true
     }
     
-    let outletAccessory = new platform.classTypes['outlet'](log, config, platform);
+    const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
@@ -349,6 +352,7 @@ describe('outletAccessory', () => {
     // Turn On Outlet
     outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
+    await delayForDuration(.1);
     expect(outletAccessory.state.switchState).to.equal(true);
 
     device.resetSentHexCodes();

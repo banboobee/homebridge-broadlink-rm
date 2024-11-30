@@ -138,7 +138,7 @@ const getDevice = ({ host, log, learnOnly }) => {
     // Only return device that can Learn Code codes
     if (learnOnly) {
       for (let i = 0; i < hosts.length; i++) {
-        let currentDevice = discoveredDevices[hosts[i]];
+        const currentDevice = discoveredDevices[hosts[i]];
 
         if (currentDevice.enterLearning) {
           device = currentDevice

@@ -5,7 +5,7 @@ const fakegatoHistory = require( 'fakegato-history');
 module.exports = (homebridge) => {
   global.HomebridgeAPI = homebridge;
   global.cachedAccessories = [];
-  global.eve = new homebridgelib.EveHomeKitTypes(homebridge);;
+  global.eve = new homebridgelib.EveHomeKitTypes(homebridge);
   global.HistoryService = fakegatoHistory( homebridge );
   
   global.Service = homebridge.hap.Service;

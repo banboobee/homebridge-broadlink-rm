@@ -59,6 +59,7 @@ describe('doorAccessory', () => {
     
     const doorAccessory = new platform.classTypes['garage-door-opener'](log, config, platform);
     doorAccessory.serviceManager.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+    await delayForDuration(.1);
 
     let sentHexCodeCount
 
@@ -86,6 +87,7 @@ describe('doorAccessory', () => {
 
     // Opening
     doorAccessory.serviceManager.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.OPEN);
+    await delayForDuration(.1);
     
     // Check hex sent
     const hasSentOpenCode = device.hasSentCode('OPEN_HEX');
@@ -162,7 +164,7 @@ describe('doorAccessory', () => {
   });
 
 
-  // Persist State 
+  // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
 

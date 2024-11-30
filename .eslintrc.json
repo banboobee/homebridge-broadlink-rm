@@ -16,13 +16,15 @@
 
         "HistoryService":true,
         "Characteristic":true,
-        "Service":true
-
+        "Service":true,
+        "eve":true,
+	"cachedAccessories": true,
+	"HomebridgeAPI": true
     },
     "ignorePatterns": [
     ],
     "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2022,
         "sourceType": "module"
     },
     "rules": {
@@ -33,7 +35,7 @@
         "no-fallthrough": "off",
         "no-unreachable": "off",
         "no-empty": "off",
-        "no-console": "off",        
+        "no-console": "off",
         "quotes": "off",
         "brace-style": "off",
         "semi": "off",
@@ -41,11 +43,11 @@
         "eqeqeq": "off",
 
         "no-extra-semi": "warn",
-        "dot-notation": "warn",
+        "dot-notation": 0,
         "no-autofix/prefer-const": "warn",
 
-        "indent": ["error", 2, { "SwitchCase": 1 }],
+        "indent": 0,
         "linebreak-style": ["error", "unix"],
-        "curly": 1
+	"curly": 0
     }
 }

@@ -8,7 +8,7 @@ const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
     
-  constructor (log, config = {}, platform) {    
+  constructor (log, config = {}, platform) {
     super(log, config, platform);
     this.mutex = new Mutex();
   }
@@ -78,9 +78,8 @@ class LightAccessory extends SwitchAccessory {
   async setSwitchState (hexData, previousValue) {
     const { Characteristic } = this;
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
-    let { defaultBrightness, useLastKnownBrightness } = config;
-    let { defaultColorTemperature, useLastKnownColorTemperature } = config;    
-
+    const { defaultBrightness, useLastKnownBrightness } = config;
+    const { defaultColorTemperature, useLastKnownColorTemperature } = config;
     this.reset();
 
     if (state.switchState) {
@@ -165,7 +164,7 @@ class LightAccessory extends SwitchAccessory {
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager } = this;
       const { off, on } = data;
-      let { onDelay } = config;
+      const { onDelay } = config;
 
       if (this.lastBrightness === state.brightness) {
 
@@ -297,7 +296,7 @@ class LightAccessory extends SwitchAccessory {
 	  this.logs.debug(`setColorTemperature: current:${String(previous).padStart(3, ' ')}(${String(current).padStart(2, ' ')}), target:${String(targetColorTemperature).padStart(3, ' ')}(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
 	  if (current != target) {	// need incremental operation
 	    const d = target - current;
-            let {attempt, fail, timeout} = await this.performSend([
+            const {attempt, fail, timeout} = await this.performSend([
 	      {'data': target > current ? increment : decrement,
 	       'interval': onDelay,
 	       'sendCount': Math.abs(target - current),

@@ -78,7 +78,7 @@ describe('lightAccessory', () => {
       host: device.host.address
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);;
+    const lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -492,7 +492,7 @@ describe('lightAccessory', () => {
     let sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(1);
 
-    // Check onDelay some time after default (0.1) but before the config option 
+    // Check onDelay some time after default (0.1) but before the config option
     // await delayForDuration(0.2);
 
     // Check hex code was sent
@@ -503,7 +503,7 @@ describe('lightAccessory', () => {
     sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(1);
 
-    // Wait for onDelay timeout (total 0.6s)  
+    // Wait for onDelay timeout (total 0.6s)
     await delayForDuration(0.4);
 
     // Check hex code was sent
@@ -516,7 +516,7 @@ describe('lightAccessory', () => {
   });
 
 
-  // Persist State 
+  // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
 

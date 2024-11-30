@@ -55,6 +55,7 @@ describe('lockAccessory', () => {
     
     const lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
+    await delayForDuration(.1);
 
     
     let sentHexCodeCount
@@ -83,7 +84,8 @@ describe('lockAccessory', () => {
 
     // Unlocking
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.UNSECURED);
-    
+    await delayForDuration(.1);
+
     // Check hex sent
     const hasSentUnlockCode = device.hasSentCode('UNLOCK_HEX');
     expect(hasSentUnlockCode).to.equal(true);
@@ -164,7 +166,7 @@ describe('lockAccessory', () => {
   });
 
 
-  // Persist State 
+  // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
 
@@ -284,7 +286,7 @@ describe('lockAccessory', () => {
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
 
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
-    await delayForDuration(0.3)    
+    await delayForDuration(0.3)
     expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
     
     // Check ON hex code was sent

@@ -7,7 +7,8 @@
   "scripts": {
     "release": "release-it",
     "lint": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js .",
-    "lint-fix": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js --fix ."
+    "lint-fix": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js --fix .",
+    "test": "mocha"
   },
   "keywords": [
     "homebridge-plugin",

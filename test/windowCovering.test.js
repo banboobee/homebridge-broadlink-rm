@@ -27,7 +27,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
     
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.1);
   })
@@ -45,7 +45,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
     
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.5);
   })
@@ -62,7 +62,7 @@ describe('windowCoveringAccessory', () => {
       host: device.host.address
     };
     
-    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const totalDurationOpen = 5;
     const totalDurationClose = 8;
@@ -102,7 +102,7 @@ describe('windowCoveringAccessory', () => {
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
 
     // Set Blinds to 50%
@@ -134,7 +134,7 @@ describe('windowCoveringAccessory', () => {
     const config = {
       name: 'WindowCovering',
       data,
-      totalDurationOpen: 2, 
+      totalDurationOpen: 2,
       totalDurationClose: 1,
       persistState: false,
       host: device.host.address
@@ -145,7 +145,7 @@ describe('windowCoveringAccessory', () => {
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
 
     // Set blinds to 20%
@@ -189,24 +189,24 @@ describe('windowCoveringAccessory', () => {
     const config = {
       name: 'WindowCovering',
       data,
-      totalDurationOpen: 2, 
-      totalDurationClose: 3, 
+      totalDurationOpen: 2,
+      totalDurationClose: 3,
       persistState: false,
       host: device.host.address
     }
     
-    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);;
+    const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const openDurationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
 
     const closeDurationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: false,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
 
     // Set blinds to 90%
@@ -250,7 +250,7 @@ describe('windowCoveringAccessory', () => {
       name: 'WindowCovering',
       data,
       initialDelay: 1,
-      totalDurationOpen: 2, 
+      totalDurationOpen: 2,
       totalDurationClose: 1,
       persistState: false,
       host: device.host.address
@@ -261,7 +261,7 @@ describe('windowCoveringAccessory', () => {
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
   
     // Set Blinds to 10%
@@ -298,7 +298,7 @@ describe('windowCoveringAccessory', () => {
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
-      totalDurationClose: config.totalDurationClose 
+      totalDurationClose: config.totalDurationClose
     });
 
     // Set Blinds to 100%
@@ -327,7 +327,7 @@ describe('windowCoveringAccessory', () => {
     const config = {
       name: 'WindowCovering',
       data,
-      totalDurationOpen: 1, 
+      totalDurationOpen: 1,
       totalDurationClose: 1,
       sendStopAt100: true,
       sendStopAt0: true,

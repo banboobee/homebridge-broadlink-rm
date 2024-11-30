@@ -149,7 +149,7 @@ describe('switchAccessory', () => {
   }).timeout(4000);
 
 
-  // Persist State 
+  // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
 
@@ -222,7 +222,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -246,7 +246,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: false }));
@@ -269,11 +269,11 @@ describe('switchAccessory', () => {
       persistState: false,
       host: device.host.address,
       pingIPAddress: '192.168.1.1',
-      pingIPAddressStateOnly: true,      
+      pingIPAddressStateOnly: true,
       isUnitTest: true
     }
     
-    let switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
@@ -297,11 +297,11 @@ describe('switchAccessory', () => {
       persistState: false,
       host: device.host.address,
       pingIPAddress: '192.168.1.1',
-      pingIPAddressStateOnly: false,      
+      pingIPAddressStateOnly: false,
       isUnitTest: true
     }
     
-    let switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));

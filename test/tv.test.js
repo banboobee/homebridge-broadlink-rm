@@ -211,7 +211,7 @@ describe('TVAccessory', async () => {
   it('automation', async () => {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
-    let config = JSON.parse(JSON.stringify(defaultConfig));
+    const config = JSON.parse(JSON.stringify(defaultConfig));
     config.persistState = true;
 
     const TVAccessory = new platform.classTypes['tv'](log, config, platform);
@@ -249,7 +249,7 @@ describe('TVAccessory', async () => {
     
     await MQTTpublish(log, 'Power', 'on');
     await delayForDuration(0.1);
-    await MQTTpublish(log, 'Source', '\"Channel A\"');
+    await MQTTpublish(log, 'Source', '"Channel A"');
     await delayForDuration(0.1);
     expect(TVAccessory.state.switchState).to.equal(true);
     expect(TVAccessory.state.currentInput).to.equal(1);

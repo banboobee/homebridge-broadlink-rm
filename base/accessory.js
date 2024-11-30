@@ -15,7 +15,7 @@ class HomebridgeAccessory {
     }
     this.serviceManagerClass = this.constructor.ServiceManagerClass;
     
-    let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
+    const { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
     // this.log = (!disableLogs && log) ? log : () => { };
     this.log = log;
@@ -69,7 +69,7 @@ class HomebridgeAccessory {
         break;
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    // if(this.config.disableLogs) {this.logLevel = 6;}  
+    // if(this.config.disableLogs) {this.logLevel = 6;}
 
     this.checkConfig(config)
     this.setupServiceManager()
@@ -203,7 +203,7 @@ class HomebridgeAccessory {
     const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
     if (this.state[propertyName] === undefined) {
-      let thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
+      const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
       if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
         value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
       } else {
@@ -225,7 +225,8 @@ class HomebridgeAccessory {
 
   loadState() {
     const { config, log, logLevel, name, serviceManager } = this;
-    let { host, resendDataAfterReload, resendDataAfterReloadDelay, persistState } = config;
+    const { host, resendDataAfterReload } = config;
+    let { resendDataAfterReloadDelay, persistState } = config;
 
     // Set defaults
     if (persistState === undefined) {persistState = true;}
@@ -340,14 +341,15 @@ class HomebridgeAccessory {
   // MQTT Support
   subscribeToMQTT() {
     const { config, log, logLevel, name } = this;
-    let { mqttTopic, mqttURL, mqttUsername, mqttPassword } = config;
+    const { mqttURL, mqttUsername, mqttPassword } = config;
+    let { mqttTopic } = config;
 
     if (!mqttURL) {return;}
 
     // this.mqttValues = {};
     // this.mqttValuesTemp = {};
 
-    // Perform some validation of the mqttTopic option in the config. 
+    // Perform some validation of the mqttTopic option in the config.
     if (mqttTopic && typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {
       log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`);
 
@@ -488,7 +490,7 @@ class HomebridgeAccessory {
   mqttValueForIdentifier(identifier) {
     const { log, logLevel, name } = this;
 
-    let value = this.mqttValues[identifier];
+    const value = this.mqttValues[identifier];
 
     // No identifier may have been set in the user's config so let's try "unknown" too
     // if (value === undefined) {value = this.mqttValues.unknown;}
