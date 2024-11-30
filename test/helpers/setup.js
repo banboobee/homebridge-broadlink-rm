@@ -1,5 +1,5 @@
 const hap = require('hap-nodejs');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 const BroadlinkRMPlatform = require('../../platform');
 const FakeDevice = require('./fakeDevice')
 const { broadlink, addDevice, discoverDevices } = require('../../helpers/getDevice')
@@ -133,4 +133,13 @@ const MQTTpublish = async (log, topic, message) => {
   });
 }
 
-module.exports = { setup, getAccessories, getDevices, MQTTpublish }
+const MQTTtest = async () => {
+  try {
+    execSync(`which mosquitto_pub`);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+module.exports = { setup, getAccessories, getDevices, MQTTpublish, MQTTtest }

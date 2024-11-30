@@ -2,6 +2,7 @@ const { expect } = require('chai');
 
 const { setup } = require('./helpers/setup');
 const { MQTTpublish } = require('./helpers/setup');
+const { MQTTtest } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -54,6 +55,8 @@ const defaultConfig = {
 
 describe('TVAccessory', async () => {
 
+  const MQTTready = await MQTTtest();
+  
   it('tun on', async () => {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
@@ -228,7 +231,7 @@ describe('TVAccessory', async () => {
     hexCheck({ device, codes: [ 'ON', 'Channel-B' ], count: 2 });
   });
 
-  it('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
     const { platform, device, log } = setup();
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address
@@ -257,7 +260,7 @@ describe('TVAccessory', async () => {
     TVAccessory.mqttClient.end();
   });
 
-  it('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
     const { platform, device, log } = setup();
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address

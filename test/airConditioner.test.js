@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 const { MQTTpublish } = require('./helpers/setup');
+const { MQTTtest } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 const delayForDuration = require('../helpers/delayForDuration');
 
@@ -43,6 +44,8 @@ const defaultConfig = {
 
 describe('airConAccessory', async () => {
 
+  const MQTTready = await MQTTtest();
+  
   it ('default config', async () => {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
@@ -738,7 +741,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
   }).timeout(4000);
 
-  it('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -784,7 +787,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   }).timeout(3000);
 
-  it('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -829,7 +832,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   }).timeout(3000);
 
-  it('"mqttTopic": string form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": string form', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -863,7 +866,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  it('"mqttTopic": convenient array form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": convenient array form', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -902,7 +905,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  it('"mqttTopic": standard array form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": standard array form', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -945,7 +948,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  it('"mqttTopic": characteristic form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": characteristic form', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -990,7 +993,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  it('"mqttTopic": numeric form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": numeric form', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',

@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 const { MQTTpublish } = require('./helpers/setup');
+const { MQTTtest } = require('./helpers/setup');
 const ping = require('./helpers/fakePing');
 const hexCheck = require('./helpers/hexCheck');
 
@@ -31,8 +32,10 @@ const defaultConfig = {
   persistState: false
 };
 
-describe('lightAccessory', () => {
+describe('lightAccessory', async () => {
 
+  const MQTTready = await MQTTtest();
+  
   // Light Turn On
   it('turns on', async () => {
     const { platform, device, log } = setup();
@@ -729,7 +732,7 @@ describe('lightAccessory', () => {
 
   }).timeout(3000);
 
-  it('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
     const { platform, device, log } = setup();
     const config = {
       ...defaultConfig,
@@ -771,7 +774,7 @@ describe('lightAccessory', () => {
     lightAccessory.mqttClient.end();
   });
 
-  it('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
     const { platform, device, log } = setup();
     const config = {
       name: 'Light',
