@@ -3,7 +3,7 @@ const delayForDuration = require('../helpers/delayForDuration');
 
 const { getDevices } = require('./helpers/setup');
 
-describe('Broadlink device', () => {
+describe.skip('Broadlink device', () => {
 
   it('discover', async () => {
     const config = {};

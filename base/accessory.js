@@ -137,6 +137,7 @@ class HomebridgeAccessory {
 
   async setCharacteristicValue(props, value, callback) {
     const { config, host, log, name, logLevel } = this;
+    let previousValue = this.state[props.propertyName];
 
     try {
       const { delay, resendDataAfterReload, allowResend } = config;
@@ -170,7 +171,7 @@ class HomebridgeAccessory {
         }
       }
 
-      let previousValue = this.state[propertyName];
+      // previousValue = this.state[propertyName];
       if (this.isReloadingState && resendDataAfterReload) {
         previousValue = undefined
       }
@@ -188,10 +189,13 @@ class HomebridgeAccessory {
         await this.performSetValueAction({ host, data, log, name });
       }
       // callback(null);
-    } catch (err) {
-      this.logs.error('failed setCharacteristicValue.', err.message);
-      this.logs.trace(err.stack)
-      // callback(err)
+    } catch (e) {	// revert to original state.
+      const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(props.propertyName);
+      this.state[props.propertyName] = previousValue;
+      this.serviceManager.refreshCharacteristicUI(thisCharacteristic);
+      this.logs.error('failed setCharacteristicValue.', e.message);
+      this.logs.trace(e.stack)
+      // callback(e)
     }
   }
 

@@ -239,10 +239,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const modemax = parseInt(x[x.length - 1]);
     const temperature = state.targetTemperature;
     if (temperature < modemin) {
-      state.targetTemperature = previousValue;
+      // state.targetTemperature = previousValue;
       throw new Error(`Target temperature ${temperature} is below minimal ${mode} temperature ${modemin}`);
     } else if (temperature > modemax) {
-      state.targetTemperature = previousValue;
+      // state.targetTemperature = previousValue;
       throw new Error(`Target temperature ${temperature} is above maxmum ${mode} temperature ${modemax}`);
     }
 	
