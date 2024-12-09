@@ -54,10 +54,12 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 
     if (!host || !device) {	// Error reporting
       await sendData({ host, hexData: data, log, name, logLevel });
-      return {
-	attempt : 0,
-	fail: -1,
-	timeout: false
+      throw new function () {
+	return {
+	  attempt : 0,
+	  fail: -1,
+	  timeout: false
+	};
       };
     }
 
@@ -96,11 +98,16 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       }
       clearTimeout(timeout);
 
-      return {
-	attempt : x,
-	fail: r,
-	timeout: !timeout
-      };
+      if (r < 0 || !timeout) {
+	this.logs.error(`failed to blast IR/RF commands ${Math.abs(r)} times out of ${x}.`);
+	throw new function () {
+	  return {
+	    attempt : x,
+	    fail: r,
+	    timeout: !timeout
+	  };
+	};
+      }
     });
   }
 }

@@ -218,16 +218,20 @@ class LightAccessory extends SwitchAccessory {
 	    this.logs.debug(`setBrightness: current:${String(previous).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(targetBrightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
 	    if (current != target) {	// need incremental operation
 	      const d = target - current;
-              const {attempt, fail, timeout} = await this.performSend([
-		{'data': d > 0 ? increment : decrement,
-		 'interval': onDelay,
-		 'sendCount': Math.abs(d),
-		}]);
-	      const c = d > 0 ? d - attempt - fail : d + attempt + fail;
-	      const u = Math.floor((Math.min(targetBrightness*10, delta*n - 1) - c*delta)/10);
-	      this.logs.debug(`setBrightness: current:${targetBrightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
-	      state.brightness = u;
-	      serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	      try {
+		await this.performSend([
+		  {'data': d > 0 ? increment : decrement,
+		   'interval': onDelay,
+		   'sendCount': Math.abs(d),
+		  }]);
+	      } catch (e) {
+		const {attempt, fail, timeout} = e;
+		const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+		const u = Math.floor((Math.min(targetBrightness*10, delta*n - 1) - c*delta)/10);
+		this.logs.debug(`setBrightness: current:${targetBrightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
+		state.brightness = u;
+		serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	      }
 	    }
 	    await this.mqttpublish('Brightness', state.brightness);
 	  })
@@ -296,16 +300,20 @@ class LightAccessory extends SwitchAccessory {
 	  this.logs.debug(`setColorTemperature: current:${String(previous).padStart(3, ' ')}(${String(current).padStart(2, ' ')}), target:${String(targetColorTemperature).padStart(3, ' ')}(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
 	  if (current != target) {	// need incremental operation
 	    const d = target - current;
-            const {attempt, fail, timeout} = await this.performSend([
-	      {'data': target > current ? increment : decrement,
-	       'interval': onDelay,
-	       'sendCount': Math.abs(target - current),
-	      }]);
-	    const c = d > 0 ? d - attempt - fail : d + attempt + fail;
-	    const u = Math.floor((Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1) - c*delta)*(max - min)/1000) + min;
-	    this.logs.debug(`setColorTemperature: current:${targetColorTemperature}, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}.`);
-	    state.colorTemperature = u;
-	    serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+	    try {
+              await this.performSend([
+		{'data': target > current ? increment : decrement,
+		 'interval': onDelay,
+		 'sendCount': Math.abs(target - current),
+		}]);
+	    } catch (e) {
+              const {attempt, fail, timeout} = e;
+	      const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+	      const u = Math.floor((Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1) - c*delta)*(max - min)/1000) + min;
+	      this.logs.debug(`setColorTemperature: current:${targetColorTemperature}, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}.`);
+	      state.colorTemperature = u;
+	      serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+	    }
 	  }
 	})
       } else {

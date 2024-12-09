@@ -194,7 +194,7 @@ class HomebridgeAccessory {
       this.state[props.propertyName] = previousValue;
       this.serviceManager.refreshCharacteristicUI(thisCharacteristic);
       this.logs.error('failed setCharacteristicValue.', e.message);
-      this.logs.trace(e.stack)
+      this.logs.trace(e.stack ?? 'Error: empty stack')
       // callback(e)
     }
   }

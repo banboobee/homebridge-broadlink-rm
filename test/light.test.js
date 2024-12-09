@@ -701,6 +701,8 @@ describe('lightAccessory', async () => {
     
     // Turn On Light
     const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    device.setFailureResponseOnSendData('random');
+
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.1);
     

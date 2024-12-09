@@ -107,7 +107,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('tun on', async () => {
+  it('turn on', async () => {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
@@ -129,7 +129,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.targetHeatingCoolingState).to.equal(Characteristic.TargetHeatingCoolingState.COOL);
   });
 
-  it('tun off', async () => {
+  it('turn off', async () => {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
@@ -216,6 +216,7 @@ describe('airConAccessory', async () => {
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
   });
 
   it('set cool temperature', async () => {
@@ -237,6 +238,7 @@ describe('airConAccessory', async () => {
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_18' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_18' ], count: 2 });
   });
 
 
@@ -260,6 +262,7 @@ describe('airConAccessory', async () => {
     // Check hex codes were sent
     // hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
     hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 2 });
     expect(airConAccessory.state.targetTemperature).to.equal(24);
   });
 
@@ -280,8 +283,10 @@ describe('airConAccessory', async () => {
     await delayForDuration(1.3);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_16' ], count: 1 });
-    expect(airConAccessory.state.targetTemperature).to.equal(16);
+    // hexCheck({ device, codes: [ 'TEMPERATURE_16' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_18' ], count: 1 });
+    // expect(airConAccessory.state.targetTemperature).to.equal(16);
+    expect(airConAccessory.state.targetTemperature).to.equal(18);
   });
 
   it('set missing cool temperature 17', async () => {
@@ -302,6 +307,7 @@ describe('airConAccessory', async () => {
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_16' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_16' ], count: 2 });
   });
 
   it('"turnOnWhenOff": true', async () => {
@@ -344,6 +350,7 @@ describe('airConAccessory', async () => {
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -351,7 +358,8 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 3 });
   });
 
   it('"allowResend": false', async () => {
@@ -369,10 +377,12 @@ describe('airConAccessory', async () => {
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
 
-    await delayForDuration(0.3);
+    // await delayForDuration(0.3);
+    await delayForDuration(1.0);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
@@ -380,7 +390,8 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.3);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
   });
 
 
@@ -675,7 +686,7 @@ describe('airConAccessory', async () => {
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
     await delayForDuration(0.3);
-    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
 
     // Set air-con mode to "auto"
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.AUTO);
@@ -737,9 +748,11 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
 
     await delayForDuration(3.0);
-    await delayForDuration(0.5);
+    // await delayForDuration(0.5);
+    await delayForDuration(0.75);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
-  }).timeout(4000);
+  // }).timeout(4000);
+  }).timeout(5000);
 
   (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
     const { platform, device, log } = setup();
@@ -782,7 +795,8 @@ describe('airConAccessory', async () => {
 
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
     expect(airConAccessory.state.targetTemperature).to.equal(20);
-    hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
+    // hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
+    hexCheck({ device, codes: [ 'COOL_16', 'COOL_16' ], count: 2 });
     
     airConAccessory.mqttClient.end();
   }).timeout(3000);

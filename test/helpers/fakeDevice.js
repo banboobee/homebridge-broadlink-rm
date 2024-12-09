@@ -17,6 +17,8 @@ class FakeDevice {
     this.resetSentHexCodes();
 
     this.log = log;
+
+    this.failureResponseOnSendData = null;
   }
 
   resetSentHexCodes () {
@@ -47,7 +49,15 @@ class FakeDevice {
     this.sentHexCodes.push(originalHexString)
 
     // return originalHexString.length > 0 ? 0 : -1;
-    return originalHexString.length > 0 ? (Math.random() > 0.2 ? 0 : -1) : -1;
+    if (originalHexString.length < 1) {
+      return -1;
+    } else if (this.failureResponseOnSendData === 'random') {
+      return Math.random() > 0.2 ? 0 : -1;
+    } else if (this.failureResponseOnSendData === 'always') {
+      return -1;
+    } else {
+      return 0;
+    }
   }
 
   on (type, callback) {
@@ -62,6 +72,10 @@ class FakeDevice {
 
   checkTemperature () {
     
+  }
+
+  setFailureResponseOnSendData(mode) {
+    this.failureResponseOnSendData = mode;
   }
 
   logs = {

@@ -251,7 +251,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     state.userSpecifiedTargetTemperature = state.targetTemperature;
 
     // Do the actual sending of the temperature
-    this.sendTemperature(state.targetTemperature, previousValue);
+    await this.sendTemperature(state.targetTemperature, previousValue);
     serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
   }
 
@@ -289,7 +289,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (previousValue === Characteristic.TargetHeatingCoolingState.OFF) {this.previouslyOff = true;}
 
     // If the air-conditioner is turned off then turn it on first and try this again
-    if (this.checkTurnOnWhenOff()) {
+    if (await this.checkTurnOnWhenOff()) {
       this.turnOnWhenOffDelayPromise = delayForDuration(.3);
       await this.turnOnWhenOffDelayPromise
     }
@@ -345,11 +345,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
       this.logs.debug(`sentMode (${mode})`);
 
       //Force Temperature send
-      await delayForDuration(0.25).then(() => {
-        //this.sendTemperature(temperature, state.currentTemperature);	// what a bad.
-        this.sendTemperature(temperature, previousValue);
+      await delayForDuration(0.25).then(async () => {
+        // this.sendTemperature(temperature, state.currentTemperature);	// what a bad.
+        await this.sendTemperature(temperature, previousValue);
         serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
       });
+      // serviceManager.setCharacteristic(Characteristic.TargetTemperature, temperature);
     }
 
     serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
@@ -367,15 +368,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     if (enableAutoOn) {
       this.logs.error(`enableAutoOn is not supported.`);
-    }
-    if (enableAutoOff && parseInt(onDuration) > 0) {
-      if (!this.autoOffTimeoutPromise) {
-	this.logs.info(`setTargetHeatingCoolingState: automatically turn off in ${onDuration} seconds`);
-	this.autoOffTimeoutPromise = delayForDuration(onDuration);
-	await this.autoOffTimeoutPromise;
+    } else if (enableAutoOff && parseInt(onDuration) > 0) {
+      if (this.autoOffTimeoutPromise) {
+	const NULL = () => {};	// disables 'Error: Timeout Cancelled'
+	this.autoOffTimeoutPromise.cancel(NULL);
+	this.autoOffTimeoutPromise = null;
+      }
+      this.logs.info(`setTargetHeatingCoolingState: automatically turn off in ${onDuration} seconds`);
+      this.autoOffTimeoutPromise = delayForDuration(onDuration);
+      await this.autoOffTimeoutPromise;
+      try {
 	await this.performSend(data.off);
 	await this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
 	await this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
+      } catch (e) {
+	// nothing to do.
       }
     }
   }
