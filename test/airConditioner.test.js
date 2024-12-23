@@ -775,7 +775,7 @@ describe('airConAccessory', async () => {
     await delayForDuration(1.0);
     
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
-  })
+  });
 
   (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
     const { platform, device, log } = setup();

@@ -157,7 +157,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	update = Characteristic.CurrentHeatingCoolingState.HEAT;
       }
     }
-    if (serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value === update) return;;
+    if (serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value === update) return;
     this.logs.debug(`updateServiceCurrentHeatingCoolingState current:${keys[this.state['currentHeatingCoolingState']]} target:${keys[value]} update:${keys[update]}`);
 
     // Use low-level API to keep CurrentHeatingCoolingState as TargetHeatingCoolingState
