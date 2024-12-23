@@ -191,9 +191,10 @@ class HomebridgeAccessory {
       // callback(null);
     } catch (e) {	// revert to original state.
       const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(props.propertyName);
-      this.state[props.propertyName] = previousValue;
-      this.serviceManager.refreshCharacteristicUI(thisCharacteristic);
-      this.logs.error('failed setCharacteristicValue.', e.message);
+      // this.state[props.propertyName] = previousValue;
+      // this.serviceManager.refreshCharacteristicUI(thisCharacteristic);
+      this.serviceManager.updateCharacteristic(thisCharacteristic, previousValue);
+      this.logs.error(`failed setCharacteristicValue of ${props.propertyName} characteristic.`, e.message ?? '');
       this.logs.trace(e.stack ?? 'Error: empty stack')
       // callback(e)
     }
