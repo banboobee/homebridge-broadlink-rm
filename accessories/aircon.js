@@ -442,7 +442,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (on) {
         await this.performSend(on);
       } else {
-        log(`\x1b[31m[CONFIG ERROR] \x1b[0m ${name} No On Hex configured, but turnOnWhenOff enabled`);
+        this.logs.error(`No On Hex configured, but turnOnWhenOff enabled.`);
       }
 
       return true;
@@ -458,22 +458,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { temperatureFilePath, pseudoDeviceTemperature} = config;
 
     if (pseudoDeviceTemperature !== undefined) {return;}
-
-    //Force file devices to a minimum 1 minute refresh
-    // if (temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
-
-    // const device = getDevice({ host, log });
-
-    // Try again in a second if we don't have a device yet
-    // if (!device) {
-    //   this.logs.trace(`monitorTemperature: waiting device ${host} to be ready for 1 sec.`);
-    //   await delayForDuration(1);
-
-    //   this.monitorTemperature();
-
-    //   return;
-    // }
-
     let device;
     for (let i = 0; !device; i++) {
       if ((device = getDevice({ host, log })))
@@ -1021,8 +1005,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	if (event.newValue !== event.oldValue) {
 	  const value = event.newValue;
 	  // this.log(`updated TargetHeatingCoolingState.`, value)
-	  await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value]);
 	  await this.mqttpublish('targetTemperature', this.state.targetTemperature);
+	  await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value]);
 	}
       }.bind(this))
 

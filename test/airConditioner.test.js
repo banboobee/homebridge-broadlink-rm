@@ -39,6 +39,7 @@ const defaultConfig = {
   logLevel: 'trace',
   noHistory: true,
   isUnitTest: true,
+  allowResend: false,
   persistState: false
 };
 
@@ -203,7 +204,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -225,7 +225,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -248,7 +247,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -270,7 +268,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -292,7 +289,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -313,7 +309,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig,
       turnOnWhenOff: true
     };
@@ -343,22 +338,19 @@ describe('airConAccessory', async () => {
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
-    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
 
     await delayForDuration(0.1);
 
     // Check hex codes were sent
-    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
     // Set temperature
-    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 30);
 
     await delayForDuration(0.1);
 
     // Check hex codes were sent
-    // hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 2 });
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 3 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 2 });
   });
 
   it('"allowResend": false', async () => {
@@ -374,22 +366,20 @@ describe('airConAccessory', async () => {
 
     // Set temperature
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
-    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
 
     await delayForDuration(0.1);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
     // Set temperature
-    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 30);
 
     await delayForDuration(0.1);
 
     // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
-
 
   it('auto-heat & "minimumAutoOnOffDuration": 0.5', async () => {
     const { platform, device, log } = setup();
@@ -598,7 +588,6 @@ describe('airConAccessory', async () => {
     defaultConfig.host = device.host.address
     
     const config = {
-      allowResend: false,
       ...defaultConfig
     };
 
@@ -687,7 +676,6 @@ describe('airConAccessory', async () => {
 	auto26: 'AUTO_26',
 	auto30: 'AUTO_30'
       },
-      allowResend: false,
       logLevel: 'trace',
       noHistory: true,
       persistState: false,
@@ -812,15 +800,13 @@ describe('airConAccessory', async () => {
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
     await delayForDuration(0.1);
 
-    MQTTpublish(log, 'mode', 'cool');
     MQTTpublish(log, 'targetTemperature', 20);
+    MQTTpublish(log, 'mode', 'cool');
     await delayForDuration(0.1);
 
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
-    expect(airConAccessory.state.targetTemperature).to.equal(20);
-    // expect(airConAccessory.state.targetTemperature).to.equal(16);
-    // hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
-    hexCheck({ device, codes: [ 'COOL_16', 'COOL_16' ], count: 2 });
+    expect(airConAccessory.state.targetTemperature).to.equal(16);
+    hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
     
     airConAccessory.mqttClient.end();
   });
@@ -859,8 +845,8 @@ describe('airConAccessory', async () => {
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
     await delayForDuration(0.1);
 
-    MQTTpublish(log, 'mode', 'cool');
     MQTTpublish(log, 'targetTemperature', 20);
+    MQTTpublish(log, 'mode', 'cool');
     await delayForDuration(0.1);
 
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
