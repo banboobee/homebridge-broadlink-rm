@@ -35,6 +35,8 @@ class ServiceManager {
     this.state[this.names[characteristic.UUID]] = value;
     this.getCharacteristic(characteristic).updateValue(value);
     // this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateCharacteristic: ${this.names[characteristic.UUID]} ${value}`);
+
+    return this;
   }
 
   getCharacteristic (characteristic) {
