@@ -145,7 +145,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async updateServiceCurrentHeatingCoolingState (value) {
     const { Characteristic } = this;
-    const { serviceManager, name, state, log, logLevel } = this;
+    const { serviceManager, state } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let update = value;
 
@@ -166,7 +166,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async getCurrentHeatingCoolingState (current) {
     const { Characteristic } = this;
-    const { serviceManager, name, state, log, logLevel } = this;
+    const { state } = this;
     const keys = this.HeatingCoolingConfigKeys;
     const target = state.targetHeatingCoolingState;
     let update = current;
@@ -188,7 +188,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // Allows this accessory to know about switch accessories that can determine whether
   // auto-on/off should be permitted.
   updateAccessories (accessories) {
-    const { config, name, log, logLevel } = this;
+    const { config } = this;
     const { autoSwitchName } = config;
 
     if (!autoSwitchName) {return;}
@@ -210,8 +210,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async setTargetTemperature(HexData, previousValue) {
     const { Characteristic } = this;
-    const { HeatingCoolingConfigKeys, data, config, log, logLevel, name, serviceManager, state } = this;
-    const { preventResendHex, minTemperature, maxTemperature } = config;
+    const { HeatingCoolingConfigKeys, config, state } = this;
+    const { preventResendHex } = config;
 
     if (state.targetHeatingCoolingState === state.currentHeatingCoolingState &&
 	state.targetTemperature === state.userSpecifiedTargetTemperature && preventResendHex && !this.previouslyOff) {
@@ -258,11 +258,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async setTargetHeatingCoolingState(hexData, previousValue) {
     const { Characteristic } = this;
-    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, host, log, logLevel, name, serviceManager, state, debug } = this;
-    const { preventResendHex, defaultCoolTemperature, defaultHeatTemperature, replaceAutoMode } = config;
+    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, state } = this;
+    const { preventResendHex, replaceAutoMode } = config;
 
     const targetHeatingCoolingState = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-    const currentHeatingCoolingState = HeatingCoolingConfigKeys[state.currentHeatingCoolingState];
 
     try {
       // Some calls are made to this without a value for some unknown reason
@@ -321,11 +320,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async checkAutoOff () {
-    const {config, name, data, log} = this;
+    const {config, data} = this;
     const {enableAutoOff, enableAutoOn} = config;
-    let {onDuration, offDuration} = config;
-    onDuration = onDuration|| 60;
-    offDuration = offDuration|| 60;
+    let {onDuration} = config;
+    onDuration = onDuration || 60;
     
     if (enableAutoOn) {
       this.logs.error(`enableAutoOn is not supported.`);
@@ -353,9 +351,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   // Thermostat
   async sendTemperature (temperature, previousTemperature) {
-    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, host, log, name, state, logLevel } = this;
-    const { preventResendHex, defaultCoolTemperature, heatTemperature, ignoreTemperatureWhenOff, sendTemperatureOnlyWhenOff } = config;
-    const { currentHeatingCoolingState, targetHeatingCoolingState } = state;
+    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, state } = this;
+    const { preventResendHex, ignoreTemperatureWhenOff } = config;
 
     this.logs.debug(`Potential sendTemperature (${temperature})`);
 
@@ -408,7 +405,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   getTemperatureHexData(mode, temperature) {
-    const { config, data, name, state, logLevel } = this;
+    const { config, data } = this;
     const { defaultHeatTemperature, defaultCoolTemperature, heatTemperature } = config;
 
     let finalTemperature = temperature;
@@ -446,7 +443,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async checkTurnOnWhenOff () {
     const { Characteristic } = this;
-    const { config, data, host, log, logLevel, name, state } = this;
+    const { config, data, state } = this;
     const { on } = data;
 
     if (state.currentHeatingCoolingState === Characteristic.TargetHeatingCoolingState.OFF && config.turnOnWhenOff) {
@@ -467,8 +464,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // Device Temperature Methods
 
   async monitorTemperature () {
-    const { config, host, log, logLevel, name, state } = this;
-    const { temperatureFilePath, pseudoDeviceTemperature} = config;
+    const { config, host, log } = this;
+    const { pseudoDeviceTemperature} = config;
 
     if (pseudoDeviceTemperature !== undefined) {return;}
     let device;
@@ -493,8 +490,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async onTemperature(temperature, humidity) {
     const { Characteristic } = this;
-    const { config, host, logLevel, log, name, state } = this;
-    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
+    const { config, state } = this;
+    const { temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
     if (!Number.isNaN(Number(temperature))) {
       temperature += temperatureAdjustment;
@@ -556,7 +553,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperature () {
-    const { config, host, logLevel, log, name, state } = this;
+    const { config, host, logLevel, log } = this;
     const { mqttURL, mqttTopic, temperatureFilePath, noHumidity } = config;
 
     // Read temperature from file
@@ -611,7 +608,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperatureFromFile () {
-    const { config, logLevel, host, log, name, state } = this;
+    const { config, state } = this;
     const { temperatureFilePath, noHumidity} = config;
     let humidity = null;
     let temperature = null;
@@ -650,7 +647,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   getCurrentTemperature (callback = undefined) {
     const { Characteristic } = this;
-    const { config, host, logLevel, log, name, state } = this;
+    const { config, state } = this;
     const { pseudoDeviceTemperature } = config;
 
     // Some devices don't include a thermometer and so we can use `pseudoDeviceTemperature` instead
@@ -667,8 +664,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   getCurrentHumidity (callback) {
-    const { config, host, logLevel, log, name, state } = this;
-    const { pseudoDeviceTemperature } = config;
+    const { state } = this;
 
     this.logs.trace(`*getCurrentHumidity: ${state.currentHumidity}`);
     return callback(Number.isNaN(Number(this.state.currentHumidity)), state.currentHumidity);
@@ -676,7 +672,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async checkTemperatureForAutoOnOff (temperature) {
     const { Characteristic } = this;
-    const { config, host, log, logLevel, name, serviceManager, state } = this;
+    const { config, serviceManager } = this;
     const { autoHeatTemperature, autoCoolTemperature, minimumAutoOnOffDuration } = config;
 
     if (this.shouldIgnoreAutoOnOff) {
@@ -756,7 +752,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // MQTT
   async onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
-    const { state, logLevel, log, name, config } = this;
+    const { config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
     this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
 
@@ -1045,7 +1041,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       .on('change', async function(event) {
 	if (event.newValue !== event.oldValue) {
 	  if (this.historyService) {
-	    const value = event.newValue
 	    this.valveInterval = 1;
 	    clearTimeout(this.valveTimer);
 	    this.thermoHistory();

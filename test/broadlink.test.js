@@ -1,4 +1,3 @@
-const { expect } = require('chai');
 const delayForDuration = require('../helpers/delayForDuration');
 
 const { getDevices } = require('./helpers/setup');
@@ -7,7 +6,7 @@ describe.skip('Broadlink device', () => {
 
   it('discover', async () => {
     const config = {};
-    const {platform, device, log, broadlink} = await getDevices(config);
+    const {broadlink} = await getDevices(config);
     
     await delayForDuration(1.5);
 

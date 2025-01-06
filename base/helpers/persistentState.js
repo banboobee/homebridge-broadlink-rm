@@ -1,4 +1,3 @@
-const path = require('path');
 const nodePersist = require('node-persist');
 
 const init = ({ homebridgeDirectory, homebridge }) => {

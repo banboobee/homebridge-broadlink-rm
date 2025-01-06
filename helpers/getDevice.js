@@ -1,7 +1,6 @@
 const ping = require('ping');
 const broadlink = new (require('broadlinkjs-rm'));
 const delayForDuration = require('./delayForDuration');
-const dgram = require('dgram');
 const Mutex = require('await-semaphore').Mutex;
 
 const pingFrequency = 20000;
@@ -9,7 +8,7 @@ const keepAliveFrequency = 90000;
 const pingTimeout = 5;
 let platform = undefined;
 
-const startKeepAlive = (device, log) => {
+const startKeepAlive = (device) => {
   // if (!platform.config.accessories?.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress))
   //   return;
   
@@ -20,7 +19,7 @@ const startKeepAlive = (device, log) => {
   }, keepAliveFrequency);
 }
 
-const startPing = (device, log) => {
+const startPing = (device) => {
   // if (!platform.config.accessories?.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress))
   //   return;
     
@@ -116,8 +115,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
 
     const accessories = platform.accessories?.filter((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress);
     if (accessories.length > 0) {
-      startPing(device, log);
-      startKeepAlive(device, log);
+      startPing(device);
+      startKeepAlive(device);
       accessories.forEach((x) => {
 	x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true)
 	x.logs.debug(`is activated from finding the associated host device in config.`);
@@ -146,8 +145,8 @@ const getDevice = ({ host, log, learnOnly }) => {
       const device = { host: { address: host } };
       manualDevices[host] = device;
 
-      startPing(device, log);
-      startKeepAlive(device, log);
+      startPing(device);
+      startKeepAlive(device);
     }
   } else { // use the first one of no host is provided
     const hosts = Object.keys(discoveredDevices);

@@ -17,8 +17,8 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   }
 
   toggleLearning(props, on, callback) {
-    const { config, serviceManager } = this;
-    const { disableAutomaticOff, scanRF, scanFrequency, frequency } = config;
+    const { config } = this;
+    const { scanRF, scanFrequency, frequency } = config;
 
     if (scanRF || scanFrequency) {
       const scan = frequency ?? undefined;
@@ -186,8 +186,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   
   setupServiceManager() {
     const { Service, Characteristic } = this;
-    const { data, name, config } = this;
-    const { on, off } = data || {};
+    const { name } = this;
 
     this.serviceManager = new this.serviceManagerClass(name, Service.Switch, this.log);
 

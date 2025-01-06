@@ -32,7 +32,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
   }
 
   addAccessories (accessories) {
-    const { config, log, logLevel } = this;
+    const { config, log } = this;
 
     // if (!this.isUnitTest) this.discoverBroadlinkDevices();
     this.showMessage();

@@ -4,7 +4,7 @@ const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 const { MQTTpublish } = require('./helpers/setup');
 const { MQTTtest } = require('./helpers/setup');
-const ping = require('./helpers/fakePing');
+// const ping = require('./helpers/fakePing');
 const hexCheck = require('./helpers/hexCheck');
 
 const delayForDuration = require('../helpers/delayForDuration');
@@ -863,7 +863,7 @@ describe('lightAccessory', async () => {
       ]
     };
     
-    const {platform, device, log, accessories} = await getAccessories(config);
+    const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
     expect(accessories[0].state.switchState).to.equal(true);

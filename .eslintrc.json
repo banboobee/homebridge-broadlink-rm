@@ -30,7 +30,7 @@
     "rules": {
 
         "global-require": "off",
-        "no-unused-vars": "warn",
+        "no-unused-vars": ["warn", {"args": "none"}], 
         "no-mixed-spaces-and-tabs": "off",
         "no-fallthrough": "off",
         "no-unreachable": "off",

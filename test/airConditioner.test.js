@@ -392,7 +392,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 1
     };
 
-    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    new platform.classTypes['air-conditioner'](log, config, platform);
 
     device.sendFakeOnCallback('temperature', 17)
 
@@ -439,7 +439,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 1
     };
 
-    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    new platform.classTypes['air-conditioner'](log, config, platform);
 
     device.sendFakeOnCallback('temperature', 28)
 
@@ -626,7 +626,7 @@ describe('airConAccessory', async () => {
         }
       ]
     };
-    const {platform, device, log, accessories} = await getAccessories(config);
+    const {device, accessories} = await getAccessories(config);
     const airConAccessory = accessories[0];
     const switchAccessory = accessories[1];
     

@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { log, setup } = require('./helpers/setup');
+const { setup } = require('./helpers/setup');
 const delayForDuration = require('../helpers/delayForDuration');
 
 const data = {
@@ -258,7 +258,7 @@ describe('windowCoveringAccessory', () => {
     
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
   
-    const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
+    windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
       totalDurationClose: config.totalDurationClose
@@ -295,7 +295,7 @@ describe('windowCoveringAccessory', () => {
     
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
-    const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
+    windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
       totalDurationClose: config.totalDurationClose
@@ -337,7 +337,7 @@ describe('windowCoveringAccessory', () => {
     
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
-    const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
+    windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
       totalDurationClose: config.totalDurationClose

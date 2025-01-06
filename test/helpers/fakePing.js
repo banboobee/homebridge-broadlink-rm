@@ -1,4 +1,4 @@
-const ping = require('ping');
+// const ping = require('ping');
 const delayForDuration = require('../../helpers/delayForDuration')
 
 const pingIPAddress = async function (ipAddress, interval, callback) {

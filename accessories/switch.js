@@ -119,7 +119,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
   async setSwitchState (hexData) {
     const { Characteristic } = this;
-    const { data, host, log, name, logLevel, config, state, serviceManager } = this;
+    const { config, state, serviceManager } = this;
     this.stateChangeInProgress = true;
     this.reset();
 
@@ -137,7 +137,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
+      const { config } = this;
       
       const { pingGrace } = config;
 
@@ -153,8 +153,8 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   async checkAutoOff () {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { config, state, serviceManager } = this;
+      const { enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
@@ -170,8 +170,8 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   async checkAutoOn () {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { config, state, serviceManager } = this;
+      const { enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         this.logs.info(`setSwitchState: automatically turn on in ${offDuration} seconds`);
@@ -207,7 +207,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   // MQTT
   onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
-    const { state, logLevel, log, name, config } = this;
+    const { config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
     super.onMQTTMessage(identifier, message);

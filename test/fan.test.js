@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 
-const { log, setup } = require('./helpers/setup')
-const ping = require('./helpers/fakePing')
+const { setup } = require('./helpers/setup')
+// const ping = require('./helpers/fakePing')
 
 const delayForDuration = require('../helpers/delayForDuration')
 

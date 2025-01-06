@@ -15,7 +15,7 @@ class HomebridgeAccessory {
     }
     this.serviceManagerClass = this.constructor.ServiceManagerClass;
     
-    const { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
+    const { host, name, data } = config;
 
     // this.log = (!disableLogs && log) ? log : () => { };
     this.log = log;
@@ -107,7 +107,7 @@ class HomebridgeAccessory {
   correctReloadedState() { }
 
   checkConfig(config) {
-    const { name, log, logLevel } = this;
+    const { name, log } = this;
     if (typeof config !== 'object') {return;}
 
     Object.keys(config).forEach((key) => {
@@ -148,12 +148,12 @@ class HomebridgeAccessory {
   }
 
   async setCharacteristicValue(props, value, callback) {
-    const { config, host, log, name, logLevel } = this;
+    const { config, host, log, name } = this;
     let previousValue = this.state[props.propertyName];
 
     try {
       const { delay, resendDataAfterReload, allowResend } = config;
-      const { service, propertyName, onData, offData, setValuePromise, ignorePreviousValue } = props;
+      const { propertyName, onData, offData, setValuePromise, ignorePreviousValue } = props;
 
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
@@ -220,7 +220,6 @@ class HomebridgeAccessory {
 
   async getCharacteristicValue(props, callback) {
     const { propertyName, getValuePromise } = props;
-    const { log, name, logLevel } = this;
     let value;
 
     const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -247,7 +246,7 @@ class HomebridgeAccessory {
   }
 
   loadState() {
-    const { config, log, logLevel, name, serviceManager } = this;
+    const { config, name, serviceManager } = this;
     const { host, resendDataAfterReload } = config;
     let { resendDataAfterReloadDelay, persistState } = config;
 
@@ -259,7 +258,7 @@ class HomebridgeAccessory {
     if (!persistState) {return;}
 
     // Load state from file
-    const restoreStateOrder = this.restoreStateOrder();
+    /* const restoreStateOrder = */ this.restoreStateOrder();
     const state = !Object.keys(this.serviceManager.accessory?.context ?? {}).length ?
 	  persistentState.load({ host, name }) || {} :
 	  {...this.serviceManager.accessory.context}
@@ -363,7 +362,7 @@ class HomebridgeAccessory {
 
   // MQTT Support
   subscribeToMQTT() {
-    const { config, log, logLevel, name } = this;
+    const { config, log, name } = this;
     const { mqttURL, mqttUsername, mqttPassword } = config;
     let { mqttTopic } = config;
 
@@ -511,8 +510,6 @@ class HomebridgeAccessory {
   }
 
   mqttValueForIdentifier(identifier) {
-    const { log, logLevel, name } = this;
-
     const value = this.mqttValues[identifier];
 
     // No identifier may have been set in the user's config so let's try "unknown" too

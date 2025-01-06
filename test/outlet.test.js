@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { log, setup } = require('./helpers/setup');
+const { setup } = require('./helpers/setup');
 const ping = require('./helpers/fakePing');
 
 const delayForDuration = require('../helpers/delayForDuration');
@@ -207,7 +207,7 @@ describe('outletAccessory', () => {
   });
 
   it('"persistState": false', async () => {
-    const { platform, device, log } = setup();
+    const { platform, log } = setup();
 
     const config = {
       name: 'Unit Test Outlet',
@@ -252,7 +252,7 @@ describe('outletAccessory', () => {
   });
 
   it('"pingIPAddress": "192.168.1.1", host down', async () => {
-    const { platform, device, log } = setup();
+    const { platform, log } = setup();
 
     const config = {
       name: 'Outlet',

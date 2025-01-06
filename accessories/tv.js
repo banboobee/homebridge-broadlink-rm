@@ -115,7 +115,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   async pingCallback(active) {
     const { Characteristic } = this;
-    const { name, config, state, serviceManager, log } = this;
+    const { config, state, serviceManager } = this;
     
     if (this.stateChangeInProgress){
       return;
@@ -141,8 +141,6 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   async setSwitchState(hexData) {
-    const { data, host, log, name, logLevel } = this;
-
     this.stateChangeInProgress = true;
     this.reset();
 
@@ -154,7 +152,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
+      const { config } = this;
 
       const { pingGrace } = config;
 
@@ -171,8 +169,8 @@ class TVAccessory extends BroadlinkRMAccessory {
   async checkAutoOff() {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { config, state, serviceManager } = this;
+      const { enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
@@ -188,8 +186,8 @@ class TVAccessory extends BroadlinkRMAccessory {
   async checkAutoOn() {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { config, state, serviceManager } = this;
+      const { enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         this.logs.info(`setSwitchState: (automatically turn on in ${offDuration} seconds)`);
@@ -213,7 +211,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   async setInputSource(on, previous) {
     // const { Characteristic } = this;
-    const { data, host, log, name, logLevel } = this;
+    const { data } = this;
     const newValue = this.state.currentInput;
   
     if (
@@ -234,7 +232,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   
   async onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
-    const { state, logLevel, log, name, config } = this;
+    const { config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
     this.logs.trace(`onMQTTMessage: Received {identifier:"${identifier}", message:${message}}`);
 
@@ -555,7 +553,6 @@ class TVAccessory extends BroadlinkRMAccessory {
 
         inputService?.getCharacteristic(Characteristic.TargetVisibilityState)
 	  .onSet(state => {
-	    const current = inputService.getCharacteristic(Characteristic.CurrentVisibilityState).value;
             this.logs.debug(`${input.name} setCurrentVisibilityState: ${state}`);
 	    this.state[`inputs/${input.name}/VisibilityState`] = state;
 	    if (state === Characteristic.CurrentVisibilityState.SHOWN) {

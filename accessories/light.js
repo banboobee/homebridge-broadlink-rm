@@ -34,7 +34,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async updateAccessories (accessories) {
-    const { config, name, log, logLevel } = this;
+    const { config } = this;
     const { exclusives } = config;
     //console.log('updateAccessories: %s', this.name);
 
@@ -60,7 +60,6 @@ class LightAccessory extends SwitchAccessory {
 
   async setExclusivesOFF () {
     const { Characteristic } = this;
-    const { log, name, logLevel } = this;
     if (this.exclusives) {
       this.exclusives.forEach(async (x) => {
 	if (x.state.switchState) {
@@ -77,7 +76,7 @@ class LightAccessory extends SwitchAccessory {
 
   async setSwitchState (hexData, previousValue) {
     const { Characteristic } = this;
-    const { config, data, host, log, name, state, logLevel, serviceManager } = this;
+    const { config, state, serviceManager } = this;
     const { defaultBrightness, useLastKnownBrightness } = config;
     const { defaultColorTemperature, useLastKnownColorTemperature } = config;
     this.reset();
@@ -121,9 +120,9 @@ class LightAccessory extends SwitchAccessory {
   async setHue () {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, data, host, log, name, state, logLevel, serviceManager} = this;
+      const { config, data, state, serviceManager} = this;
       const { onDelay } = config;
-      const { off, on } = data;
+      const { on } = data;
 
       this.reset();
 
@@ -162,7 +161,7 @@ class LightAccessory extends SwitchAccessory {
   async setBrightness (dummy, previousValue) {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, data, host, log, name, state, logLevel, serviceManager } = this;
+      const { config, data, state, serviceManager } = this;
       const { off, on } = data;
       const { onDelay } = config;
 
@@ -261,9 +260,9 @@ class LightAccessory extends SwitchAccessory {
   async setColorTemperature(dummy, previousValue) {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
-      const { config, data, host, log, name, state, logLevel, serviceManager} = this;
+      const { config, data, state, serviceManager} = this;
       const { onDelay } = config;
-      const { off, on } = data;
+      const { on } = data;
       
       this.reset();
       
@@ -363,7 +362,7 @@ class LightAccessory extends SwitchAccessory {
   // MQTT
   onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
-    const { state, logLevel, log, name, config } = this;
+    const { config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
     super.onMQTTMessage(identifier, message);

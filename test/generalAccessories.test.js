@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const delayForDuration = require('../helpers/delayForDuration');
 
-const { setup } = require('./helpers/setup');
+// const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 
@@ -28,55 +28,55 @@ describe('disableLogs', () => {
       ]
     };
   
-    const {platform, device, log, accessories} = await getAccessories(config);
+    const {platform, accessories} = await getAccessories(config);
     expect(platform.isUnitTest).to.equal(true);
     expect(accessories[0].isUnitTest).to.equal(true);
     
   });
 
-  it('disableLogs true returns empty function', async () => {
-    const config = {
-      isUnitTest: true,
-      hideScanFrequencyButton: true,
-      disableLogs: true,
-      hideLearnButton: true,
-      accessories: [
-        {
-          name: 'Test',
-          type: 'switch',
-	  persistState: false,
-          disableLogs: true
-        }
-      ]
-    };
+  // it('disableLogs true returns empty function', async () => {
+  //   const config = {
+  //     isUnitTest: true,
+  //     hideScanFrequencyButton: true,
+  //     disableLogs: true,
+  //     hideLearnButton: true,
+  //     accessories: [
+  //       {
+  //         name: 'Test',
+  //         type: 'switch',
+  // 	  persistState: false,
+  //         disableLogs: true
+  //       }
+  //     ]
+  //   };
   
-    const {platform, device, log, accessories} = await getAccessories(config);
-    const logFunctionAsString = accessories[0].log.toString();
-    const isEmptyFunction = logFunctionAsString === '() => {}';
+  //   const {accessories} = await getAccessories(config);
+  //   const logFunctionAsString = accessories[0].log.toString();
+  //   const isEmptyFunction = logFunctionAsString === '() => {}';
     
-    // expect(isEmptyFunction).to.equal(true);
-  });
+  //   expect(isEmptyFunction).to.equal(true);
+  // });
 
-  it('disableLogs false returns useful function', async () => {
-    const config = {
-      isUnitTest: true,
-      hideScanFrequencyButton: true,
-      hideLearnButton: true,
-      accessories: [
-        {
-          name: 'Test',
-          type: 'switch',
-	  persistState: false,
-        }
-      ]
-    };
+  // it('disableLogs false returns useful function', async () => {
+  //   const config = {
+  //     isUnitTest: true,
+  //     hideScanFrequencyButton: true,
+  //     hideLearnButton: true,
+  //     accessories: [
+  //       {
+  //         name: 'Test',
+  //         type: 'switch',
+  // 	  persistState: false,
+  //       }
+  //     ]
+  //   };
 
-    const {platform, device, log, accessories} = await getAccessories(config);
-    const logFunctionAsString = accessories[0].log.toString();
-    const isEmptyFunction = logFunctionAsString === '() => {}';
+  //   const {accessories} = await getAccessories(config);
+  //   const logFunctionAsString = accessories[0].log.toString();
+  //   const isEmptyFunction = logFunctionAsString === '() => {}';
 
-    // expect(isEmptyFunction).to.equal(false);
-  });
+  //   expect(isEmptyFunction).to.equal(false);
+  // });
 
   it('Advanced HEX', async () => {
     const config = {
@@ -147,7 +147,7 @@ describe('disableLogs', () => {
       ]
     };
     
-    const {platform, device, log, accessories} = await getAccessories(config);
+    const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
 
@@ -214,7 +214,7 @@ describe('disableLogs', () => {
       ]
     };
     
-    const {platform, device, log, accessories} = await getAccessories(config);
+    const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, false);
 

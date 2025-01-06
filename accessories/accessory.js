@@ -1,5 +1,3 @@
-const uuid = require('uuid');
-
 const { HomebridgeAccessory } = require('../base');
 
 const sendData = require('../helpers/sendData');
@@ -43,7 +41,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   }
 
   async performSend (data, actionCallback) {
-    const { logLevel, config, host, log, name } = this;
+    const { logLevel, host, log, name } = this;
     let r = 0, x = 0;
 
     //Error catch
