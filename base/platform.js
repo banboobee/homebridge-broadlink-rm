@@ -135,6 +135,7 @@ class HomebridgePlatform {
     });
 
     // callback(accessories);
+    this.accessories = accessories;
   }
 }
 

@@ -34,7 +34,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
   addAccessories (accessories) {
     const { config, log, logLevel } = this;
 
-    if (!this.isUnitTest) this.discoverBroadlinkDevices();
+    // if (!this.isUnitTest) this.discoverBroadlinkDevices();
     this.showMessage();
     // setTimeout(() => checkForUpdates(log), 1800);
 
@@ -91,6 +91,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       log(`**************************************************************************************************************`);
       log('');
     }
+    if (!this.isUnitTest) this.discoverBroadlinkDevices();
   }
 
   discoverBroadlinkDevices () {
@@ -99,7 +100,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
     if (!hosts) {
       if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)}
-	discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, config.accessories);
+	discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this);
 
       return;
     }

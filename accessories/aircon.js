@@ -307,7 +307,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       //   maxValue: modemax,
       //   minstep: 1
       // });
-      //  this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
+      // this.serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
       
       if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState){
 	// serviceManager.setCharacteristic(Characteristic.TargetTemperature, temperature);

@@ -1061,4 +1061,29 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
+  it('set StatusActive false/true', async () => {
+    const { platform, device, log } = setup();
+    defaultConfig.host = device.host.address
+    
+    const config = {
+      allowResend: false,
+      ...defaultConfig
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+    // Set temperature
+    airConAccessory.serviceManager.updateCharacteristic(Characteristic.StatusActive, false);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
+    await delayForDuration(0.1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+
+    // Set temperature
+    airConAccessory.serviceManager.updateCharacteristic(Characteristic.StatusActive, true);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
+    await delayForDuration(0.1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+  });
 })

@@ -45,6 +45,9 @@ class FakeService {
 
     return characteristic
   }
+  
+  addOptionalCharacteristic() {
+  }
 }
 
 class FakeCharacteristic {
@@ -67,10 +70,12 @@ class FakeCharacteristic {
     this.log(`FakeServiceManager: set${this.type.name} ${value}`);
 
     return this.setMethod(value, (err, value) => {
-      if (err) {return this.log(err.message)}
+      if (err) {
+	return this.log(`FakeServiceManager: set${this.type.name} received failed callback ${err}.`)
+      }
 
       // this.log('Fake Set Callback Received: ', value)
-      this.log(`FakeServiceManager: set${this.type.name} received callback ${value}.`);
+      this.log(`FakeServiceManager: set${this.type.name} received succeed callback ${value}.`);
     })
   }
 

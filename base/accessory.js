@@ -77,6 +77,18 @@ class HomebridgeAccessory {
 
     this.setDefaults();
 
+    this.serviceManager.service.addOptionalCharacteristic(this.Characteristic.StatusActive);
+    this.serviceManager.addToggleCharacteristic({
+      name: 'statusActive',
+      type: this.Characteristic.StatusActive,
+      getMethod: this.getCharacteristicValue,
+      setMethod: this.setCharacteristicValue,
+      bind: this,
+      props: {
+      }
+    });
+    this.serviceManager.updateCharacteristic(this.Characteristic.StatusActive, this.isUnitTest || this.config.host === undefined);
+
     this.subscribeToMQTT();
   }
 
@@ -144,6 +156,12 @@ class HomebridgeAccessory {
       const { service, propertyName, onData, offData, setValuePromise, ignorePreviousValue } = props;
 
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
+
+      if (this.state['statusActive'] === false) {
+	this.logs.error(`failed to set ${capitalizedPropertyName} to ${value} due to offline the device.`);
+	callback(true);
+	return;
+      }
 
       if (delay) {
         this.logs.warn(`set${capitalizedPropertyName}: ${value} (delaying by ${delay}s)`);
