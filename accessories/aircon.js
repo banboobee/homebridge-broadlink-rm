@@ -531,18 +531,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async thermoHistory() {
-    const {config} = this;
-    if (config.noHistory !== true && config.enableModeHistory) {
-      const valve = this.state.targetHeatingCoolingState ?
-	     (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 0;
-      if (valve >= 0 && valve <= 100) {
+    const {noHistory, enableModeHistory} = this.config;
+    if (noHistory !== true && enableModeHistory) {
+      const {targetHeatingCoolingState, currentTemperature, targetTemperature} = this.state;
+      let valve = 0;
+      if (targetHeatingCoolingState) {
+	valve = (currentTemperature - targetTemperature)/targetTemperature*100*2 + 50;
+	valve = valve < 1 ? 1 : (valve > 100 ? 100 : valve); 
 	this.historyService.addEntry({
 	  time: Math.round(new Date().valueOf() / 1000),
 	  setTemp: this.state.targetTemperature,
 	  valvePosition: valve
 	});
-      } else {
-	this.valveInterval = 0.7;
       }
       
       this.valveInterval = Math.min(this.valveInterval * 1/0.7, 10);
@@ -881,12 +881,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
     return results;
   }
 
-  getValvePosition(callback) {
-    let valve = this.state.targetHeatingCoolingState ?
-	   (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 0;
-      valve = valve < 0 ? 0 : (valve > 100 ? 100 : valve);
-    //callback(null, this.state.targetHeatingCoolingState * 25);
-    //console.log('getValvePosition() is requested.', this.displayName, valve);
+  getCurrentValvePosition(callback) {
+    let valve = 0;
+    const {targetHeatingCoolingState, currentTemperature, targetTemperature} = this.state;
+    if (targetHeatingCoolingState) {
+      valve = (currentTemperature - targetTemperature)/targetTemperature*100*2 + 50;
+      valve = valve < 1 ? 1 : (valve > 100 ? 100 : valve);
+    }
+    this.logs.trace(`getCurrentValvePosition: ${valve}`);
     callback(Number.isNaN(Number(valve)), valve);
   }
   
@@ -917,9 +919,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
     if (config.noHistory !== true) {
       if (config.enableTargetTemperatureHistory === true) {
-	this.logs.info(`Accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
+	this.logs.info(`accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
       } else if (config.enableModeHistory === true) {
-	this.logs.info(`Accessory is configured to record HeatingCoolingState history.`);
+	this.logs.info(`accessory is configured to record HeatingCoolingState history.`);
       }
     }
 
@@ -929,7 +931,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	name: 'currentValvePosition',
 	type: this.platform.eve.Characteristics.ValvePosition,
 	// type: ValvePositionCharacteristic,
-	method: this.getValvePosition,
+	method: this.getCurrentValvePosition,
 	bind: this
       });
       
