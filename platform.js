@@ -1,4 +1,4 @@
-const { HomebridgePlatform } = require('./base');
+const HomebridgePlatform = require('./base/platform');
 const { assert } = require('chai');
 
 const npmPackage = require('./package.json');

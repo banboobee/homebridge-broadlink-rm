@@ -1,7 +1,8 @@
+
 const { expect } = require('chai');
 const delayForDuration = require('../helpers/delayForDuration');
 
-// const { setup } = require('./helpers/setup');
+const { setup } = require('./helpers/setup');
 const { getAccessories } = require('./helpers/setup');
 const hexCheck = require('./helpers/hexCheck');
 
@@ -233,4 +234,118 @@ describe('disableLogs', () => {
 	     });
   }).timeout(4000);
 
+  it('Context HEX', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      allowResend: false,
+      name: 'AirConditioner',
+      data: {
+	on: 'ON',
+	off: [
+	  {pause: 0.1},
+	  {sendCount: 2,
+	   eval: "currentHeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
+	   interval: 0.2,
+	   pause: 0.1
+	  },
+	],
+	temperature16: {
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_16'
+	},
+	temperature18: {
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_18'
+	},
+	temperature23: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_23'
+	},
+	temperature26: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_26'
+	},
+	temperature30: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_30'
+	}
+      },
+      replaceAutoMode: 'cool',
+      logLevel: 'trace',
+      noHistory: true,
+      isUnitTest: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.5);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
+    await delayForDuration(0.1);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.5);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+  });
+
+  it('Invalid context HEX', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      allowResend: false,
+      name: 'AirConditioner',
+      data: {
+	on: 'ON',
+	off: [
+	  {pause: 0.1},
+	  {sendCount: 2,
+	   eval: "HeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
+	   interval: 0.2,
+	   pause: 0.1
+	  },
+	],
+	temperature16: {
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_16'
+	},
+	temperature18: {
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_18'
+	},
+	temperature23: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_23'
+	},
+	temperature26: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_26'
+	},
+	temperature30: {
+	  'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_30'
+	}
+      },
+      replaceAutoMode: 'cool',
+      logLevel: 'trace',
+      noHistory: true,
+      isUnitTest: true,
+      persistState: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.5);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+  });
 })

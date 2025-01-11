@@ -1,5 +1,4 @@
-const { HomebridgeAccessory } = require('../base');
-
+const HomebridgeAccessory = require('../base/accessory');
 const sendData = require('../helpers/sendData');
 // const delayForDuration = require('../helpers/delayForDuration');
 // const catchDelayCancelError = require('../helpers/catchDelayCancelError');
@@ -40,18 +39,18 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     // }
   }
 
-  async performSend (data, actionCallback) {
+  async performSend (hex, actionCallback) {
     const { logLevel, host, log, name } = this;
     let r = 0, x = 0;
 
     //Error catch
-    if(data === undefined){return}
+    if (hex === undefined) return;
 
     // Get the Broadlink device
     const device = getDevice({ host, log });
 
     if (!host || !device) {	// Error reporting
-      await sendData({ host, hexData: data, log, name, logLevel });
+      await sendData({ host, hexData: hex, log, name, logLevel });
       throw new function () {
 	return {
 	  attempt : 0,
@@ -59,6 +58,37 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  timeout: false
 	};
       };
+    }
+
+    let data = hex;
+    if (Array.isArray(hex)) {
+      data = [];
+      hex.forEach(x => {
+	const p = {};
+	Object.keys(x).forEach(y => {
+	  if (y === 'eval') {
+	    try {
+	      this.logs.trace(`found context HEX: "${x[y]}"`);
+	      const z = `{\nconst {\n${Object.keys(this.state).join(',\n')}\n} = this.state;\n${x[y]};\n}`;
+	      this.logs.trace(`expanded context HEX: ${z}`);
+	      p['data'] = `${eval(z)}`;
+	      this.logs.trace(`resolved context HEX: ${p['data']}`);
+	    } catch (e) {
+	      this.logs.error(`failed to evaluate context HEX. ${e}`);
+	      throw new function () {
+		return {
+		  attempt : 0,
+		  fail: -1,
+		  timeout: false
+		};
+	      };
+	    }
+	  } else {
+	    p[y] = x[y];
+	  }
+	});
+	data.push(p);
+      })
     }
 
     return await device.mutex.use(async () => {	// Queue command sequence
