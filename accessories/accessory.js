@@ -69,7 +69,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  if (y === 'eval') {
 	    try {
 	      this.logs.trace(`found context HEX: "${x[y]}"`);
-	      const z = `{\nconst {\n${Object.keys(this.state).join(',\n')}\n} = this.state;\n${x[y]};\n}`;
+	      const z = `{\nconst {\n\t${Object.keys(this.state).map(x => `${x} = ${this.state[x]}`).join(',\n\t')}\n} = this.state;\n${x[y]};\n}`;
 	      this.logs.trace(`expanded context HEX: ${z}`);
 	      p['data'] = `${eval(z)}`;
 	      this.logs.trace(`resolved context HEX: ${p['data']}`);
