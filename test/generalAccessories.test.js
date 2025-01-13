@@ -244,7 +244,7 @@ describe('disableLogs', () => {
 	off: [
 	  {pause: 0.1},
 	  {sendCount: 2,
-	   eval: "currentHeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
+	   eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
 	   interval: 0.2,
 	   pause: 0.1
 	  },

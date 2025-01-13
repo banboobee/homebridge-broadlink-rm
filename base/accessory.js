@@ -173,6 +173,7 @@ class HomebridgeAccessory {
 
       if (this.isReloadingState && !resendDataAfterReload) {
         this.state[propertyName] = value;
+        this.state0[propertyName] = value;
 
         this.logs.debug(`set${capitalizedPropertyName}: already ${value} (no data sent - A)`);
 
@@ -206,6 +207,7 @@ class HomebridgeAccessory {
       } else if (data) {
         await this.performSetValueAction({ host, data, log, name });
       }
+      this.state0[propertyName] = value;
       // callback(null);
     } catch (e) {	// revert to original state.
       const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(props.propertyName);
@@ -253,6 +255,7 @@ class HomebridgeAccessory {
     // Set defaults
     if (persistState === undefined) {persistState = true;}
     if (!resendDataAfterReloadDelay) {resendDataAfterReloadDelay = 2}
+    this.state0 = {...this.state};	// delayed status of accessory
     this.serviceManager.state = this.state;
 
     if (!persistState) {return;}
