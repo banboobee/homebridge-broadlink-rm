@@ -244,7 +244,7 @@ describe('disableLogs', () => {
 	off: [
 	  {pause: 0.1},
 	  {sendCount: 2,
-	   eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
+	   eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : (targetHeatingCoolingState === 2 ? 'COOL_OFF' : 'OFF')",
 	   interval: 0.2,
 	   pause: 0.1
 	  },
@@ -280,10 +280,12 @@ describe('disableLogs', () => {
 
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 23);
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
     await delayForDuration(0.1);
 
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
     await delayForDuration(0.5);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
 

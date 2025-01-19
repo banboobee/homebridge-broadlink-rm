@@ -28,6 +28,7 @@ class HomebridgeAccessory {
     this.data = data;
 
     this.state = {}
+    this.state0 = {};
 
     // short cuts
     this.Service = platform.api.hap.Service;
@@ -257,6 +258,7 @@ class HomebridgeAccessory {
     if (!resendDataAfterReloadDelay) {resendDataAfterReloadDelay = 2}
     this.state0 = {...this.state};	// delayed status of accessory
     this.serviceManager.state = this.state;
+    this.serviceManager.state0 = this.state0;
 
     if (!persistState) {return;}
 
@@ -302,6 +304,7 @@ class HomebridgeAccessory {
       })
     }
     this.serviceManager.state = this.state;
+    this.serviceManager.state0 = this.state0;
 
     // Refresh the UI and resend data based on existing state
     Object.keys(serviceManager.characteristics).forEach((name) => {

@@ -143,22 +143,23 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
   }
 
-  async updateServiceCurrentHeatingCoolingState (value) {
+  async updateServiceCurrentHeatingCoolingState (targetHeatingCoolingState) {
     const { Characteristic } = this;
     const { serviceManager, state } = this;
     const keys = this.HeatingCoolingConfigKeys;
-    let update = value;
+    let update = targetHeatingCoolingState;
 
-    this.state.currentHeatingCoolingState = value;
-    if (value === Characteristic.TargetHeatingCoolingState.AUTO) {
+    this.state.currentHeatingCoolingState = targetHeatingCoolingState;
+    if (targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.AUTO) {
       if (state.currentTemperature <= state.targetTemperature) {
 	update = Characteristic.CurrentHeatingCoolingState.COOL;
       } else {
 	update = Characteristic.CurrentHeatingCoolingState.HEAT;
       }
     }
+    serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, targetHeatingCoolingState);	// to sync state0
     if (serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value === update) return;
-    this.logs.debug(`updateServiceCurrentHeatingCoolingState current:${keys[this.state['currentHeatingCoolingState']]} target:${keys[value]} update:${keys[update]}`);
+    this.logs.debug(`updateServiceCurrentHeatingCoolingState current:${keys[this.state['currentHeatingCoolingState']]} target:${keys[targetHeatingCoolingState]} update:${keys[update]}`);
 
     // Use low-level API to keep CurrentHeatingCoolingState as TargetHeatingCoolingState
     serviceManager.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(update);
@@ -260,7 +261,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, state } = this;
     const { preventResendHex, replaceAutoMode } = config;
-
     const targetHeatingCoolingState = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
 
     try {
@@ -351,44 +351,59 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   // Thermostat
   async sendTemperature (temperature, previousTemperature) {
+    const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, state } = this;
-    const { preventResendHex, ignoreTemperatureWhenOff } = config;
+    const { preventResendHex/*, ignoreTemperatureWhenOff*/ } = config;
 
     this.logs.debug(`Potential sendTemperature (${temperature})`);
 
     try {
-      // Ignore Temperature if off, staying off - and set to ignore. OR temperature not provided
-      if ((!state.targetHeatingCoolingState && ignoreTemperatureWhenOff) || !temperature) {
-	this.logs.info(`Ignoring sendTemperature due to "ignoreTemperatureWhenOff": true or no temperature set.`);
-	return;
-      }
+      // what is the case to need ignoreTemperatureWhenOff?
+      // Need to aware temperature === undefined?
+      // // Ignore Temperature if off, staying off - and set to ignore. OR temperature not provided
+      // if ((!state.targetHeatingCoolingState && ignoreTemperatureWhenOff) || !temperature) {
+      // 	this.logs.info(`Ignoring sendTemperature due to "ignoreTemperatureWhenOff": true or no temperature set.`);
+      // 	return;
+      // }
       
-      let mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
+      // let mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
+      const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
       const { hexData, finalTemperature } = this.getTemperatureHexData(mode, temperature);
       // state.targetTemperature = finalTemperature;
       
-      // Update the heating/cooling mode based on the pseudo-mode - if pressent.
-      if (hexData['pseudo-mode']){
-	mode = hexData['pseudo-mode'];
-	if (mode) {assert.oneOf(mode, [ 'heat', 'cool', 'auto' ], `\x1b[31m[CONFIG ERROR] \x1b[33mpseudo-mode\x1b[0m should be one of "heat", "cool" or "auto"`)}
-	// await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
-      }
+      // // Update the heating/cooling mode based on the pseudo-mode - if pressent.
+      // if (hexData['pseudo-mode']){
+      // 	mode = hexData['pseudo-mode'];
+      //        // Won't come here. getTemperatureHexData would return mode less HEX.
+      // 	if (mode) {assert.oneOf(mode, [ 'heat', 'cool', 'auto' ], `\x1b[31m[CONFIG ERROR] \x1b[33mpseudo-mode\x1b[0m should be one of "heat", "cool" or "auto"`)}
+      // 	// await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
+      // }
       
+      if (state.targetHeatingCoolingState !== Characteristic.TargetHeatingCoolingState.OFF) {
       // if((previousTemperature !== finalTemperature) || state.firstTemperatureUpdate || !preventResendHex){
-      if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState ||
-	  previousTemperature !== finalTemperature || state.firstTemperatureUpdate || !preventResendHex){
-	// revert targetHeatingCoolingState temporally in case of failure.
-	// this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, state.currentHeatingCoolingState);
-	//Set the temperature
-	this.logs.info(`sendTemperature: ${mode} ${finalTemperature}`);
-	await this.performSend(hexData.data || hexData);	// may throw in here.
-	// restore targetHeatingCoolingState if success
-	// this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, HeatingCoolingStates[mode]);
-	await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
-	state.firstTemperatureUpdate = false;
-	
-	this.checkAutoOff();
+	if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState ||
+	    previousTemperature !== finalTemperature || state.firstTemperatureUpdate || !preventResendHex){
+	  // revert targetHeatingCoolingState temporally in case of failure.
+	  // this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, state.currentHeatingCoolingState);
+	  //Set the temperature
+	  this.logs.info(`sendTemperature: ${mode} ${finalTemperature}`);
+	  await this.performSend(hexData.data || hexData);	// may throw in here.
+	  // restore targetHeatingCoolingState if success
+	  // this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, HeatingCoolingStates[mode]);
+	  await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
+	  state.firstTemperatureUpdate = false;
+	  
+	  this.checkAutoOff();
+	}
+	// this.serviceManager.updateCharacteristic(Characteristic.TargetTemperature, finalTemperature);
+      
+	// // Used within correctReloadedState() so that when re-launching the accessory it uses
+	// // this temperature rather than one automatically set.
+	// state.userSpecifiedTargetTemperature = finalTemperature;
       }
+      // } else {
+      // 	this.serviceManager.updateCharacteristic(Characteristic.TargetTemperature, previousTemperature);
+      // }
       this.serviceManager.updateCharacteristic(Characteristic.TargetTemperature, finalTemperature);
       
       // Used within correctReloadedState() so that when re-launching the accessory it uses

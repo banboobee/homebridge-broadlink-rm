@@ -33,6 +33,7 @@ class ServiceManager {
   updateCharacteristic (characteristic, value) {
     // const name = this.getCharacteristic(Characteristic.Name).value;
     this.state[this.names[characteristic.UUID]] = value;
+    this.state0[this.names[characteristic.UUID]] = value;
     this.getCharacteristic(characteristic).updateValue(value);
     // this.log(`\x1b[33m[DEBUG]\x1b[0m ${name} updateCharacteristic: ${this.names[characteristic.UUID]} ${value}`);
 

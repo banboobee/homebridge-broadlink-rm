@@ -775,6 +775,7 @@ describe('airConAccessory', async () => {
 	heat16: 'HEAT_16',
 	heat30: 'HEAT_30',
 	cool16: 'COOL_16',
+	cool19: 'COOL_19',
 	cool30: 'COOL_30',
 	auto16: 'AUTO_16',
 	auto30: 'AUTO_30'
@@ -805,8 +806,8 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.1);
 
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
-    expect(airConAccessory.state.targetTemperature).to.equal(16);
-    hexCheck({ device, codes: [ 'OFF', 'COOL_16' ], count: 2 });
+    expect(airConAccessory.state.targetTemperature).to.equal(19);
+    hexCheck({ device, codes: [ 'COOL_19' ], count: 1 });
     
     airConAccessory.mqttClient.end();
   });
@@ -1085,5 +1086,54 @@ describe('airConAccessory', async () => {
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 26);
     await delayForDuration(0.1);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
+  });
+
+  it('scene off', async () => {
+    const { platform, device, log } = setup();
+    const config = {
+      name: 'AirConditioner',
+      type: 'air-conditioner',
+      data: {
+	off: 'OFF',
+	heat16: 'HEAT_16',
+	heat30: 'HEAT_30',
+	cool16: 'COOL_16',
+	cool19: 'COOL_19',
+	cool30: 'COOL_30',
+	auto16: 'AUTO_16',
+	auto30: 'AUTO_30'
+      },
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: false,
+      mqttStateOnly: false,
+      host: device.host.address
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    await delayForDuration(0.1);
+
+    // Scene OFF (iOS 18 prior)
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    await delayForDuration(0.1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+    expect(airConAccessory.state.targetTemperature).to.equal(20);
+    hexCheck({ device, codes: [ 'OFF' ] });
+
+    // Manual COOL
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
+    await delayForDuration(0.1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
+    expect(airConAccessory.state.targetTemperature).to.equal(19);
+    hexCheck({ device, codes: [ 'COOL_19' ] });
+
+    // Scene OFF (iOS 18)
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.1);
+    expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
+    expect(airConAccessory.state.targetTemperature).to.equal(20);
+    hexCheck({ device, codes: [ 'OFF' ] });
   });
 })
