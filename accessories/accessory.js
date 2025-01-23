@@ -9,7 +9,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   constructor(log, config = {}, platform) {
     if (!config.name) {config.name = "Unknown Accessory"}
 
-    config.resendDataAfterReload = config.resendHexAfterReload;
+    // config.resendDataAfterReload = config.resendHexAfterReload;
     if (config.host) {
       //Clean up MAC address formatting
       config.host = config.host.toLowerCase();

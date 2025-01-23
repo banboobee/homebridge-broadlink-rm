@@ -94,13 +94,17 @@ class HomebridgeAccessory {
   }
 
   setDefaults() {
-    if (this.config.allowResend === undefined) {
-      if (this.config.preventResendHex === undefined) {
-        this.config.allowResend = true;
-      } else {
-        this.config.allowResend = !this.config.preventResendHex;
-      }
-    }
+    const { config } = this;
+    config.allowResend ??= !(config.preventResendHex ?? false);
+    config.preventResendHex ??= !config.allowResend;
+    
+    // if (this.config.allowResend === undefined) {
+    //   if (this.config.preventResendHex === undefined) {
+    //     this.config.allowResend = true;
+    //   } else {
+    //     this.config.allowResend = !this.config.preventResendHex;
+    //   }
+    // }
   }
 
   restoreStateOrder() { }
@@ -153,7 +157,7 @@ class HomebridgeAccessory {
     let previousValue = this.state[props.propertyName];
 
     try {
-      const { delay, resendDataAfterReload, allowResend } = config;
+      const { delay, resendHexAfterReload, allowResend } = config;
       const { propertyName, onData, offData, setValuePromise, ignorePreviousValue } = props;
 
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -172,7 +176,7 @@ class HomebridgeAccessory {
 
       this.logs.info(`set${capitalizedPropertyName}: ${value}`);
 
-      if (this.isReloadingState && !resendDataAfterReload) {
+      if (this.isReloadingState && !resendHexAfterReload) {
         this.state[propertyName] = value;
         this.state0[propertyName] = value;
 
@@ -192,7 +196,7 @@ class HomebridgeAccessory {
       }
 
       // previousValue = this.state[propertyName];
-      if (this.isReloadingState && resendDataAfterReload) {
+      if (this.isReloadingState && resendHexAfterReload) {
         previousValue = undefined
       }
 
@@ -250,12 +254,12 @@ class HomebridgeAccessory {
 
   loadState() {
     const { config, name, serviceManager } = this;
-    const { host, resendDataAfterReload } = config;
-    let { resendDataAfterReloadDelay, persistState } = config;
+    const { host, resendHexAfterReload } = config;
+    let { resendHexAfterReloadDelay, persistState } = config;
 
     // Set defaults
     if (persistState === undefined) {persistState = true;}
-    if (!resendDataAfterReloadDelay) {resendDataAfterReloadDelay = 2}
+    if (!resendHexAfterReloadDelay) {resendHexAfterReloadDelay = 2}
     this.state0 = {...this.state};	// delayed status of accessory
     this.serviceManager.state = this.state;
     this.serviceManager.state0 = this.state0;
@@ -319,25 +323,25 @@ class HomebridgeAccessory {
       }, 200);
 
       // Re-set the value in order to resend
-      if (resendDataAfterReload) {
+      if (resendHexAfterReload) {
 
         // Delay to allow Broadlink to be discovered
         setTimeout(() => {
           const value = this.state[name];
 
           serviceManager.setCharacteristic(characteristcType, value);
-        }, (resendDataAfterReloadDelay * 1000));
+        }, (resendHexAfterReloadDelay * 1000));
       }
     })
 
-    if (resendDataAfterReload) {
+    if (resendHexAfterReload) {
       this.isReloadingState = true;
 
       setTimeout(() => {
         this.isReloadingState = false;
 	
         this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
-      }, (resendDataAfterReloadDelay * 1000) + 300);
+      }, (resendHexAfterReloadDelay * 1000) + 300);
     } else {
 	this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
     }

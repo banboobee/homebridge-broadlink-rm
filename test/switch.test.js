@@ -328,7 +328,7 @@ describe('switchAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: true,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       isUnitTest: true
     }
     
@@ -373,7 +373,7 @@ describe('switchAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: false,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       isUnitTest: true
     }
 

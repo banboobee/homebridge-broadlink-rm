@@ -588,7 +588,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1,
       pingGrace: 0.1,
       resendHexAfterReload: true,
-      resendDataAfterReloadDelay: 0.1
+      resendHexAfterReloadDelay: 0.1
     }
 
     let lightAccessory;
@@ -598,7 +598,7 @@ describe('lightAccessory', async () => {
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     expect(lightAccessory.state.switchState).to.equal(true);
 
-    // Wait for resendDataAfterReloadDelay and onDelay
+    // Wait for resendHexAfterReloadDelay and onDelay
     await delayForDuration(0.3);
 
     device.resetSentHexCodes();
@@ -641,7 +641,7 @@ describe('lightAccessory', async () => {
       persistState: true,
       pingGrace: 0.1,
       resendHexAfterReload: false,
-      resendDataAfterReloadDelay: 0.1
+      resendHexAfterReloadDelay: 0.1
     }
     
     let lightAccessory
@@ -651,7 +651,7 @@ describe('lightAccessory', async () => {
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     expect(lightAccessory.state.switchState).to.equal(true);
 
-    // Wait for resendDataAfterReloadDelay
+    // Wait for resendHexAfterReloadDelay
     await delayForDuration(0.3);
 
     device.resetSentHexCodes();

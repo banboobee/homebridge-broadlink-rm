@@ -245,7 +245,7 @@ describe('doorAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: true,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       closeDuration: 0.2,
       openDuration: 0.2
     }
@@ -257,7 +257,7 @@ describe('doorAccessory', () => {
     doorAccessory.serviceManager.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
     expect(doorAccessory.state.doorTargetState).to.equal(Characteristic.TargetDoorState.CLOSED);
 
-    // Wait for resendDataAfterReloadDelay
+    // Wait for resendHexAfterReloadDelay
     await delayForDuration(0.3);
 
     // Delay to allow for `closeDuration`
@@ -294,7 +294,7 @@ describe('doorAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: false,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       closeDuration: 0.2,
       openDuration: 0.2
     }
@@ -308,7 +308,7 @@ describe('doorAccessory', () => {
     doorAccessory.serviceManager.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
     expect(doorAccessory.state.doorTargetState).to.equal(Characteristic.TargetDoorState.CLOSED);
 
-    // Wait for resendDataAfterReloadDelay
+    // Wait for resendHexAfterReloadDelay
     await delayForDuration(0.3);
 
     // Delay to allow for `closeDuration`

@@ -255,7 +255,7 @@ describe('lockAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: true,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       lockDuration: 0.2,
       unlockDuration: 0.2,
       data: {
@@ -308,7 +308,7 @@ describe('lockAccessory', () => {
       persistState: true,
       host: device.host.address,
       resendHexAfterReload: false,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       lockDuration: 0.2,
       unlockDuration: 0.2,
       data: {

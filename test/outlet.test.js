@@ -341,7 +341,7 @@ describe('outletAccessory', () => {
       persistState: true,
       resendHexAfterReload: true,
       host: device.host.address,
-      resendDataAfterReloadDelay: 0.1,
+      resendHexAfterReloadDelay: 0.1,
       isUnitTest: true
     }
 

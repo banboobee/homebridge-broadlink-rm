@@ -60,12 +60,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, state } = this;
 
     // Set config default values
-    if (config.turnOnWhenOff === undefined) {config.turnOnWhenOff = config.sendOnWhenOff || false;} // Backwards compatible with `sendOnWhenOff`
-    if (config.minimumAutoOnOffDuration === undefined) {config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120;} // Backwards compatible with `autoMinimumDuration`
-    config.minTemperature = config.minTemperature || 10;	// HAP default
-    config.maxTemperature = config.maxTemperature || 38;	// HAP default
-    config.tempStepSize = config.tempStepSize || 1;	// HAP default: 0.1
-    config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 300;
+    // if (config.turnOnWhenOff === undefined) {config.turnOnWhenOff = config.sendOnWhenOff || false;} // Backwards compatible with `sendOnWhenOff`
+    // if (config.minimumAutoOnOffDuration === undefined) {config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120;} // Backwards compatible with `autoMinimumDuration`
+    config.turnOnWhenOff ??= false;
+    config.minimumAutoOnOffDuration ??= 120;
+    config.minTemperature ??= 10;	// HAP default
+    config.maxTemperature ??= 38;	// HAP default
+    config.tempStepSize ??= 1;		// HAP default: 0.1
+    config.temperatureUpdateFrequency ??= 300;
     // if(config.mqttURL) {
     //   //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
     //   config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
@@ -73,20 +75,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
     //   config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
     // }
     config.units = config.units ? config.units.toLowerCase() : 'c';
-    config.temperatureAdjustment = config.temperatureAdjustment || 0;
-    config.humidityAdjustment = config.humidityAdjustment || 0;
-    config.autoSwitchName = config.autoSwitch || config.autoSwitchName;
+    config.temperatureAdjustment ??= 0;
+    config.humidityAdjustment ??= 0;
+    config.autoSwitchName ??= config.autoSwitch;
 
-    if (config.preventResendHex === undefined && config.allowResend === undefined) {
-      config.preventResendHex = false;
-    } else if (config.allowResend !== undefined) {
-      config.preventResendHex = !config.allowResend;
-    }
+    // if (config.preventResendHex === undefined && config.allowResend === undefined) {
+    //   config.preventResendHex = false;
+    // } else if (config.allowResend !== undefined) {
+    //   config.preventResendHex = !config.allowResend;
+    // }
+    config.allowResend ??= true;	// should be false
 
     // When a temperature hex doesn't exist we try to use the hex set for these
     // default temperatures
-    config.defaultCoolTemperature = config.defaultCoolTemperature || 16;
-    config.defaultHeatTemperature = config.defaultHeatTemperature || 30;
+    config.defaultCoolTemperature ??= 16;
+    config.defaultHeatTemperature ??= 30;
     // ignore Humidity if set to not use it, or using Temperature source that doesn't support it
     if(config.noHumidity || config.pseudoDeviceTemperature){
       state.currentHumidity = null;
@@ -97,13 +100,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Used to determine when we should use the defaultHeatTemperature or the
     // defaultHeatTemperature
-    config.heatTemperature = config.heatTemperature || 22;
+    config.heatTemperature ??= 22;
 
     // Set state default values
-    // state.targetTemperature = state.targetTemperature || config.minTemperature;
-    // state.targetTemperature = state.targetTemperature || config.maxTemperature || config.minTemperature;
-    state.currentHeatingCoolingState = state.currentHeatingCoolingState || Characteristic.CurrentHeatingCoolingState.OFF;
-    state.targetHeatingCoolingState = state.targetHeatingCoolingState || Characteristic.TargetHeatingCoolingState.OFF;
+    // state.targetTemperature ??= config.minTemperature;
+    // state.targetTemperature ??= config.maxTemperature || config.minTemperature;
+    state.currentHeatingCoolingState ??= Characteristic.CurrentHeatingCoolingState.OFF;
+    state.targetHeatingCoolingState ??= Characteristic.TargetHeatingCoolingState.OFF;
     state.firstTemperatureUpdate = true;
 
     // Check required properties
@@ -212,10 +215,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async setTargetTemperature(HexData, previousValue) {
     const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, config, state } = this;
-    const { preventResendHex } = config;
+    const { allowResend } = config;
 
     if (state.targetHeatingCoolingState === state.currentHeatingCoolingState &&
-	state.targetTemperature === state.userSpecifiedTargetTemperature && preventResendHex && !this.previouslyOff) {
+	state.targetTemperature === state.userSpecifiedTargetTemperature && !allowResend && !this.previouslyOff) {
       this.logs.debug(`setTargetHeatingCoolingState: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
       return;
     }
@@ -260,7 +263,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async setTargetHeatingCoolingState(hexData, previousValue) {
     const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, state } = this;
-    const { preventResendHex, replaceAutoMode } = config;
+    const { allowResend, replaceAutoMode } = config;
     const targetHeatingCoolingState = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
 
     try {
@@ -268,7 +271,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (state.targetHeatingCoolingState === undefined) {return;}
       
       // Check to see if it's changed
-      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && preventResendHex) {return;}
+      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && !allowResend) {return;}
       
       if (targetHeatingCoolingState === 'off') {
 	await this.performSend(data.off);
@@ -353,7 +356,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async sendTemperature (temperature, previousTemperature) {
     const { Characteristic } = this;
     const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, state } = this;
-    const { preventResendHex/*, ignoreTemperatureWhenOff*/ } = config;
+    const { allowResend/*, ignoreTemperatureWhenOff*/ } = config;
 
     this.logs.debug(`Potential sendTemperature (${temperature})`);
 
@@ -380,16 +383,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
       // }
       
       if (state.targetHeatingCoolingState !== Characteristic.TargetHeatingCoolingState.OFF) {
-      // if((previousTemperature !== finalTemperature) || state.firstTemperatureUpdate || !preventResendHex){
 	if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState ||
-	    previousTemperature !== finalTemperature || state.firstTemperatureUpdate || !preventResendHex){
-	  // revert targetHeatingCoolingState temporally in case of failure.
-	  // this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, state.currentHeatingCoolingState);
+	    previousTemperature !== finalTemperature || state.firstTemperatureUpdate || allowResend){
 	  //Set the temperature
 	  this.logs.info(`sendTemperature: ${mode} ${finalTemperature}`);
 	  await this.performSend(hexData.data || hexData);	// may throw in here.
-	  // restore targetHeatingCoolingState if success
-	  // this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, HeatingCoolingStates[mode]);
 	  await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
 	  state.firstTemperatureUpdate = false;
 	  
@@ -429,7 +427,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return { finalTemperature, hexData };
     }
     const x = this.dataKeys(`${mode}`);
-    finalTemperature = Number(x.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev));
+    finalTemperature = x.length > 0 && Number(x.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev));
     let hexData = data[`${mode}${finalTemperature}`];
     this.logs.debug(`getTemperatureHexData mode(${mode}) choice[${x}] temperature(${temperature}) closest(${finalTemperature})`);
 

@@ -392,7 +392,7 @@ describe('fanAccessory', () => {
       host: device.host.address,
       persistState: true,
       resendHexAfterReload: true,
-      resendDataAfterReloadDelay: 0.1
+      resendHexAfterReloadDelay: 0.1
     }
 
     let fanAccessory
@@ -402,7 +402,7 @@ describe('fanAccessory', () => {
     fanAccessory.serviceManager.setCharacteristic(Characteristic.Active, true)
     expect(fanAccessory.state.switchState).to.equal(true);
 
-    // Wait for resendDataAfterReloadDelay
+    // Wait for resendHexAfterReloadDelay
     await delayForDuration(0.3)
 
     device.resetSentHexCodes()
@@ -411,7 +411,7 @@ describe('fanAccessory', () => {
     fanAccessory = new platform.classTypes['fan'](log, config, platform);
     expect(fanAccessory.state.switchState).to.equal(true);
 
-    // We should find that setCharacteristic has been called after a duration of resendDataAfterReloadDelay
+    // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3)
     expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
 
@@ -434,7 +434,7 @@ describe('fanAccessory', () => {
       host: device.host.address,
       persistState: true,
       resendHexAfterReload: false,
-      resendDataAfterReloadDelay: 0.1
+      resendHexAfterReloadDelay: 0.1
     }
     
     let fanAccessory
@@ -444,7 +444,7 @@ describe('fanAccessory', () => {
     fanAccessory.serviceManager.setCharacteristic(Characteristic.Active, true)
     expect(fanAccessory.state.switchState).to.equal(true);
 
-    // Wait for resendDataAfterReloadDelay
+    // Wait for resendHexAfterReloadDelay
     await delayForDuration(0.3)
 
     device.resetSentHexCodes()
