@@ -23,8 +23,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       auto: Characteristic.TargetHeatingCoolingState.AUTO
     };
     this.HeatingCoolingStates = HeatingCoolingStates;
-    config.heatOnly = config.heatOnly || false;
-    config.coolOnly = config.coolOnly || false;
+    config.heatOnly ??= false;
+    config.coolOnly ??= false;
 
     const HeatingCoolingConfigKeys = {};
     HeatingCoolingConfigKeys[Characteristic.TargetHeatingCoolingState.OFF] = 'off';
@@ -219,7 +219,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (state.targetHeatingCoolingState === state.currentHeatingCoolingState &&
 	state.targetTemperature === state.userSpecifiedTargetTemperature && !allowResend && !this.previouslyOff) {
-      this.logs.debug(`setTargetHeatingCoolingState: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
+      this.logs.debug(`setTargetTemperature: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
       return;
     }
 
@@ -262,27 +262,33 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async setTargetHeatingCoolingState(hexData, previousValue) {
     const { Characteristic } = this;
-    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, data, state } = this;
+    const { HeatingCoolingStates, config, data, state } = this;
     const { allowResend, replaceAutoMode } = config;
-    const targetHeatingCoolingState = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
 
     try {
       // Some calls are made to this without a value for some unknown reason
-      if (state.targetHeatingCoolingState === undefined) {return;}
+      if (state.targetHeatingCoolingState === undefined) {
+	return;
+      }
       
       // Check to see if it's changed
-      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && !allowResend) {return;}
+      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && !allowResend) {
+	this.logs.debug(`setTargetHeatingCoolingState: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
+	return;
+      }
       
-      if (targetHeatingCoolingState === 'off') {
+      if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.OFF) {
 	await this.performSend(data.off);
-	await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates.off);
+	await this.updateServiceCurrentHeatingCoolingState(Characteristic.TargetHeatingCoolingState.OFF);
 	
 	this.reset();
 	
 	return;
       }
       
-      if (previousValue === Characteristic.TargetHeatingCoolingState.OFF) {this.previouslyOff = true;}
+      if (previousValue === Characteristic.TargetHeatingCoolingState.OFF) {
+	this.previouslyOff = true;
+      }
       
       // If the air-conditioner is turned off then turn it on first and try this again
       if (await this.checkTurnOnWhenOff()) {
@@ -291,7 +297,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
       
       // Perform the auto -> cool/heat conversion if `replaceAutoMode` is specified
-      if (replaceAutoMode && targetHeatingCoolingState === 'auto') {
+      if (replaceAutoMode && state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.AUTO) {
 	this.logs.info(`setTargetHeatingCoolingState (converting from auto to ${replaceAutoMode})`);
 	// await this.updateServiceTargetHeatingCoolingState(HeatingCoolingStates[replaceAutoMode]);
 	this.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, HeatingCoolingStates[replaceAutoMode]);
@@ -311,10 +317,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       // });
       // this.serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
       
-      if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState){
-	// serviceManager.setCharacteristic(Characteristic.TargetTemperature, temperature);
-	await this.setTargetTemperature(undefined, undefined);
-      }
+      // serviceManager.setCharacteristic(Characteristic.TargetTemperature, temperature);
+      await this.setTargetTemperature(undefined, undefined);
     } catch(e) {
       this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, previousValue);
       this.logs.trace(`reverted targetHeatingCoolingState:${this.state.targetHeatingCoolingState} currentHeatingCoolingState:${this.state.currentHeatingCoolingState} targetTemperature:${this.state.targetTemperature}`);
@@ -384,7 +388,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       
       if (state.targetHeatingCoolingState !== Characteristic.TargetHeatingCoolingState.OFF) {
 	if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState ||
-	    previousTemperature !== finalTemperature || state.firstTemperatureUpdate || allowResend){
+	    previousTemperature !== finalTemperature || state.firstTemperatureUpdate /*|| allowResend*/){
 	  //Set the temperature
 	  this.logs.info(`sendTemperature: ${mode} ${finalTemperature}`);
 	  await this.performSend(hexData.data || hexData);	// may throw in here.
@@ -427,20 +431,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return { finalTemperature, hexData };
     }
     const x = this.dataKeys(`${mode}`);
-    finalTemperature = x.length > 0 && Number(x.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev));
-    let hexData = data[`${mode}${finalTemperature}`];
+    finalTemperature = x.length > 0 && Number(x.reduce((previous, current) => Math.abs(current - temperature) < Math.abs(previous - temperature) ? current : previous));
+    let hexData = data?.[`${mode}${finalTemperature}`];
     this.logs.debug(`getTemperatureHexData mode(${mode}) choice[${x}] temperature(${temperature}) closest(${finalTemperature})`);
 
-    if (!hexData) {
+    if (!hexData || finalTemperature == undefined) {
       // Mode based code not found, try mode-less
       this.logs.warn(`No ${mode}${finalTemperature} HEX code found. Use temperature${finalTemperature} HEX code instead.`);
-      hexData = data[`temperature${finalTemperature}`];
+      hexData = data?.[`temperature${finalTemperature}`];
     }
 
     // You may not want to set the hex data for every single mode...
     if (!hexData) {
       const defaultTemperature = (temperature >= heatTemperature) ? defaultHeatTemperature : defaultCoolTemperature;
-      hexData = data[`temperature${defaultTemperature}`];
+      hexData = data?.[`temperature${defaultTemperature}`];
 
       assert(hexData, `\x1b[31m[CONFIG ERROR] \x1b[0m You need to provide a hex code for the following temperature:
         \x1b[33m{ "temperature${temperature}": { "data": "HEXCODE", "pseudo-mode" : "heat/cool" } }\x1b[0m

@@ -114,6 +114,42 @@ describe('airConAccessory', async () => {
   });
 
 
+  it('missing data', async () => {
+    const { platform, device, log } = setup();
+    defaultConfig.host = device.host.address
+    
+    const config = {
+      ...defaultConfig,
+      logLevel: 'info',
+    };
+    delete config.data;
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+    // Set heat
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+  });
+
+  it('missing HEX', async () => {
+    const { platform, device, log } = setup();
+    defaultConfig.host = device.host.address
+    
+    const config = {
+      ...defaultConfig,
+      data: {},
+      logLevel: 'info',
+    };
+
+    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+    // Set heat
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+  });
+
   it('turn on', async () => {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
@@ -342,21 +378,50 @@ describe('airConAccessory', async () => {
 
     airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
-    // Set temperature
+    // Set heat
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
-
     await delayForDuration(0.1);
-
-    // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
-    // Set temperature
+    // Ask Siri to set temperature 30. No HEX code to be sent.
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 30);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
+    // Ask Siri to set heat. HEX Code to be sent.
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 2 });
+
+    // Set OFF
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'OFF' ], count: 1 });
+
+    // Ask Siri to set OFF. OFF code to be sent.
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'OFF' ], count: 2 });
+
+    // Ask Siri to set HEAT 20c. HEX code to be sent two times.
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 2 });
+
+    // set OFF
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
     await delayForDuration(0.1);
 
-    // Check hex codes were sent
-    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 2 });
+    // Ask Siri to set 29c then set HEAT. HEX code to be sent only once.
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 29);
+    await delayForDuration(0.1);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
   it('"allowResend": false', async () => {
@@ -370,20 +435,49 @@ describe('airConAccessory', async () => {
 
     airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
-    // Set temperature
+    // Set heat
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
-
     await delayForDuration(0.1);
-
-    // Check hex codes were sent
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
-    // Set temperature
+    // Ask Siri to set temperature 30. No HEX code to be sent.
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 30);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
 
+    // Ask Siri to set heat. No HEX code to be sent.
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
+
+    // Set OFF
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'OFF' ], count: 1 });
+
+    // Ask Siri to set OFF. No HEX code to be sent.
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'OFF' ], count: 1 });
+
+    // Ask Siri to set HEAT 20c. HEX code to be sent only once.
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
+    hexCheck({ device, codes: [ 'TEMPERATURE_23' ], count: 1 });
+
+    // set OFF
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.OFF);
     await delayForDuration(0.1);
 
-    // Check hex codes were sent
+    // Ask Siri to set 29c then set HEAT. HEX code to be sent only once.
+    device.resetSentHexCodes();
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 29);
+    await delayForDuration(0.1);
+    airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
+    await delayForDuration(0.1);
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
@@ -1125,14 +1219,14 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.1);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
     expect(airConAccessory.state.targetTemperature).to.equal(20);
-    hexCheck({ device, codes: [ 'OFF' ] });
+    hexCheck({ device, codes: [ 'OFF' ], count: 1 });
 
     // Manual COOL
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.COOL);
     await delayForDuration(0.1);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(2);
     expect(airConAccessory.state.targetTemperature).to.equal(19);
-    hexCheck({ device, codes: [ 'COOL_19' ] });
+    hexCheck({ device, codes: [ 'COOL_19' ], count: 2 });
 
     // Scene OFF (iOS 18)
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
@@ -1140,6 +1234,6 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.1);
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
     expect(airConAccessory.state.targetTemperature).to.equal(20);
-    hexCheck({ device, codes: [ 'OFF' ] });
+    hexCheck({ device, codes: [ 'OFF' ] , count: 3});
   });
 })
