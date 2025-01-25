@@ -43,7 +43,7 @@ const defaultConfig = {
   persistState: false
 };
 
-describe('airConAccessory', async () => {
+describe('airConAccessory', async function() {
 
   const MQTTready = await MQTTtest();
   
@@ -53,7 +53,7 @@ describe('airConAccessory', async () => {
     airConAccessory?.mqttClient?.end();
   })
 
-  it ('default config', async () => {
+  it ('default config', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
 
@@ -77,7 +77,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.config.replaceAutoMode).to.equal('cool');
   });
 
-  it('custom config', async () => {
+  it('custom config', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
 
@@ -114,7 +114,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('missing data', async () => {
+  it('missing data', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -124,7 +124,7 @@ describe('airConAccessory', async () => {
     };
     delete config.data;
 
-    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set heat
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
@@ -132,7 +132,7 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.1);
   });
 
-  it('missing HEX', async () => {
+  it('missing HEX', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -142,7 +142,7 @@ describe('airConAccessory', async () => {
       logLevel: 'info',
     };
 
-    const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
 
     // Set heat
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 20);
@@ -150,7 +150,7 @@ describe('airConAccessory', async () => {
     await delayForDuration(0.1);
   });
 
-  it('turn on', async () => {
+  it('turn on', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
@@ -172,7 +172,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.targetHeatingCoolingState).to.equal(Characteristic.TargetHeatingCoolingState.COOL);
   });
 
-  it('turn off', async () => {
+  it('turn off', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
@@ -202,7 +202,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('set heat', async () => {
+  it('set heat', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
@@ -221,7 +221,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
-  it('set cool', async () => {
+  it('set cool', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -241,7 +241,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('set heat temperature', async () => {
+  it('set heat temperature', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -261,7 +261,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_26' ], count: 1 });
   });
 
-  it('set cool temperature', async () => {
+  it('set cool temperature', async function() {
 
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
@@ -283,7 +283,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('set missing heat temperature', async () => {
+  it('set missing heat temperature', async function() {
 
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
@@ -305,7 +305,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.targetTemperature).to.equal(23);
   });
 
-  it('set missing cool temperature 20', async () => {
+  it('set missing cool temperature 20', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -326,7 +326,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.targetTemperature).to.equal(18);
   });
 
-  it('set missing cool temperature 17', async () => {
+  it('set missing cool temperature 17', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -346,7 +346,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_16' ], count: 1 });
   });
 
-  it('"turnOnWhenOff": true', async () => {
+  it('"turnOnWhenOff": true', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -367,7 +367,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_26', 'ON' ], count: 2 });
   });
 
-  it('"allowResend": true', async () => {
+  it('"allowResend": true', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -424,7 +424,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
-  it('"allowResend": false', async () => {
+  it('"allowResend": false', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -481,7 +481,7 @@ describe('airConAccessory', async () => {
     hexCheck({ device, codes: [ 'TEMPERATURE_30' ], count: 1 });
   });
 
-  it('auto-heat & "minimumAutoOnOffDuration": 0.5', async () => {
+  it('auto-heat & "minimumAutoOnOffDuration": 0.5', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -528,7 +528,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it('auto-cool & "minimumAutoOnOffDuration": 0.5', async () => {
+  it('auto-cool & "minimumAutoOnOffDuration": 0.5', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -575,7 +575,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it ('"pseudoDeviceTemperature": 2', async () => {
+  it ('"pseudoDeviceTemperature": 2', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -598,7 +598,7 @@ describe('airConAccessory', async () => {
   });
 
 
-  it ('"temperatureAdjustment": 10', async () => {
+  it ('"temperatureAdjustment": 10', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -618,7 +618,7 @@ describe('airConAccessory', async () => {
     expect(temperature).to.equal(30);
   });
 
-  it('"temperatureAdjustment": -10', async () => {
+  it('"temperatureAdjustment": -10', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -638,7 +638,7 @@ describe('airConAccessory', async () => {
     expect(temperature).to.equal(10);
   });
 
-  it('"replaceAutoMode": "heat"', async () => {
+  it('"replaceAutoMode": "heat"', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -661,7 +661,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.targetHeatingCoolingState).to.equal(Characteristic.TargetHeatingCoolingState.HEAT);
   });
 
-  it('autoSwitch', async () => {
+  it('autoSwitch', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -683,7 +683,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.autoSwitchAccessory).to.equal(switchAccessory)
   });
 
-  it('fail to set heat temperature', async () => {
+  it('fail to set heat temperature', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -704,7 +704,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
   });
 
-  it('autoSwitch on/off ', async () => {
+  it('autoSwitch on/off ', async function() {
     const config = {
       hideScanFrequencyButton: true,
       disableLogs: true,
@@ -753,7 +753,7 @@ describe('airConAccessory', async () => {
 
   });
 
-  it('set auto', async () => {
+  it('set auto', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -819,7 +819,7 @@ describe('airConAccessory', async () => {
     // await delayForDuration(1.0);
   });
 
-  it('"enableAutoOff": true', async () => {
+  it('"enableAutoOff": true', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -865,7 +865,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(0);
   });
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -912,7 +912,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -957,7 +957,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttTopic": string form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": string form', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -991,7 +991,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttTopic": convenient array form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": convenient array form', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -1030,7 +1030,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttTopic": standard array form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": standard array form', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -1073,7 +1073,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttTopic": characteristic form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": characteristic form', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -1118,7 +1118,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttTopic": numeric form', async () => {
+  (MQTTready ? it : it.skip)('"mqttTopic": numeric form', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
@@ -1162,7 +1162,7 @@ describe('airConAccessory', async () => {
     airConAccessory.mqttClient.end();
   });
 
-  it('set StatusActive false/true', async () => {
+  it('set StatusActive false/true', async function() {
     const { platform, device, log } = setup();
     defaultConfig.host = device.host.address
     
@@ -1188,7 +1188,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.state.currentHeatingCoolingState).to.equal(1);
   });
 
-  it('scene off', async () => {
+  it('scene off', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'AirConditioner',
