@@ -359,8 +359,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // Thermostat
   async sendTemperature (temperature, previousTemperature) {
     const { Characteristic } = this;
-    const { HeatingCoolingConfigKeys, HeatingCoolingStates, config, state } = this;
-    const { allowResend/*, ignoreTemperatureWhenOff*/ } = config;
+    const { HeatingCoolingConfigKeys, HeatingCoolingStates, /*config, */state } = this;
+    // const { allowResend/*, ignoreTemperatureWhenOff*/ } = config;
 
     this.logs.debug(`Potential sendTemperature (${temperature})`);
 
@@ -435,7 +435,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     let hexData = data?.[`${mode}${finalTemperature}`];
     this.logs.debug(`getTemperatureHexData mode(${mode}) choice[${x}] temperature(${temperature}) closest(${finalTemperature})`);
 
-    if (!hexData || finalTemperature == undefined) {
+    if (!hexData && finalTemperature !== false) {
       // Mode based code not found, try mode-less
       this.logs.warn(`No ${mode}${finalTemperature} HEX code found. Use temperature${finalTemperature} HEX code instead.`);
       hexData = data?.[`temperature${finalTemperature}`];
