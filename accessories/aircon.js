@@ -49,6 +49,50 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.thermoHistory();
   }
 
+  checkMQTTTopic(property, config) {
+    const options = {
+      identifier: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      topic: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      characteristic: [
+	(key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
+	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+	['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
+      ],
+    }
+    config.forEach(element => {
+      Object.keys(element).forEach(key => {
+	const value = element[key];
+	if (options[key]) {
+	  const checker = options[key][0];
+	  const message = options[key][1];
+	  const choices = options[key][2];
+	  if (!checker(key, value, choices)) {
+	    this.logs.config.error(`failed to verify '${key}' property of '${property}'. ${eval(message)}.`);
+	  }
+	} else {
+	  this.logs.config.debug(`contains unknown property '${key}' of '${property}'.`);
+	}
+      })
+    })
+    
+    return true;
+  }
+
+  isMQTTTopic(key, value) {
+    if (typeof value === 'string') {
+      return true;
+    } else if (Array.isArray(value)) {
+      return this.checkMQTTTopic(key, value);
+    } else if (typeof value === 'object') {
+      this.logs.config.error(`failed to verify '${key}' property. value '${JSON.stringify(value)}' is not a valid mqttTopic.`);
+      return true;
+    }
+  }
+
   checkHex(property, config) {
     let data = false;
     let d = false, r = false, x = false;
@@ -104,7 +148,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     let mode = false, data = false;
     const options = {
       'pseudo-mode': [
-	(key, value, options) => {mode = true; return options.find(x => x === value);},
+	(key, value, choices) => {mode = true; return choices.find(x => x === value);},
 	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
 	['heat', 'cool']
       ],
@@ -196,14 +240,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   checkConfig(config) {
     const options = {
+      // common
       name: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      type: [
 	(key, value) => {return typeof value === 'string'},
 	'`value \'${JSON.stringify(value)}\' is not a string`'],
       host: [
 	(key, value) => {return typeof value === 'string'},
 	'`value \'${JSON.stringify(value)}\' is not a string`'],
       logLevel: [
-	(key, value, options) => {return options.find(x => x === value)},
+	(key, value, choices) => {return choices.find(x => x === value)},
 	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
 	['trace', 'debug', 'info', 'warning', 'error']
       ],
@@ -217,17 +265,91 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	(key, value) => {return typeof value === 'boolean'},
 	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
+      // complex
       data: [
 	(key, value) => {return typeof value === 'object' && this.checkData(key, value)},
 	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
-      noHistory: [
-	(key, value) => {return typeof value === 'boolean'},
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      mqttTopic: [
+	(key, value) => {return this.isMQTTTopic(key, value)},
+	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
+
+      // selection
       replaceAutoMode: [
-	(key, value, options) => {return options.find(x => x === value)},
+	(key, value, choices) => {return choices.find(x => x === value)},
 	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
 	['heat', 'cool']
       ],
+      units: [
+	(key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
+	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+	['c', 'f']
+      ],
+
+      // string
+      autoSwitch: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      autoSwitchName: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      mqttURL: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+
+      // boolean
+      noHistory: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      turnOnWhenOff: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      enableAutoOff: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      mqttStateOnly: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+
+      // number
+      minimumAutoOnOffDuration: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      minTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      maxTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      tempStepSize: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      temperatureUpdateFrequency: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      temperatureAdjustment: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      defaultCoolTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      defaultHeatTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      autoHeatTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      autoCoolTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      pseudoDeviceTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      heatTemperature: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      onDuration: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
     };
     Object.keys(config).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));

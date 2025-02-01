@@ -152,12 +152,11 @@ describe('airConAccessory', async function() {
 
   it('check config', async () => {
     const { platform, device, log } = setup();
-    defaultConfig.host = device.host.address
     
-    const config = {
+    const config1 = {
       allowResend: 'false',	// ERROR
       unknown: true,		// DEBUG
-      name: 'AirConditioner',
+      name: 'AirConditioner1',
       replaceAutoMode: 'cold',	// ERROR
       logLevel: 'trace',
       noHistory: true,
@@ -225,10 +224,40 @@ describe('airConAccessory', async function() {
 	  'pseudo-mode': 'hot',	// ERROR
 	  'data': 'TEMPERATURE_30'
 	}
-      }
+      },
     };
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config1, platform);
+    await delayForDuration(0.1);
 
-    airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    const config2 = {
+      ...defaultConfig,
+      name: 'AirConditioner2',
+      // mqttURL: "mqtt://localhost",
+      mqttTopic:"homebridge-broadlink-rm/UT/x",		// NO ERROR
+    };
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config2, platform);
+    await delayForDuration(0.1);
+
+    const config3 = {
+      ...defaultConfig,
+      // mqttURL: "mqtt://localhost",
+      name: 'AirConditioner3',
+      mqttTopic: [
+        {
+          identifier: "x",
+          characteristic: "targetTemperature",		// ERROR
+          topic: "homebridge-broadlink-rm/UT/weather",
+	  unkown: true					// ERROR
+        },
+        {
+          identifier: "y",
+          characteristic: "currentRelativeHumidity",
+          topic: "homebridge-broadlink-rm/UT/weather"
+        }
+      ],
+    };
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config3, platform);
+    await delayForDuration(0.1);
 
   });
 
