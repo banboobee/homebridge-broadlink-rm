@@ -309,6 +309,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
       mqttStateOnly: [
 	(key, value) => {return typeof value === 'boolean'},
 	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      heatOnly: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      coolOnly: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      enableModeHistory: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      enableTargetTemperatureHistory: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      noHumidity: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
       // number
       minimumAutoOnOffDuration: [
@@ -327,6 +342,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
 	'`value \'${JSON.stringify(value)}\' is not a number`'],
       temperatureAdjustment: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      humidityAdjustment: [
 	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
 	'`value \'${JSON.stringify(value)}\' is not a number`'],
       defaultCoolTemperature: [
