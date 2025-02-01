@@ -49,6 +49,202 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.thermoHistory();
   }
 
+  checkHex(property, config) {
+    let data = false;
+    let d = false, r = false, x = false;
+    const options = {
+      pause: [
+	(key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      sendCount: [
+	(key, value) => {r = true; return typeof value !== 'string' && !Number.isNaN(Number(value));},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      interval: [
+	(key, value) => {x = true; return typeof value !== 'string' && !Number.isNaN(Number(value));},
+	'`value \'${JSON.stringify(value)}\' is not a number`'],
+      eval: [
+	(key, value) => {data = true; d = true; return typeof value === 'string';},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      data: [
+	(key, value) => {data = true; d = true; return typeof value === 'string';},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+    }
+    config.forEach(element => {
+      d = false;
+      r = false;
+      x = false;
+      Object.keys(element).forEach(key => {
+	const value = element[key];
+	if (options[key]) {
+	  const checker = options[key][0];
+	  const message = options[key][1];
+	  const choices = options[key][2];
+	  if (!checker(key, value, choices)) {
+	    this.logs.config.error(`failed to verify '${key}' property in '${property}' property of 'data'. ${eval(message)}.`);
+	  }
+	} else {
+	  this.logs.config.debug(`contains unknown property '${key}' in '${property}' property of 'data'.`);
+	}
+      })
+      if (r && !d) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
+      }
+      if (x && !d) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. 'interval' without HEX code.`);
+      }
+    })
+    if (!data) {
+      this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+    }
+    
+    return true;
+  }
+
+  checkTemperature(property, config) {
+    let mode = false, data = false;
+    const options = {
+      'pseudo-mode': [
+	(key, value, options) => {mode = true; return options.find(x => x === value);},
+	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+	['heat', 'cool']
+      ],
+      data: [
+	(key, value) => {data = true; return this.isHex(property, value);},	// use property instead of key
+	'`value \'${JSON.stringify(value)}\' is not a string`'
+      ],
+    }
+    Object.keys(config).forEach(key => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property in '${property}' property of 'data'. ${eval(message)}.`);
+	}
+      } else {
+	this.logs.config.debug(`contains unknown property '${key}' in '${property}' property of 'data'.`);
+      }
+    })
+    if (!mode) {
+      this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
+    }
+    if (!data) {
+      this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+    }
+
+    return true;
+  }
+
+  isTemperature(key, value) {
+    if (typeof value === 'string') {
+      this.logs.config.error(`failed to verify '${key}' property of 'data'. HEX code needs to be specified with mode.`);
+      return true;
+    } else if (Array.isArray(value)) {
+      return this.checkHex(key, value);
+    } else if (typeof value === 'object') {
+      return this.checkTemperature(key, value)
+    } else {
+      return false;
+    }
+  }
+
+  isHex(key, value) {
+    if (typeof value === 'string') {
+      return true;
+    } else if (Array.isArray(value)) {
+      return this.checkHex(key, value);
+    } else if (typeof value === 'object') {
+      this.logs.config.error(`failed to verify '${key}' property of 'data'. value '${JSON.stringify(value)}' is not HEX code or Advanced HEX array.`);
+      return true;
+    }
+  }
+
+  checkData(property, config) {
+    const options = {
+      on: [
+	(key, value) => {return this.isHex(key, value)},
+	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
+      off: [
+	(key, value) => {return this.isHex(key, value)},
+	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
+      '^temperature.+$': [
+	(key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.isTemperature(key, value)},
+	'`temperature suffix is not a number`'],
+      '^(heat|cool|auto).+$': [
+	(key, value) => {return !Number.isNaN(Number(key.match('(heat|cool|auto)(.+)$')[2])) && this.isHex(key, value)},
+	'`temperature suffix is not a number`'],
+    }
+    Object.keys(config).forEach((key) => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property in '${property}' property. ${eval(message)}.`);
+	}
+      } else {
+	this.logs.config.debug(`contains unknown property '${key}' in '${property}' property.`);
+      }
+    })
+
+    return true;
+  }
+
+  checkConfig(config) {
+    const options = {
+      name: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      host: [
+	(key, value) => {return typeof value === 'string'},
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      logLevel: [
+	(key, value, options) => {return options.find(x => x === value)},
+	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+	['trace', 'debug', 'info', 'warning', 'error']
+      ],
+      isUnitTest: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      persistState: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      allowResend: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+
+      data: [
+	(key, value) => {return typeof value === 'object' && this.checkData(key, value)},
+	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
+      noHistory: [
+	(key, value) => {return typeof value === 'boolean'},
+	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      replaceAutoMode: [
+	(key, value, options) => {return options.find(x => x === value)},
+	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+	['heat', 'cool']
+      ],
+    };
+    Object.keys(config).forEach((key) => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property. ${eval(message)}.`);
+	}
+      } else {
+	this.logs.config.debug(`contains unknown property '${key}'.`);
+      }
+    })
+  }
+  
   correctReloadedState (state) {
     //state.targetHeatingCoolingState = state.currentHeatingCoolingState;
 

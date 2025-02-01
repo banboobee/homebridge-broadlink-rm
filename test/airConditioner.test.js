@@ -150,6 +150,88 @@ describe('airConAccessory', async function() {
     await delayForDuration(0.1);
   });
 
+  it('check config', async () => {
+    const { platform, device, log } = setup();
+    defaultConfig.host = device.host.address
+    
+    const config = {
+      allowResend: 'false',	// ERROR
+      unknown: true,		// DEBUG
+      name: 'AirConditioner',
+      replaceAutoMode: 'cold',	// ERROR
+      logLevel: 'trace',
+      noHistory: true,
+      persistState: 'false',	// ERROR
+      data: {
+	on: 'ON',
+	off: [
+	  {pause: '0.1'},	// ERROR
+	  {sendCount: '2',	// ERROR
+	   eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : (targetHeatingCoolingState === 2 ? 'COOL_OFF' : 'OFF')",
+	   interval: '0.2',	// ERROR
+	   pause: 0.1,
+	   unknown: 0		// DEBUG
+	  }
+	],
+	'temperature1,6': {	// ERROR
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_16'
+	},
+	temperature18: {
+	  'pseudo-mode': 'auto',// ERROR
+	  'data': 'TEMPERATURE_18'
+	},
+	temperature19: {
+	  'pseudo-mode': 'cool',
+	  'data': [
+	    {data: 'TEMPERATURE_19'}
+	  ]
+	},
+	cool20: {		// ERROR
+	  'pseudo-mode': 'cool',
+	  'data': 'TEMPERATURE_20'
+	},
+	heat21: [		// ERROR
+	  {pause: 1},
+	],
+	heat22: [		// ERROR
+	  {interval: 1},
+	  {sendCount: 1},
+	  {data: 'TEMPERATURE_22'}
+	],
+	temperature23: {
+	  'pseudo-mode': 'heat',
+	  'data': 23		// ERROR
+	},
+	temperature25: {
+	  'pseudo-mode': 'heat',
+	  'data': [
+	    {
+	      unkown: true,	// DEBUG
+	      data: 'TEMPERATURE_25'
+	    }
+	  ]
+	},
+	temperature26: 'TEMPERATURE_26', // ERROR
+	temperature27: {	// ERROR
+	  // 'pseudo-mode': 'heat',
+	  'data': 'TEMPERATURE_27'
+	},
+	temperature28: {	// ERROR
+	  'pseudo-mode': 'heat',
+	  // 'data': 'TEMPERATURE_27'
+	},
+	temperature30: {
+	  'pseudo-mode': 'hot',	// ERROR
+	  'data': 'TEMPERATURE_30'
+	}
+      }
+    };
+
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+
+  });
+
   it('turn on', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address

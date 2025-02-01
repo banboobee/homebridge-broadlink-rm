@@ -576,6 +576,18 @@ class HomebridgeAccessory {
         format = "%s " + format;
         this.log(format, `\x1b[31m[ERROR]\x1b[0m ${this.name}`, ...args);
       // }
+    },
+    config: {
+      error: (format, ...args) => {
+	format = "%s " + format;
+	this.log(format, `\x1b[31m[CONFIG ERROR]\x1b[0m ${this.name}`, ...args);
+      },
+      debug: (format, ...args) => {
+	if (!this.config.disableLogs && this.logLevel < 2) {
+	  format = "%s " + format;
+	  this.log(format, `\x1b[90m[CONFIG DEBUG] ${this.name}`, ...args, '\x1b[0m');
+	}
+      }
     }
   }
 
