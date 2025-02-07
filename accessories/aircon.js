@@ -181,6 +181,35 @@ class AirConAccessory extends BroadlinkRMAccessory {
     return true;
   }
 
+  checkModeTemperature(property, config) {
+    let mode = false, data = false;
+    const options = {
+      data: [
+	(key, value) => {data = true; return this.isHex(property, value);},	// use property instead of key
+	'`value \'${JSON.stringify(value)}\' is not a string`'
+      ],
+    }
+    Object.keys(config).forEach(key => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property in '${property}' property of 'data'. ${eval(message)}.`);
+	}
+      } else {
+	this.logs.config.debug(`contains unknown property '${key}' in '${property}' property of 'data'.`);
+      }
+    })
+    if (!data) {
+      this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+    }
+
+    return true;
+  }
+
   isTemperature(key, value) {
     if (typeof value === 'string') {
       this.logs.config.error(`failed to verify '${key}' property of 'data'. HEX code needs to be specified with mode.`);
@@ -200,7 +229,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     } else if (Array.isArray(value)) {
       return this.checkHex(key, value);
     } else if (typeof value === 'object') {
-      this.logs.config.error(`failed to verify '${key}' property of 'data'. value '${JSON.stringify(value)}' is not HEX code or Advanced HEX array.`);
+      return this.checkModeTemperature(key, value)
+      // this.logs.config.error(`failed to verify '${key}' property of 'data'. value '${JSON.stringify(value)}' is not HEX code or Advanced HEX array.`);
       return true;
     }
   }

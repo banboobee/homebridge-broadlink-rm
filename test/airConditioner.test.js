@@ -186,8 +186,8 @@ describe('airConAccessory', async function() {
 	    {data: 'TEMPERATURE_19'}
 	  ]
 	},
-	cool20: {		// ERROR
-	  'pseudo-mode': 'cool',
+	cool20: {
+	  'pseudo-mode': 'cool',// DEBUG
 	  'data': 'TEMPERATURE_20'
 	},
 	heat21: [		// ERROR
@@ -202,6 +202,9 @@ describe('airConAccessory', async function() {
 	  'pseudo-mode': 'heat',
 	  'data': 23		// ERROR
 	},
+        "auto24": {
+          "data": 'TEMPERATURE_24'
+        },
 	temperature25: {
 	  'pseudo-mode': 'heat',
 	  'data': [
