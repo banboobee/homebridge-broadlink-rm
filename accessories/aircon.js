@@ -884,19 +884,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async thermoHistory() {
+    const {HeatingCoolingStates} = this;
     const {noHistory, enableModeHistory} = this.config;
     if (noHistory !== true && enableModeHistory) {
       const {targetHeatingCoolingState, currentTemperature, targetTemperature} = this.state;
       let valve = 0;
-      if (targetHeatingCoolingState) {
+      if (targetHeatingCoolingState !== HeatingCoolingStates.off) {
 	valve = (currentTemperature - targetTemperature)/targetTemperature*100*2 + 50;
-	valve = valve < 1 ? 1 : (valve > 100 ? 100 : valve); 
-	this.historyService.addEntry({
-	  time: Math.round(new Date().valueOf() / 1000),
-	  setTemp: this.state.targetTemperature,
-	  valvePosition: valve
-	});
+	valve = valve < 1 ? 1 : (valve > 100 ? 100 : valve);
       }
+      this.historyService.addEntry({
+	time: Math.round(new Date().valueOf() / 1000),
+	setTemp: this.state.targetTemperature,
+	valvePosition: valve
+      });
       
       this.valveInterval = Math.min(this.valveInterval * 1/0.7, 10);
       this.valveTimer = setTimeout(() => {
