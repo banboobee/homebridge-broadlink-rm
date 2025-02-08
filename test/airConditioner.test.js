@@ -223,6 +223,9 @@ describe('airConAccessory', async function() {
 	  'pseudo-mode': 'heat',
 	  // 'data': 'TEMPERATURE_27'
 	},
+	temperature29: [	// ERROR
+	  'TEMPERATURE_29'
+	],
 	temperature30: {
 	  'pseudo-mode': 'hot',	// ERROR
 	  'data': 'TEMPERATURE_30'
@@ -262,6 +265,19 @@ describe('airConAccessory', async function() {
     airConAccessory = new platform.classTypes['air-conditioner'](log, config3, platform);
     await delayForDuration(0.1);
 
+    const config4 = {
+      ...defaultConfig,
+      // mqttURL: "mqtt://localhost",
+      name: 'AirConditioner4',
+      mqttTopic: 					// ERROR
+      {
+        identifier: "y",
+        characteristic: "currentRelativeHumidity",
+        topic: "homebridge-broadlink-rm/UT/weather"
+      }
+    };
+    airConAccessory = new platform.classTypes['air-conditioner'](log, config4, platform);
+    await delayForDuration(0.1);
   });
 
   it('turn on', async function() {
