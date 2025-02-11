@@ -13,7 +13,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     super(log, config, platform);
     this.mutex = new Mutex();
 
-    this.options = {
+    this.configKeys = {
       // common
       name: [
 	(key, value) => this.configIsString(value),
@@ -41,7 +41,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
       // complex
       data: [
-	(key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.dataOptions),
+	(key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
 	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
       mqttTopic: [
 	(key, value) => this.configIsMQTTTopic(key, value),
@@ -144,7 +144,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	'`value \'${JSON.stringify(value)}\' is not a number`'],
     };
 
-    this.dataOptions = {
+    this.configDataKeys = {
       on: [
 	(key, value) => {return this.configIsHex(key, value)},
 	'`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
@@ -159,7 +159,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	'`temperature suffix is not a number`'],
     };
 
-    this.temperatureOptions = {
+    this.configTemperatureKeys = {
       'pseudo-mode': [
 	(key, value, choices) => choices.find(x => x === value),
 	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
@@ -171,14 +171,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
       ],
     };
 
-    this.modeTemperatureOptions = {
+    this.configModeTemperatureKeys = {
       data: [
 	(key, value) => this.configIsHex(key, value),
 	'`value \'${JSON.stringify(value)}\' is not a string`'
       ],
     };
 
-    this.advancedHexOptions = {
+    this.configAdvancedHexKeys = {
       pause: [
 	(key, value) => this.configIsNumber(value),
 	'`value \'${JSON.stringify(value)}\' is not a number`'],
@@ -196,7 +196,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	'`value \'${JSON.stringify(value)}\' is not a string`'],
     };
 
-    this.mqttTopicOptions = {
+    this.configMqttTopicKeys = {
       identifier: [
 	(key, value) => {return typeof value === 'string'},
 	'`value \'${JSON.stringify(value)}\' is not a string`'],
@@ -210,7 +210,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       ],
     };
 
-    this.verifyConfig(this.config, undefined, this.options);
+    this.verifyConfig(this.config, undefined, this.configKeys);
     
     // Characteristic isn't defined until runtime so we set these the instance scope
     const { Characteristic } = this;
@@ -267,34 +267,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
   configIsTemperature(property, value) {
     // console.log('configIsTemperature', property, value);
-    if (this.configIsString(value)) {
+    if (this.configIsString(value) || this.configIsArray(value)) {
       this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
       return true;
-    } else if (this.configIsArray(value)) {
-      let data = false;
-      value.forEach(element => {
-	if (this.configIsObject(element)) {
-	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
-	  const r = Object.keys(element).find?.(x => x === 'sendCount');
-	  const x = Object.keys(element).find?.(x => x === 'interval');
-	  this.verifyConfig(element, property, this.advancedHexOptions);
-	  if (!!r && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
-	  }
-	  if (!!x && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'interval' without HEX code.`);
-	  }
-	  data |= !!d;
-	} else {
-	  this.logs.config.error(`failed to verify '${property}' property of 'data'. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
-	}
-      });
+    } else if (this.configIsObject(value)) {
+      const mode = Object.keys(value).find?.(x => x === 'pseudo-mode');
+      const data = Object.keys(value).find?.(x => x === 'data');
+      this.verifyConfig(value, property, this.configTemperatureKeys);
+      if (!mode) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
+      }
       if (!data) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
       }
       return true;
-    } else if (this.configIsObject(value)) {
-      return this.verifyConfig(value, property, this.temperatureOptions);
     } else {
       return false;
     }
@@ -310,7 +296,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
 	  const r = Object.keys(element).find?.(x => x === 'sendCount');
 	  const x = Object.keys(element).find?.(x => x === 'interval');
-	  this.verifyConfig(element, property, this.advancedHexOptions);
+	  this.verifyConfig(element, property, this.configAdvancedHexKeys);
 	  if (!!r && !d) {
 	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
 	  }
@@ -329,7 +315,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return true;
     } else if (this.configIsObject(value)) {
       const data = Object.keys(value).find?.(x => x === 'data');
-      this.verifyConfig(value, property, this.modeTemperatureOptions);
+      this.verifyConfig(value, property, this.configModeTemperatureKeys);
       if (!data) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
       }
@@ -342,7 +328,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     } else if (this.configIsArray(value)) {
       value.forEach(element => {
 	if (this.configIsObject(element)) {
-	  this.verifyConfig(element, property, this.mqttTopicOptions);
+	  this.verifyConfig(element, property, this.configMqttTopicKeys);
 	} else {
 	  this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid mqttTopic.`);
 	}

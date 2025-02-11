@@ -176,6 +176,9 @@ describe('airConAccessory', async function() {
 	  'pseudo-mode': 'cool',
 	  'data': 'TEMPERATURE_16'
 	},
+	'temperature17': [	// ERROR
+	  {data: 'TEMPERATURE_17'}
+	],
 	temperature18: {
 	  'pseudo-mode': 'auto',// ERROR
 	  'data': 'TEMPERATURE_18'
