@@ -4,7 +4,162 @@ const mqtt = require('mqtt');
 
 class HomebridgeAccessory {
 
+  static configCommonKeys = {
+    // common
+    name: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    type: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    host: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    logLevel: [
+      (key, value, choices) => this.configIsSelection(value, choices),
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['trace', 'debug', 'info', 'warning', 'error']
+    ],
+    isUnitTest: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    persistState: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    allowResend: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+  }
+  static configHexKeys = {
+    data: [
+      (key, value) => this.configIsHex(key, value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'
+    ],
+  }
+  static configAdvancedHexKeys = {
+    pause: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    sendCount: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    interval: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    eval: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    data: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value) => {return typeof value === 'string'},
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    characteristic: [
+      (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
+      ],
+  }
+  static configIsString(value) {
+    return typeof value === 'string'
+  }
+  static configIsBoolean(value) {
+    return typeof value === 'boolean'
+  }
+  static configIsNumber(value) {
+    return typeof value !== 'string' && !Number.isNaN(Number(value))
+  }
+  static configIsSelection(value, oneof) {
+    return oneof.find(x => x === value);
+  }
+  static configIsArray(value) {
+    return Array.isArray(value);
+  }
+  static configIsObject(value) {
+    return typeof value === 'object' && !this.configIsArray(value);
+  }
+  static configIsHex(property, value) {
+    // console.log('configIsHex', property, value);
+    if (this.configIsString(value)) {
+      return true;
+    } else if (this.configIsArray(value)) {
+      let data = false;
+      value.forEach(element => {
+	if (this.configIsObject(element)) {
+	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
+	  const r = Object.keys(element).find?.(x => x === 'sendCount');
+	  const x = Object.keys(element).find?.(x => x === 'interval');
+	  this.verifyConfig(element, property, this.configAdvancedHexKeys);
+	  if (!!r && !d) {
+	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
+	  }
+	  if (!!x && !d) {
+	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'interval' without HEX code.`);
+	  }
+	  data |= !!d;
+	  // console.log(`d:${d} r:${r} x:${x} data:${data}`);
+	} else {
+	  this.logs.config.error(`failed to verify '${property}' property of 'data'. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
+	}
+      })
+      if (!data) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+      }
+      return true;
+    } else if (this.configIsObject(value)) {
+      const data = Object.keys(value).find?.(x => x === 'data');
+      this.verifyConfig(value, property, this.configHexKeys);
+      if (!data) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+      }
+      return true;
+    }
+  }
+  static configIsMQTTTopic(property, value) {
+    if (this.configIsString(value)) {
+      return true;
+    } else if (this.configIsArray(value)) {
+      value.forEach(element => {
+	if (this.configIsObject(element)) {
+	  this.verifyConfig(element, property, this.configMqttTopicKeys);
+	} else {
+	  this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid mqttTopic.`);
+	}
+      });
+      return true;
+    } else {
+      this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(value)}' is not a valid mqttTopic.`);
+      return true;
+    }
+  }
+  static verifyConfig(config, property = undefined, options = this.configKeys) {
+    Object.keys(config).forEach((key) => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      // console.log(key, value, match);
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property. ${eval(message)}.`);
+	}
+      } else {
+	this.logs.config.debug(`contains unknown property '${key}'${property ? ` in property '${property}'` : ''}.`);
+      }
+    })
+
+    return true;
+  }
   static ServiceManagerClass = ServiceManager;
+  static logs;
+  
   constructor(log, config = {}, platform){
     if (this.constructor.ServiceManagerClass === ServiceManager) {
       this.isUnitTest = false;
@@ -22,6 +177,7 @@ class HomebridgeAccessory {
     this.logLevel ??= 2; //Default to info
     this.config = config;
     this.platform = platform;
+    this.constructor.logs = this.logs;
 
     this.host = host;
     this.name = name;

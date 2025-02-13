@@ -9,207 +9,157 @@ const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
 class AirConAccessory extends BroadlinkRMAccessory {
-  configKeys() {
-    return {
-      // common
-      name: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      type: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      host: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      logLevel: [
-	(key, value, choices) => this.configIsSelection(value, choices),
-	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
-	['trace', 'debug', 'info', 'warning', 'error']
-      ],
-      isUnitTest: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      persistState: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      allowResend: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+  static configKeys = {
+    // common
+    ...this.configCommonKeys,
 
-      // complex
-      data: [
-	(key, value) => this.configIsObject(value) && this.checkConfig(value, key, this.configDataKeys()),
-	'`value \'${JSON.stringify(value)}\' is not valid HEX code`'],
-      mqttTopic: [
-	(key, value) => this.configIsMQTTTopic(key, value),
-	'`value \'${JSON.stringify(value)}\' is not valid mqttTopic.`'],
+    // complex
+    data: [
+      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    mqttTopic: [
+      (key, value) => this.configIsMQTTTopic(key, value),
+      '`value \'${JSON.stringify(value)}\' is not a valid mqttTopic.`'],
 
-      // selection
-      replaceAutoMode: [
-	(key, value, choices) => this.configIsSelection(value, choices),
-	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
-	['heat', 'cool']
-      ],
-      units: [
-	(key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
-	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
-	['c', 'f']
-      ],
+    // selection
+    replaceAutoMode: [
+      (key, value, choices) => this.configIsSelection(value, choices),
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['heat', 'cool']
+    ],
+    units: [
+      (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['c', 'f']
+    ],
 
-      // string
-      '^autoSwitch$': [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      '^autoSwitchName$': [
-	(key, value) => value === undefined || this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      mqttURL: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
+    // string
+    '^autoSwitch$': [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    '^autoSwitchName$': [
+      (key, value) => value === undefined || this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    mqttURL: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
 
-      // boolean
-      noHistory: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      turnOnWhenOff: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      enableAutoOff: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      mqttStateOnly: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      heatOnly: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      coolOnly: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      enableModeHistory: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      enableTargetTemperatureHistory: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
-      noHumidity: [
-	(key, value) => this.configIsBoolean(value),
-	'`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    // boolean
+    noHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    turnOnWhenOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableAutoOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    mqttStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    heatOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    coolOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableModeHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableTargetTemperatureHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    noHumidity: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
-      // number
-      minimumAutoOnOffDuration: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      minTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      maxTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      tempStepSize: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      temperatureUpdateFrequency: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      temperatureAdjustment: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      humidityAdjustment: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      defaultCoolTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      defaultHeatTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      autoHeatTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      autoCoolTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      pseudoDeviceTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      heatTemperature: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      onDuration: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-    }
+    // number
+    minimumAutoOnOffDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    minTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    maxTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    tempStepSize: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    temperatureUpdateFrequency: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    temperatureAdjustment: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    humidityAdjustment: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    defaultCoolTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    defaultHeatTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    autoHeatTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    autoCoolTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    pseudoDeviceTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    heatTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    onDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
   }
-  configDataKeys() {
-    return {
-      on: [
-	(key, value) => {return this.configIsHex(key, value)},
-	'`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-      off: [
-	(key, value) => {return this.configIsHex(key, value)},
-	'`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-      '^temperature.+$': [
-	(key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, value)},
-	'`temperature suffix is not a number`'],
-      '^(heat|cool|auto).+$': [
-	(key, value) => {return !Number.isNaN(Number(key.match('(heat|cool|auto)(.+)$')[2])) && this.configIsHex(key, value)},
-	'`temperature suffix is not a number`'],
-    }
+  static configDataKeys = {
+    on: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    off: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    '^temperature.+$': [
+      (key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, value)},
+      '`temperature suffix is not a number`'],
+    '^(heat|cool|auto).+$': [
+      (key, value) => {return !Number.isNaN(Number(key.match('(heat|cool|auto)(.+)$')[2])) && this.configIsHex(key, value)},
+      '`temperature suffix is not a number`'],
   }
-  configTemperatureKeys() {
-    return {
-      'pseudo-mode': [
-	(key, value, choices) => choices.find(x => x === value),
-	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
-	['heat', 'cool']
+  static configTemperatureKeys = {
+    'pseudo-mode': [
+      (key, value, choices) => choices.find(x => x === value),
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['heat', 'cool']
+    ],
+    data: [
+      (key, value) => this.configIsHex(key, value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'
       ],
-      data: [
-	(key, value) => this.configIsHex(key, value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'
-      ],
-    }
   }
-  configModeTemperatureKeys() {
-    return {
-      data: [
-	(key, value) => this.configIsHex(key, value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'
-      ],
-    }
-  }
-  configAdvancedHexKeys() {
-    return {
-      pause: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      sendCount: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      interval: [
-	(key, value) => this.configIsNumber(value),
-	'`value \'${JSON.stringify(value)}\' is not a number`'],
-      eval: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      data: [
-	(key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-    }
-  }
-  configMqttTopicKeys() {
-    return {
-      identifier: [
-	(key, value) => {return typeof value === 'string'},
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      topic: [
-	(key, value) => {return typeof value === 'string'},
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
-      characteristic: [
-	(key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
-	'`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
-	['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
-      ],
+  static configIsTemperature(property, value) {
+    // console.log('configIsTemperature', property, value);
+    if (this.configIsString(value) || this.configIsArray(value)) {
+      this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
+      return true;
+    } else if (this.configIsObject(value)) {
+      const mode = Object.keys(value).find?.(x => x === 'pseudo-mode');
+      const data = Object.keys(value).find?.(x => x === 'data');
+      this.verifyConfig(value, property, this.configTemperatureKeys);
+      if (!mode) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
+      }
+      if (!data) {
+	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+      }
+      return true;
+    } else {
+      return false;
     }
   }
   
@@ -252,117 +202,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.thermoHistory();
   }
 
-  configIsString(value) {
-    return typeof value === 'string'
-  }
-  configIsBoolean(value) {
-    return typeof value === 'boolean'
-  }
-  configIsNumber(value) {
-    return typeof value !== 'string' && !Number.isNaN(Number(value))
-  }
-  configIsSelection(value, oneof) {
-    return oneof.find(x => x === value);
-  }
-  configIsArray(value) {
-    return Array.isArray(value);
-  }
-  configIsObject(value) {
-    return typeof value === 'object' && !this.configIsArray(value);
-  }
-  configIsTemperature(property, value) {
-    // console.log('configIsTemperature', property, value);
-    if (this.configIsString(value) || this.configIsArray(value)) {
-      this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
-      return true;
-    } else if (this.configIsObject(value)) {
-      const mode = Object.keys(value).find?.(x => x === 'pseudo-mode');
-      const data = Object.keys(value).find?.(x => x === 'data');
-      this.checkConfig(value, property, this.configTemperatureKeys());
-      if (!mode) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
-      }
-      if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-  configIsHex(property, value) {
-    // console.log('configIsHex', property, value);
-    if (this.configIsString(value)) {
-      return true;
-    } else if (this.configIsArray(value)) {
-      let data = false;
-      value.forEach(element => {
-	if (this.configIsObject(element)) {
-	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
-	  const r = Object.keys(element).find?.(x => x === 'sendCount');
-	  const x = Object.keys(element).find?.(x => x === 'interval');
-	  this.checkConfig(element, property, this.configAdvancedHexKeys());
-	  if (!!r && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
-	  }
-	  if (!!x && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'interval' without HEX code.`);
-	  }
-	  data |= !!d;
-	  // console.log(`d:${d} r:${r} x:${x} data:${data}`);
-	} else {
-	  this.logs.config.error(`failed to verify '${property}' property of 'data'. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
-	}
-      })
-      if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
-      }
-      return true;
-    } else if (this.configIsObject(value)) {
-      const data = Object.keys(value).find?.(x => x === 'data');
-      this.checkConfig(value, property, this.configModeTemperatureKeys());
-      if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
-      }
-      return true;
-    }
-  }
-  configIsMQTTTopic(property, value) {
-    if (this.configIsString(value)) {
-      return true;
-    } else if (this.configIsArray(value)) {
-      value.forEach(element => {
-	if (this.configIsObject(element)) {
-	  this.checkConfig(element, property, this.configMqttTopicKeys());
-	} else {
-	  this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid mqttTopic.`);
-	}
-      });
-      return true;
-    } else {
-      this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(value)}' is not a valid mqttTopic.`);
-      return true;
-    }
-  }
 
-  checkConfig(config, property = undefined, options = this.configKeys()) {
-    Object.keys(config).forEach((key) => {
-      const match = Object.keys(options).find(y => key.match(y));
-      const value = config[key];
-      // console.log(key, value, match);
-      if (match) {
-	const checker = options[match][0];
-	const message = options[match][1];
-	const choices = options[match][2];
-	if (!checker(key, value, choices)) {
-	  this.logs.config.error(`failed to verify '${key}' property. ${eval(message)}.`);
-	}
-      } else {
-	this.logs.config.debug(`contains unknown property '${key}'${property ? ` in property '${property}'` : ''}.`);
-      }
-    })
-
-    return true;
+  checkConfig(config) {
+    this.constructor.verifyConfig(config); 
   }
 
   correctReloadedState(state) {

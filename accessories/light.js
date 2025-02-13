@@ -7,12 +7,25 @@ const Mutex = require('await-semaphore').Mutex;
 const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
-    
+  static configKeys = {
+    ...this.constructor.configCommonKeys,
+    mqttTopic: [
+      (key, value) => this.configIsMQTTTopic(key, value),
+      '`value \'${JSON.stringify(value)}\' is not valid mqttTopic.`'],
+    mqttURL: [
+      (key, value) => this.configIsString(value),
+	'`value \'${JSON.stringify(value)}\' is not a string`'],
+  }
+  
   constructor (log, config = {}, platform) {
     super(log, config, platform);
     this.mutex = new Mutex();
   }
   
+  checkConfig(config) {
+    this.constructor.verifyConfig(config); 
+  }
+
   setDefaults () {
     super.setDefaults();
     
