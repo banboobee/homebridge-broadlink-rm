@@ -12,7 +12,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     // complex
     data: [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      (key, value) => this.configIsString(value) || this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
 
     // string

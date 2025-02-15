@@ -161,6 +161,7 @@ class HomebridgeAccessory {
     Object.keys(config).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
       const value = config[key];
+      // this.logs.config.debug(key, value, match);
       // console.log(key, value, match);
       if (match) {
 	const checker = options[match][0];

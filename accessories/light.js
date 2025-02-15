@@ -74,10 +74,10 @@ class LightAccessory extends SwitchAccessory {
     off: [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-    'brightness+$': [
+    'brightness+': [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-    'brightness-$': [
+    'brightness-': [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     '^brightness.+$': [
