@@ -6,11 +6,58 @@ const arp = require('../helpers/arp')
 const BroadlinkRMAccessory = require('./accessory');
 
 class SwitchAccessory extends BroadlinkRMAccessory {
+  static configKeys = {
+    // common
+    ...this.configCommonKeys,
+
+    // complex
+    data: [
+      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+
+    // string
+    'pingIPAddress$': [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+
+    // boolean
+    enableAutoOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableAutoOn: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    pingIPAddressStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+
+    // number
+    pingFrequency: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    pingGrace: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    onDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    offDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+  }
+  static configDataKeys = {
+    on: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    off: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+  }
 
   constructor (log, config = {}, platform) {
     super(log, config, platform);
 
-      // Fakegato setup
+    // Fakegato setup
     if (config.history === true || config.noHistory === false) {
       // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
@@ -22,6 +69,10 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     }
   }
 
+  checkConfig(config) {
+    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
+  }
+  
   setDefaults () {
     const { config } = this;
     config.pingFrequency = config.pingFrequency || 1;

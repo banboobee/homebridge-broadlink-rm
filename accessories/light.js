@@ -8,13 +8,105 @@ const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
   static configKeys = {
-    ...this.constructor.configCommonKeys,
+    // common
+    ...this.configCommonKeys,
+
+    // complex
+    data: [
+      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     mqttTopic: [
       (key, value) => this.configIsMQTTTopic(key, value),
       '`value \'${JSON.stringify(value)}\' is not valid mqttTopic.`'],
+    exclusives: [
+      (key, value) => this.configIsArray(value) && this.configIsExclusives(key, value),
+      '`value \'${JSON.stringify(value)}\' is not a valid accessory name array.`'],
+    
+    // string
     mqttURL: [
       (key, value) => this.configIsString(value),
-	'`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+
+    // boolean
+    useLastKnownBrightness: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableAutoOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    enableAutoOn: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    mqttStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    noHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+
+    // number
+    defaultBrightness: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    defaultColorTemperature: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    pingFrequency: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    pingGrace: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    onDelay: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    onDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    offDuration: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+  }
+  static configDataKeys = {
+    on: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    off: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    'brightness+$': [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    'brightness-$': [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    '^brightness.+$': [
+      (key, value) => {return !Number.isNaN(Number(key.match('(brightness)(.+)$')[2])) && this.configIsHex(key, value)},
+      '`brightness suffix is not a number`'],
+    '^hue.+$': [
+      (key, value) => {return !Number.isNaN(Number(key.match('(hue)(.+)$')[2])) && this.configIsHex(key, value)},
+      '`hue suffix is not a number`'],
+    availableBrightnessSteps: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    availableColorTemperatureSteps: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    'colorTemperature+': [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    'colorTemperature-': [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+  }
+  static configIsExclusives(property, value) {
+    // console.log(property, value);
+    value.forEach(element => {
+      if (!this.configIsString(property, element)) {
+	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid accessory name.`);
+      }
+    });
+    return true;
   }
   
   constructor (log, config = {}, platform) {
@@ -23,7 +115,7 @@ class LightAccessory extends SwitchAccessory {
   }
   
   checkConfig(config) {
-    this.constructor.verifyConfig(config); 
+    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
   }
 
   setDefaults () {

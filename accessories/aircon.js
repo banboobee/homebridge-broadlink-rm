@@ -139,8 +139,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     ],
     data: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'
-      ],
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
   }
   static configIsTemperature(property, value) {
     // console.log('configIsTemperature', property, value);
@@ -202,9 +201,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.thermoHistory();
   }
 
-
   checkConfig(config) {
-    this.constructor.verifyConfig(config); 
+    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys);
   }
 
   correctReloadedState(state) {

@@ -3,7 +3,6 @@ const persistentState = require('./helpers/persistentState');
 const mqtt = require('mqtt');
 
 class HomebridgeAccessory {
-
   static configCommonKeys = {
     // common
     name: [
@@ -15,6 +14,9 @@ class HomebridgeAccessory {
     host: [
       (key, value) => this.configIsString(value),
       '`value \'${JSON.stringify(value)}\' is not a string`'],
+    disableLogs: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     logLevel: [
       (key, value, choices) => this.configIsSelection(value, choices),
       '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
@@ -29,14 +31,31 @@ class HomebridgeAccessory {
     allowResend: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    resendHexAfterReloadDelay: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
+    'resendHexAfterReload$': [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+  }
+  static configDataKeys = {
+    on: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    off: [
+      (key, value) => {return this.configIsHex(key, value)},
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
   static configHexKeys = {
     data: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'
+      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'
     ],
   }
   static configAdvancedHexKeys = {
+    timeout: [
+      (key, value) => this.configIsNumber(value),
+      '`value \'${JSON.stringify(value)}\' is not a number`'],
     pause: [
       (key, value) => this.configIsNumber(value),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
@@ -138,7 +157,7 @@ class HomebridgeAccessory {
       return true;
     }
   }
-  static verifyConfig(config, property = undefined, options = this.configKeys) {
+  static verifyConfig(config, property, options) {
     Object.keys(config).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
       const value = config[key];
@@ -158,7 +177,6 @@ class HomebridgeAccessory {
     return true;
   }
   static ServiceManagerClass = ServiceManager;
-  static logs;
   
   constructor(log, config = {}, platform){
     if (this.constructor.ServiceManagerClass === ServiceManager) {

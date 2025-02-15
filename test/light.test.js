@@ -28,6 +28,7 @@ const defaultConfig = {
   name: 'Light',
   type: 'light',
   data,
+  logLevel: 'debug',
   isUnitTest: true,
   persistState: false
 };

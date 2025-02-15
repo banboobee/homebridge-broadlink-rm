@@ -151,7 +151,7 @@ describe('airConAccessory', async function() {
   });
 
   it('check config', async () => {
-    const { platform, device, log } = setup();
+    const { platform, log } = setup();
     
     const config1 = {
       allowResend: 'false',	// ERROR

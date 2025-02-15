@@ -3,6 +3,21 @@ const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
 class LearnIRAccessory extends BroadlinkRMAccessory {
+  static configKeys = {
+    // common
+    ...this.configCommonKeys,
+
+    // boolean
+    scanRF: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    scanFrequency: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    frequency: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+  }
 
   constructor(log, config = {}, platform) {
     // Set a default name for the accessory
@@ -10,6 +25,10 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     config.persistState = false;
 
     super(log, config, platform);
+  }
+
+  checkConfig(config) {
+    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
   }
 
   setDefaults() {
