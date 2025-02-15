@@ -43,10 +43,19 @@ class TVAccessory extends BroadlinkRMAccessory {
     enableAutoOn: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOn: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     pingIPAddressStateOnly: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     pingUseArp: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    syncInputSourceWhenOn: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
