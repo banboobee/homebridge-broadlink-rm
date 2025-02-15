@@ -14,8 +14,14 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     data: [
       (key, value) => this.configIsString(value) || this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+    mqttTopic: [
+      (key, value) => this.configIsMQTTTopic(key, value),
+      '`value \'${JSON.stringify(value)}\' is not valid mqttTopic.`'],
 
     // string
+    mqttURL: [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
     'pingIPAddress$': [
       (key, value) => this.configIsString(value),
       '`value \'${JSON.stringify(value)}\' is not a string`'],
@@ -27,7 +33,28 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     enableAutoOn: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOn: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     pingIPAddressStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    pingUseArp: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    stateless: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    mqttStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    noHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    history: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
@@ -47,10 +74,10 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
   static configDataKeys = {
     on: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, value) => this.configIsHex(key, value),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     off: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, value) => this.configIsHex(key, value),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
 
@@ -64,9 +91,9 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       this.historyService.addEntry(
 	{time: Math.round(new Date().valueOf()/1000),
 	 status: this.state.switchState ? 1 : 0})
-      
-      if (!this.isUnitTest) {this.checkPing(ping)}
     }
+      
+    if (!this.isUnitTest) {this.checkPing(ping)}
   }
 
   checkConfig(config) {

@@ -46,6 +46,9 @@ class TVAccessory extends BroadlinkRMAccessory {
     pingIPAddressStateOnly: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    pingUseArp: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
     // number
     pingFrequency: [

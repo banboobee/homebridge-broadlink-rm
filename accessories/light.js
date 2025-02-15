@@ -26,6 +26,9 @@ class LightAccessory extends SwitchAccessory {
     mqttURL: [
       (key, value) => this.configIsString(value),
       '`value \'${JSON.stringify(value)}\' is not a string`'],
+    'pingIPAddress$': [
+      (key, value) => this.configIsString(value),
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
 
     // boolean
     useLastKnownBrightness: [
@@ -37,10 +40,25 @@ class LightAccessory extends SwitchAccessory {
     enableAutoOn: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOn: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableAutomaticOff: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    pingIPAddressStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    pingUseArp: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     mqttStateOnly: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     noHistory: [
+      (key, value) => this.configIsBoolean(value),
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    history: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
@@ -74,10 +92,10 @@ class LightAccessory extends SwitchAccessory {
     off: [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-    'brightness+': [
+    'brightness\\+$': [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
-    'brightness-': [
+    'brightness\\-$': [
       (key, value) => {return this.configIsHex(key, value)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     '^brightness.+$': [

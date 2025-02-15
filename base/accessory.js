@@ -40,10 +40,10 @@ class HomebridgeAccessory {
   }
   static configDataKeys = {
     on: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, value) => this.configIsHex(key, value),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     off: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, value) => this.configIsHex(key, value),
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
   static configHexKeys = {
