@@ -67,15 +67,16 @@ class HomebridgePlatform {
     Object.keys(config).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
       const value = config[key];
+      // console.log(key, match, value);
       if (match) {
 	const checker = options[match][0];
 	const message = options[match][1];
 	const choices = options[match][2];
 	if (!checker(log, key, value, choices)) {
-	  log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property in config. ${eval(message)}.`);
+	  log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. ${eval(message)}.`);
 	}
       } else {
-	log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} in config.\x1b[0m`);
+	log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} of config.\x1b[0m`);
       }
     })
 

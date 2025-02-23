@@ -21,6 +21,21 @@ describe('disableLogs', () => {
       // disableLogs: true,
       logLevel: 'debug',
       hideLearnButton: true,
+      hosts: [
+	{
+	  address: '192.168.0.1',
+	  mac: 'xx:xx:xx:xx',
+	  isRM4: true,
+	  isRFSupported: true
+	},
+	{
+	  unknown: true,
+	  // address: '192.168.0.1',
+	  // mac: 'xx:xx:xx:xx',
+	  isRM4: true,
+	  isRFSupported: true
+	}
+      ],
       accessories: [
         {
           name: 'Test1',
