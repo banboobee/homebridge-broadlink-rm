@@ -119,7 +119,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
       startKeepAlive(device);
       accessories.forEach((x) => {
 	x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true)
-	x.logs.debug(`is activated from finding the associated host device in config.`);
+	x.logs.debug(`is enabled. Associated host device was found in config.`);
       });
     }
   })

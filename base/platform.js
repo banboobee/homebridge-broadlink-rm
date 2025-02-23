@@ -55,10 +55,31 @@ class HomebridgePlatform {
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
     // if(this.config.disableLogs) {this.logLevel = 6;}
 
+    this.constructor.verifyConfig(log, config, undefined, this.constructor.configKeys);
+
     homebridge.on('didFinishLaunching', async () => {
       // this.log('Executed didFinishLaunching callback');
       this.discoverDevices();
     })
+  }
+
+  static verifyConfig(log, config, property, options) {
+    Object.keys(config).forEach((key) => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(log, key, value, choices)) {
+	  log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property in config. ${eval(message)}.`);
+	}
+      } else {
+	log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} in config.\x1b[0m`);
+      }
+    })
+
+    return true;
   }
 
   async addAccessories (accessories) {

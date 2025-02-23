@@ -15,14 +15,33 @@ describe('disableLogs', () => {
 
   it('UnitTest', async () => {
     const config = {
+      unknown: true,
       isUnitTest: true,
       hideScanFrequencyButton: true,
-      disableLogs: true,
+      // disableLogs: true,
+      logLevel: 'debug',
       hideLearnButton: true,
       accessories: [
         {
-          name: 'Test',
+          name: 'Test1',
           type: 'switch',
+	  persistState: false,
+          disableLogs: true
+        },
+        {
+          name: 'Test2',
+          type: 'switch2',
+	  persistState: false,
+          disableLogs: true
+        },
+        {
+          name: 'Test3',
+          type: 'switch3',
+	  persistState: false,
+          disableLogs: true
+        },
+        {
+          name: 'Test4',
 	  persistState: false,
           disableLogs: true
         }

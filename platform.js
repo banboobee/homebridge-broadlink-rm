@@ -6,7 +6,60 @@ const npmPackage = require('./package.json');
 const { broadlink, discoverDevices } = require('./helpers/getDevice');
 
 const BroadlinkRMPlatform = class extends HomebridgePlatform {
-  classTypes = {
+  static configKeys = {
+    platform: [
+      (log, key, value) => {return typeof value === 'string'},
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    name: [
+      (log, key, value) => {return typeof value === 'string'},
+      '`value \'${JSON.stringify(value)}\' is not a string`'],
+    hideScanFrequencyButton: [
+      (log, key, value) => {return typeof value === 'boolean'},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    hideLearnButton: [
+      (log, key, value) => {return typeof value === 'boolean'},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    hideWelcomeMessage:  [
+      (log, key, value) => {return typeof value === 'boolean'},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    disableLogs: [
+      (log, key, value) => {return typeof value === 'boolean'},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    isUnitTest: [
+      (log, key, value) => {return typeof value === 'boolean'},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    deviceDiscoveryTimeout:  [
+      (log, key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
+      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    logLevel: [
+      (log, key, value, choices) => {return choices.find(x => x === value)},
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      ['trace', 'debug', 'info', 'warning', 'error']
+    ],
+    // hosts: [
+    //   (log, key, value) => {typeof value === 'boolean'},
+    //   '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+    accessories: [
+      (log, key, value, choices) => {
+	if (Array.isArray(value)) {
+	  const unknownTypes = value.reduce((x, y) => {
+	    if (!y.type || !Object.keys(this.classTypes).find(z => z === y.type)) {
+	      x.push(`'${y.type ?? ''}'`);
+	    }
+	    return x;
+	  }, []);
+	  if (unknownTypes.length > 0) {
+	    log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property in config. Missing or Unknown accessories type(s) of ${unknownTypes}.`);
+	  }
+	  return true;
+	} else {
+	  return false;
+	}
+      },
+      '`value \'${JSON.stringify(value)}\' is not a valid accessroes`']
+  }
+  
+  static classTypes = {
     'air-conditioner': require('./accessories/aircon'),
     'air-purifier': require('./accessories/air-purifier'),
     'humidifier-dehumidifier': require('./accessories/humidifier-dehumidifier'),
@@ -26,6 +79,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     'humiditySensor': require('./accessories/humiditySensor.js'),
     'heater-cooler': require('./accessories/heater-cooler')
   }
+  classTypes = this.constructor.classTypes;
 
   constructor (log, config = {}, homebridge) {
     super(log, config, homebridge);
@@ -57,40 +111,41 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     }
 
     // Iterate through the config accessories
-    const tvs = [];
+    // const tvs = [];
     config.accessories.forEach((accessory) => {
-      if (!accessory.type) {throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);}
-      if (accessory.disabled) {return;}
-      if (!this.classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
+      // if (!accessory.type) {throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);}
+      if (accessory.disabled) return;
+      // if (!this.classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
+      if (!this.classTypes[accessory.type]) return;
 
       const homeKitAccessory = new this.classTypes[accessory.type](log, accessory, this);
 
-      if (this.classTypes[accessory.type] === this.classTypes.tv) {
-	// if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
-	// if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
-	// if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}
+      // if (this.classTypes[accessory.type] === this.classTypes.tv) {
+      // 	// if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
+      // 	// if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
+      // 	// if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}
 
-        // if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
-        tvs.push(homeKitAccessory);
-        // return;
-      }
+      //   // if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
+      //   tvs.push(homeKitAccessory);
+      //   // return;
+      // }
 
       log(`${accessory.type} accessory ${accessory.name}${accessory.subType ? " with type "+accessory.subType : ""} ready.`);
       accessories.push(homeKitAccessory);
     });
 
-    if (tvs.length > 0) {
-      // const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
-      // homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
+    // if (tvs.length > 0) {
+    //   // const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
+    //   // homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
       
-      log('');
-      log(`**************************************************************************************************************`);
-      log(`You added TVs in your configuration!`);
-      log(`Due to a HomeKit limitation you need to add any TVs to the Home app by using the Add Accessory function.`);
-      log(`There you'll find your TVs and you can use the same PIN as you using for this HomeBridge instance.`);
-      log(`**************************************************************************************************************`);
-      log('');
-    }
+    //   log('');
+    //   log(`**************************************************************************************************************`);
+    //   log(`You added TVs in your configuration!`);
+    //   log(`Due to a HomeKit limitation you need to add any TVs to the Home app by using the Add Accessory function.`);
+    //   log(`There you'll find your TVs and you can use the same PIN as you using for this HomeBridge instance.`);
+    //   log(`**************************************************************************************************************`);
+    //   log('');
+    // }
     if (!this.isUnitTest) this.discoverBroadlinkDevices();
   }
 
