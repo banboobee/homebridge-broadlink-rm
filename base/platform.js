@@ -18,7 +18,8 @@ class HomebridgePlatform {
     this.cachedAccessories = cachedAccessories;
     this.eve = eve;
     this.HistoryService = HistoryService;
-
+    HomebridgePlatform.log = this.log;
+    
     const { homebridgeDirectory } = config;
 
     persistentState.init({ homebridge, homebridgeDirectory });
@@ -48,14 +49,15 @@ class HomebridgePlatform {
         break;
       default:
         //default to 'info':
-        if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
+        // if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
         this.logLevel = 2;
         break;
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
     // if(this.config.disableLogs) {this.logLevel = 6;}
+    HomebridgePlatform.logLevel = this.logLevel;
 
-    this.constructor.verifyConfig(log, config, undefined, this.constructor.configKeys);
+    HomebridgePlatform.verifyConfig(config, undefined, this.constructor.configKeys);
 
     homebridge.on('didFinishLaunching', async () => {
       // this.log('Executed didFinishLaunching callback');
@@ -63,7 +65,7 @@ class HomebridgePlatform {
     })
   }
 
-  static verifyConfig(log, config, property, options) {
+  static verifyConfig(config, property, options) {
     Object.keys(config).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
       const value = config[key];
@@ -72,11 +74,13 @@ class HomebridgePlatform {
 	const checker = options[match][0];
 	const message = options[match][1];
 	const choices = options[match][2];
-	if (!checker(log, key, value, choices)) {
-	  log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. ${eval(message)}.`);
+	if (!checker(key, value, choices)) {
+	  this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. ${eval(message)}.`);
 	}
       } else {
-	log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} of config.\x1b[0m`);
+	if (this.logLevel < 2) {
+	  this.log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} of config.\x1b[0m`);
+	}
       }
     })
 

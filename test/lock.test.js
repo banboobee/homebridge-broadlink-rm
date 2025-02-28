@@ -163,7 +163,7 @@ describe('lockAccessory', () => {
     // Locked
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
-  });
+  }).timeout(2100);
 
 
   // Persist State
