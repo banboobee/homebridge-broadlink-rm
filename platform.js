@@ -87,6 +87,28 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
       },
       '`value \'${JSON.stringify(value)}\' is not a valid accessories`']
   }
+
+  static verifyConfig(config, property, options) {
+    Object.keys(config).forEach((key) => {
+      const match = Object.keys(options).find(y => key.match(y));
+      const value = config[key];
+      // console.log(key, match, value);
+      if (match) {
+	const checker = options[match][0];
+	const message = options[match][1];
+	const choices = options[match][2];
+	if (!checker(key, value, choices)) {
+	  this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. ${eval(message)}.`);
+	}
+      } else {
+	if (this.logLevel < 2) {
+	  this.log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} of config.\x1b[0m`);
+	}
+      }
+    })
+
+    return true;
+  }
   
   static classTypes = {
     'air-conditioner': require('./accessories/aircon'),
@@ -112,6 +134,10 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
     super(log, config, homebridge);
+  }
+
+  checkConfig(config) {
+    BroadlinkRMPlatform.verifyConfig(config, undefined, this.constructor.configKeys);
   }
 
   addAccessories (accessories) {
