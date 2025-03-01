@@ -15,48 +15,14 @@ describe('disableLogs', () => {
 
   it('UnitTest', async () => {
     const config = {
-      unknown: true,
       isUnitTest: true,
       hideScanFrequencyButton: true,
-      // disableLogs: true,
-      logLevel: 'debug',
+      disableLogs: true,
       hideLearnButton: true,
-      hosts: [
-	{
-	  address: '192.168.0.1',
-	  mac: 'xx:xx:xx:xx',
-	  isRM4: true,
-	  isRFSupported: true
-	},
-	{
-	  unknown: true,
-	  // address: '192.168.0.1',
-	  // mac: 'xx:xx:xx:xx',
-	  isRM4: true,
-	  isRFSupported: true
-	}
-      ],
       accessories: [
         {
-          name: 'Test1',
+          name: 'Test',
           type: 'switch',
-	  persistState: false,
-          disableLogs: true
-        },
-        {
-          name: 'Test2',
-          type: 'switch2',
-	  persistState: false,
-          disableLogs: true
-        },
-        {
-          name: 'Test3',
-          type: 'switch3',
-	  persistState: false,
-          disableLogs: true
-        },
-        {
-          name: 'Test4',
 	  persistState: false,
           disableLogs: true
         }
@@ -66,6 +32,102 @@ describe('disableLogs', () => {
     const {platform, accessories} = await getAccessories(config);
     expect(platform.isUnitTest).to.equal(true);
     expect(accessories[0].isUnitTest).to.equal(true);
+    
+  });
+
+  it('check config', async () => {
+    let platform, accessories, config;
+    config = {
+      unknown: true,			// error
+      isUnitTest: true,
+      hideScanFrequencyButton: 'true',	// error
+      // disableLogs: true,
+      logLevel: 'debug',
+      hideLearnButton: true,
+      accessories: [
+        {
+          name: 'Test1',
+          type: 'switch',
+	  persistState: 'false',	// ignored
+          disableLogs: 'true'		// ignored
+        },
+        {
+          name: 'Test2',		// error
+          type: 'switch2',
+        },
+        {
+          name: 'Test3',		// error
+          type: 'switch3',
+        },
+        {				// error
+          name: 'Test4',
+        }
+      ]
+    };
+  
+    ({platform, accessories} = await getAccessories(config));
+    expect(platform.isUnitTest).to.equal(true);
+    expect(accessories[0].isUnitTest).to.equal(true);
+    
+    config = {
+      isUnitTest: true,
+      // disableLogs: true,
+      logLevel: 'DEBUG',		// error
+      hosts: {				// error
+	address: '192.168.0.1',
+	mac: 'xx:xx:xx:xx',
+      },
+      accessories: [
+        {
+          type: 'switch',
+	  logLevel: 'DEBUG',		// error
+        },
+      ]
+    };
+    ({platform, accessories} = await getAccessories(config));
+    
+    config = {
+      isUnitTest: true,
+      // disableLogs: true,
+      logLevel: 'DEBUG',		// error
+      hosts: [
+	'192.168.0.1',			// error
+	'xx:xx:xx:xx',			// error
+      ],
+      accessories: [
+        {
+          type: 'switch',
+        },
+      ]
+    };
+    ({platform, accessories} = await getAccessories(config));
+    
+    config = {
+      isUnitTest: true,
+      // disableLogs: true,
+      hosts: [
+	{
+	  address: '192.168.0.1',
+	  mac: 'xx:xx:xx:xx',
+	  isRM4: true,
+	  isRFSupported: true,
+	  unknown: true,
+	},
+	{
+	  unknown: true,
+	  // address: '192.168.0.1',	// error
+	  // mac: 'xx:xx:xx:xx',	// error
+	  isRM4: true,
+	  isRFSupported: true
+	}
+      ],
+      accessories: [
+        {
+          type: 'switch',
+        },
+      ]
+    };
+    ({platform, accessories} = await getAccessories(config));
     
   });
 

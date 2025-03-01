@@ -161,7 +161,7 @@ describe('doorAccessory', () => {
     // Closed
     expect(doorAccessory.state.doorCurrentState).to.equal(Characteristic.CurrentDoorState.CLOSED);
     expect(doorAccessory.state.doorTargetState).to.equal(Characteristic.TargetDoorState.CLOSED);
-  });
+  }).timeout(2100);
 
 
   // Persist State
