@@ -155,6 +155,12 @@ describe('airConAccessory', async function() {
     
     const config1 = {
       allowResend: 'false',	// ERROR
+      preventResendHex: true,	// ERROR
+      resendDataAfterReloadDelay: 1,	// ERROR
+      resendDataAfterReload: true,	// ERROR
+      sendOnWhenOff: true,	// ERROR
+      ignoreTemperatureWhenOff: true,	// ERROR
+      autoMinimumDuration: 1,	// ERROR
       unknown: true,		// DEBUG
       name: 'AirConditioner1',
       replaceAutoMode: 'cold',	// ERROR
@@ -163,6 +169,7 @@ describe('airConAccessory', async function() {
       persistState: 'false',	// ERROR
       data: {
 	on: 'ON',
+	offDryMode: 'OFFDRY',	// ERROR
 	off: [
 	  {pause: '0.1'},	// ERROR
 	  {sendCount: '2',	// ERROR

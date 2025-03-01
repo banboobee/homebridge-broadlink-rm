@@ -51,6 +51,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     turnOnWhenOff: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
+    sendOnWhenOff: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'turnOnWhenOff' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'turnOnWhenOff\' instead`'],
     enableAutoOff: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
@@ -72,11 +78,23 @@ class AirConAccessory extends BroadlinkRMAccessory {
     noHumidity: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
+    ignoreTemperatureWhenOff: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key`'],
 
     // number
     minimumAutoOnOffDuration: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
+    autoMinimumDuration: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'minimumAutoOnOffDuration' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'minimumAutoOnOffDuration\' instead`'],
     minTemperature: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
@@ -121,9 +139,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
     on: [
       (key, value) => {return this.configIsHex(key, value)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
-    off: [
+    'off$': [
       (key, value) => {return this.configIsHex(key, value)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
+    offDryMode: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}' of 'data'. Use context HEX instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use context HEX instead`'],
     '^temperature.+$': [
       (key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, value)},
       '`temperature suffix is not a number`'],

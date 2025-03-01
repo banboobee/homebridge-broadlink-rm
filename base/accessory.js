@@ -34,12 +34,30 @@ class HomebridgeAccessory {
     allowResend: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
+    preventResendHex: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'allowresend' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'allowResend\' instead`'],
     resendHexAfterReloadDelay: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
     'resendHexAfterReload$': [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
+    resendDataAfterReloadDelay: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'resendHexAfterReloadDelay' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'resendHexAfterReloadDelay\' instead`'],
+    'resendDataAfterReload$': [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'resendHexAfterReload' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'resendHexAfterReload\' instead`'],
   }
   static configDataKeys = {
     on: [
@@ -199,8 +217,9 @@ class HomebridgeAccessory {
     this.logLevel ??= 2; //Default to info
     this.config = config;
     this.platform = platform;
-    this.constructor.logs = this.logs;
-
+    // this.constructor.logs = this.logs;
+    HomebridgeAccessory.logs = this.logs;
+    
     this.host = host;
     this.name = name;
     this.data = data;
