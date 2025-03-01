@@ -10,15 +10,15 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     // boolean
     scanRF: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     scanFrequency: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
 
     // number
     frequency: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
   }
 
   constructor(log, config = {}, platform) {

@@ -7,81 +7,84 @@ class HomebridgeAccessory {
     // common
     name: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     type: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     host: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
+    disabled: [
+      (key, value) => this.configIsBoolean(value),
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     disableLogs: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     logLevel: [
       (key, value, choices) => this.configIsSelection(value, choices),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`${JSON.stringify(value)} should be one of: ${choices.map(x => `"${x}"`).join()}`',
       ['trace', 'debug', 'info', 'warning', 'error']
     ],
     isUnitTest: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     persistState: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     allowResend: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     resendHexAfterReloadDelay: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     'resendHexAfterReload$': [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
   }
   static configDataKeys = {
     on: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     off: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
   }
   static configHexKeys = {
     data: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'
     ],
   }
   static configAdvancedHexKeys = {
     timeout: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     pause: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     sendCount: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     interval: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     eval: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     data: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
   }
   static configMqttTopicKeys = {
     identifier: [
       (key, value) => {return typeof value === 'string'},
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     topic: [
       (key, value) => {return typeof value === 'string'},
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     characteristic: [
       (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
       ],
   }

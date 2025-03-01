@@ -16,114 +16,114 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // complex
     data: [
       (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     mqttTopic: [
       (key, value) => this.configIsMQTTTopic(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a valid mqttTopic.`'],
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic.`'],
 
     // selection
     replaceAutoMode: [
       (key, value, choices) => this.configIsSelection(value, choices),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['heat', 'cool']
     ],
     units: [
       (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['c', 'f']
     ],
 
     // string
     '^autoSwitch$': [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     '^autoSwitchName$': [
       (key, value) => value === undefined || this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
     mqttURL: [
       (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
 
     // boolean
     noHistory: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     turnOnWhenOff: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOff: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     mqttStateOnly: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     heatOnly: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     coolOnly: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     enableModeHistory: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     enableTargetTemperatureHistory: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
     noHumidity: [
       (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
+      '`value ${JSON.stringify(value)} is not a boolean`'],
 
     // number
     minimumAutoOnOffDuration: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     minTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     maxTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     tempStepSize: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     temperatureUpdateFrequency: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     temperatureAdjustment: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     humidityAdjustment: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     defaultCoolTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     defaultHeatTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     autoHeatTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     autoCoolTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     pseudoDeviceTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     heatTemperature: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
     onDuration: [
       (key, value) => this.configIsNumber(value),
-      '`value \'${JSON.stringify(value)}\' is not a number`'],
+      '`value ${JSON.stringify(value)} is not a number`'],
   }
   static configDataKeys = {
     on: [
       (key, value) => {return this.configIsHex(key, value)},
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     off: [
       (key, value) => {return this.configIsHex(key, value)},
-      '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
+      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     '^temperature.+$': [
       (key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, value)},
       '`temperature suffix is not a number`'],
@@ -134,12 +134,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
   static configTemperatureKeys = {
     'pseudo-mode': [
       (key, value, choices) => choices.find(x => x === value),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['heat', 'cool']
     ],
     data: [
       (key, value) => this.configIsHex(key, value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
+      '`value ${JSON.stringify(value)} is not a string`'],
   }
   static configIsTemperature(property, value) {
     // console.log('configIsTemperature', property, value);
