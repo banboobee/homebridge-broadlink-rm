@@ -157,13 +157,13 @@ class TVAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, platform) {
     super(log, config, platform);
 
-    if (!this.isUnitTest) {this.checkPing(ping);}
+    if (!this.constructor.isUnitTest) this.checkPing(ping);
     this.lastPingResponse = undefined;
 
     const {name} = this;
     const {host, persistState} = config;
     if (persistState === false) return;
-    if (this.isUnitTest) return;	// to avoid duplicate state persisting
+    if (this.constructor.isUnitTest) return;	// to avoid duplicate state persisting
     
     // const state = {...this.serviceManager.accessory.context};
     const state = {...this.serviceManager.state};
@@ -604,7 +604,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     // const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
     // const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
-    if (this.isUnitTest) {	// external control in UnitTest
+    if (this.constructor.isUnitTest) {	// external control in UnitTest
       this.speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
     } else {
       this.speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');

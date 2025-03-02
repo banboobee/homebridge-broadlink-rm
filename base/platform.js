@@ -6,11 +6,12 @@ const persistentState = require('./helpers/persistentState')
 class HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
-    if (this.constructor.isUnitTest === true) {
-      this.isUnitTest = true;
-    } else {
-      this.isUnitTest = false;
-    }
+    HomebridgePlatform.isUnitTest = this.constructor.isUnitTest;
+    // if (this.constructor.isUnitTest === true) {
+    //   this.isUnitTest = true;
+    // } else {
+    //   this.isUnitTest = false;
+    // }
     this.log = log;
     this.config = config;
     // this.homebridge = homebridge;
@@ -26,12 +27,12 @@ class HomebridgePlatform {
 
     //Set LogLevel
     switch(this.config.logLevel){
-      case 'none':
-        this.logLevel = 6;
-        break;
-      case 'critical':
-        this.logLevel = 5;
-        break;
+      // case 'none':
+      //   this.logLevel = 6;
+      //   break;
+      // case 'critical':
+      //   this.logLevel = 5;
+      //   break;
       case 'error':
         this.logLevel = 4;
         break;

@@ -93,7 +93,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 	 status: this.state.switchState ? 1 : 0})
     }
       
-    if (!this.isUnitTest) {this.checkPing(ping)}
+    if (!this.constructor.isUnitTest) {this.checkPing(ping)}
   }
 
   checkConfig(config) {

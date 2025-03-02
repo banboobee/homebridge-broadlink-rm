@@ -682,7 +682,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // device.checkTemperature(logLevel);
 
     this.logs.info(`updating temperature/humidity every ${config.temperatureUpdateFrequency} secs.`);
-    if (!this.isUnitTest) setInterval(this.getCurrentTemperature.bind(this), config.temperatureUpdateFrequency * 1000);
+    if (!this.constructor.isUnitTest) setInterval(this.getCurrentTemperature.bind(this), config.temperatureUpdateFrequency * 1000);
   }
 
   async onTemperature(temperature, humidity) {

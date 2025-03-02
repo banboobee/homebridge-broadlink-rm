@@ -64,7 +64,7 @@ describe('TVAccessory', async () => {
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     const TVAccessory = new platform.classTypes['tv'](log, config, platform);
-    expect(TVAccessory.isUnitTest).to.equal(true);
+    expect(TVAccessory.constructor.isUnitTest).to.equal(true);
 
     // Turn on
     TVAccessory.serviceManager.setCharacteristic(Characteristic.Active, true);

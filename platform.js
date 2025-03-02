@@ -29,13 +29,19 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
       (key, value) => {return typeof value === 'boolean'},
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableLogs: [
-      (key, value) => {return typeof value === 'boolean'},
+      (key, value) => {
+	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}' of config.`);
+	return true;
+      },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     debug: [
       (key, value) => {return typeof value === 'boolean'},
       '`value ${JSON.stringify(value)} is not a boolean`'],
     isUnitTest: [
-      (key, value) => {return typeof value === 'boolean'},
+      (key, value) => {
+	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}' of config.`);
+	return true;
+      },
       '`value ${JSON.stringify(value)} is not a boolean`'],
 
     // number
@@ -222,7 +228,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     //   log(`**************************************************************************************************************`);
     //   log('');
     // }
-    if (!this.isUnitTest) this.discoverBroadlinkDevices();
+    if (!this.constructor.isUnitTest) this.discoverBroadlinkDevices();
   }
 
   discoverBroadlinkDevices () {
@@ -266,8 +272,8 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
   showMessage () {
     const { config, log } = this;
 
-    if (config && (config.hideWelcomeMessage || this.isUnitTest || this.logLevel >=4)) {
-      log(`\x1b[35m[INFO]\x1b[0m Running Homebridge Broadlink RM Plugin version \x1b[32m${npmPackage.version}\x1b[0m`)
+    if (config?.hideWelcomeMessage || this.constructor.isUnitTest) {
+      if (this.logLevel < 3) log(`\x1b[35m[INFO]\x1b[0m Running Homebridge Broadlink RM Plugin version \x1b[32m${npmPackage.version}\x1b[0m`)
 
       return
     }

@@ -18,7 +18,10 @@ class HomebridgeAccessory {
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableLogs: [
-      (key, value) => this.configIsBoolean(value),
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     logLevel: [
       (key, value, choices) => this.configIsSelection(value, choices),
@@ -26,7 +29,10 @@ class HomebridgeAccessory {
       ['trace', 'debug', 'info', 'warning', 'error']
     ],
     isUnitTest: [
-      (key, value) => this.configIsBoolean(value),
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     persistState: [
       (key, value) => this.configIsBoolean(value),
@@ -202,10 +208,12 @@ class HomebridgeAccessory {
   
   constructor(log, config = {}, platform){
     if (this.constructor.ServiceManagerClass === ServiceManager) {
-      this.isUnitTest = false;
+      HomebridgeAccessory.isUnitTest = false;
+      // this.isUnitTest = false;
       this.serviceManagerType = 'ServiceManager';
     } else {
-      this.isUnitTest = true;
+      HomebridgeAccessory.isUnitTest = true;
+      // this.isUnitTest = true;
       this.serviceManagerType = 'FakeServiceManager';
     }
     this.serviceManagerClass = this.constructor.ServiceManagerClass;
@@ -239,12 +247,12 @@ class HomebridgeAccessory {
     
     //Set LogLevel
     switch (this.config.logLevel) {
-      case 'none':
-        this.logLevel = 6;
-        break;
-      case 'critical':
-        this.logLevel = 5;
-        break;
+      // case 'none':
+      //   this.logLevel = 6;
+      //   break;
+      // case 'critical':
+      //   this.logLevel = 5;
+      //   break;
       case 'error':
         this.logLevel = 4;
         break;
@@ -262,7 +270,7 @@ class HomebridgeAccessory {
         break;
       default:
         //default to 'info':
-        if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
+        // if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
         this.logLevel = 2;
         break;
     }
@@ -285,7 +293,7 @@ class HomebridgeAccessory {
       props: {
       }
     });
-    this.serviceManager.updateCharacteristic(this.Characteristic.StatusActive, this.isUnitTest || this.config.host === undefined);
+    this.serviceManager.updateCharacteristic(this.Characteristic.StatusActive, this.constructor.isUnitTest || this.config.host === undefined);
 
     this.subscribeToMQTT();
   }
@@ -478,7 +486,7 @@ class HomebridgeAccessory {
     // this.state = addSaveProxy(name, state, (state) => {
     //   persistentState.save({ host, name, state });
     // });
-    if (this.isUnitTest) {
+    if (this.constructor.isUnitTest) {
       this.state = new Proxy(state, {
 	set: async function(target, key, value) {
 	  Reflect.set(target, key, value);

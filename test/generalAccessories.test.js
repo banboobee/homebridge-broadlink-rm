@@ -30,8 +30,8 @@ describe('disableLogs', () => {
     };
   
     const {platform, accessories} = await getAccessories(config);
-    expect(platform.isUnitTest).to.equal(true);
-    expect(accessories[0].isUnitTest).to.equal(true);
+    expect(platform.constructor.isUnitTest).to.equal(true);
+    expect(accessories[0].constructor.isUnitTest).to.equal(true);
     
   });
 
@@ -41,7 +41,7 @@ describe('disableLogs', () => {
       unknown: true,			// error
       isUnitTest: true,
       hideScanFrequencyButton: 'true',	// error
-      // disableLogs: true,
+      disableLogs: true,
       logLevel: 'debug',
       hideLearnButton: true,
       accessories: [
@@ -49,7 +49,8 @@ describe('disableLogs', () => {
           name: 'Test1',
           type: 'switch',
 	  persistState: 'false',	// ignored
-          disableLogs: 'true'		// ignored
+          disableLogs: 'true',		// ignored
+	  isUnitTest: true,		// error
         },
         {
           name: 'Test2',		// error
@@ -66,12 +67,12 @@ describe('disableLogs', () => {
     };
   
     ({platform, accessories} = await getAccessories(config));
-    expect(platform.isUnitTest).to.equal(true);
-    expect(accessories[0].isUnitTest).to.equal(true);
+    expect(platform.constructor.isUnitTest).to.equal(true);
+    expect(accessories[0].constructor.isUnitTest).to.equal(true);
     
     config = {
       isUnitTest: true,
-      // disableLogs: true,
+      disableLogs: true,
       logLevel: 'DEBUG',		// error
       hosts: {				// error
 	address: '192.168.0.1',
@@ -88,7 +89,7 @@ describe('disableLogs', () => {
     
     config = {
       isUnitTest: true,
-      // disableLogs: true,
+      disableLogs: true,
       logLevel: 'DEBUG',		// error
       hosts: [
 	'192.168.0.1',			// error
@@ -104,7 +105,7 @@ describe('disableLogs', () => {
     
     config = {
       isUnitTest: true,
-      // disableLogs: true,
+      disableLogs: true,
       hosts: [
 	{
 	  address: '192.168.0.1',
