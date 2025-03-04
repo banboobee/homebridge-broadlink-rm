@@ -32,7 +32,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['c', 'f']
     ],
-
+    tempSourceUnits: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      ['c', 'f']
+    ],
+    temperatureDisplayUnits: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'units' property instead.`);
+	return true;
+      },
+      '`Unsupported config key. Use \'units\' instead`',
+      ['c', 'f']
+    ],
+    
     // string
     '^autoSwitch$': [
       (key, value) => this.configIsString(value),
@@ -40,9 +53,24 @@ class AirConAccessory extends BroadlinkRMAccessory {
     '^autoSwitchName$': [
       (key, value) => value === undefined || this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
+    temperatureFilePath: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
     mqttURL: [
       (key, value) => this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
+    mqttUsername: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
+    mqttPassword: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
+    w1DeviceID: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Should be intergrated to temperatureFilePath.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
 
     // boolean
     noHistory: [
@@ -80,10 +108,28 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`value ${JSON.stringify(value)} is not a boolean`'],
     ignoreTemperatureWhenOff: [
       (key, value) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. No need scene/autmation to work.`);
 	return true;
       },
       '`Unsupported config key`'],
+    sendTemperatureOnlyWhenOff: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Deprecated in original repository.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
+    enableAutoOn: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Not implemented.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
+    batteryAlerts: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
 
     // number
     minimumAutoOnOffDuration: [
@@ -134,6 +180,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     onDuration: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
+    offDuration: [
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Not implemented.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
   }
   static configDataKeys = {
     on: [

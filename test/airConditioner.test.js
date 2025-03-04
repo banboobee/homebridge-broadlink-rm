@@ -154,12 +154,20 @@ describe('airConAccessory', async function() {
     const { platform, log } = setup();
     
     const config1 = {
+      tempSourceUnits: 'celsius',// ERROR
+      temperatureFilePath: 1000,	// ERROR
+      temperatureDisplayUnits: 'c',	// ERROR
+      enableAutoOn: false,	// ERROR
+      offDuration: 3600,	// ERROR
+      batteryAlerts: true,	// ERROR
+      w1DeviceID: "w1DeviceID",		// ERROR
       allowResend: 'false',	// ERROR
       preventResendHex: true,	// ERROR
       resendDataAfterReloadDelay: 1,	// ERROR
       resendDataAfterReload: true,	// ERROR
       sendOnWhenOff: true,	// ERROR
       ignoreTemperatureWhenOff: true,	// ERROR
+      sendTemperatureOnlyWhenOff: true,// ERROR
       autoMinimumDuration: 1,	// ERROR
       unknown: true,		// DEBUG
       name: 'AirConditioner1',

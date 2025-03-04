@@ -30,10 +30,8 @@ global.eve = null;
 global.HistoryService = null;
 
 const FakeServiceManager = require('./fakeServiceManager');
-
 class FakePlatform extends BroadlinkRMPlatform {
   static isUnitTest = true;
-  // static classTypes = BroadlinkRMPlatform.classTypes;
   static {
     Object.keys(this.classTypes).forEach(type => {
       this.classTypes[type].ServiceManagerClass = FakeServiceManager;
