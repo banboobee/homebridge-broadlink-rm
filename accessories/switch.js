@@ -10,18 +10,18 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     // common
     ...this.configCommonKeys,
 
+    //MQTT
+    ...this.configMqttKeys,
+    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
+
     // complex
     data: [
       (key, value) => this.configIsString(value) || this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
-    mqttTopic: [
-      (key, value) => this.configIsMQTTTopic(key, value),
-      '`value ${JSON.stringify(value)} is not valid mqttTopic.`'],
 
     // string
-    mqttURL: [
-      (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not a string`'],
     'pingIPAddress$': [
       (key, value) => this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
@@ -48,9 +48,6 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     stateless: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
-    mqttStateOnly: [
-      (key, value) => this.configIsBoolean(value),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
@@ -71,6 +68,16 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     offDuration: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value, choices) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`',
+      ['on']
+    ],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [

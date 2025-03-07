@@ -11,21 +11,21 @@ class LightAccessory extends SwitchAccessory {
     // common
     ...this.configCommonKeys,
 
+    //MQTT
+    ...this.configMqttKeys,
+    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
+
     // complex
     data: [
       (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
-    mqttTopic: [
-      (key, value) => this.configIsMQTTTopic(key, value),
-      '`value ${JSON.stringify(value)} is not valid mqttTopic.`'],
     exclusives: [
       (key, value) => this.configIsArray(value) && this.configIsExclusives(key, value),
       '`value ${JSON.stringify(value)} is not a valid accessory name array.`'],
     
     // string
-    mqttURL: [
-      (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not a string`'],
     'pingIPAddress$': [
       (key, value) => this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
@@ -50,9 +50,6 @@ class LightAccessory extends SwitchAccessory {
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     pingUseArp: [
-      (key, value) => this.configIsBoolean(value),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
-    mqttStateOnly: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
@@ -84,6 +81,16 @@ class LightAccessory extends SwitchAccessory {
     offDuration: [
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value, choices) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`',
+      ['on', 'brightness']
+    ],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [

@@ -1,4 +1,7 @@
 const { expect } = require('chai');
+const { MQTTpublish } = require('./helpers/setup');
+const { MQTTtest } = require('./helpers/setup');
+const hexCheck = require('./helpers/hexCheck');
 
 const { setup } = require('./helpers/setup');
 const ping = require('./helpers/fakePing');
@@ -12,10 +15,18 @@ const data = {
 
 // TODO: Check cancellation of timeouts
 
-describe('switchAccessory', () => {
+describe('switchAccessory', async function() {
+
+  const MQTTready = await MQTTtest();
+  
+  let switchAccessory;
+
+  afterEach(function() {
+    switchAccessory?.mqttClient?.end();
+  })
 
   // Switch Turn On
-  it('turns on', async () => {
+  it('turns on', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -28,7 +39,7 @@ describe('switchAccessory', () => {
     }
     
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     
     await delayForDuration(0.1);
@@ -46,7 +57,7 @@ describe('switchAccessory', () => {
 
 
   // Switch Turn On then Off
-  it('turns off', async () => {
+  it('turns off', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -58,7 +69,7 @@ describe('switchAccessory', () => {
       host: device.host.address
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
     // Turn On Switch
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -83,7 +94,7 @@ describe('switchAccessory', () => {
 
 
   // Auto Off
-  it('"enableAutoOff": true, "onDuration": 1', async () => {
+  it('"enableAutoOff": true, "onDuration": 1', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -97,7 +108,7 @@ describe('switchAccessory', () => {
       onDuration: 1
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
 
     // Turn On Switch
@@ -115,7 +126,7 @@ describe('switchAccessory', () => {
 
 
   // Auto On
-  it('"enableAutoOn": true, "offDuration": 1', async () => {
+  it('"enableAutoOn": true, "offDuration": 1', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -129,7 +140,7 @@ describe('switchAccessory', () => {
       offDuration: 1
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
     // Turn On Switch
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -150,7 +161,7 @@ describe('switchAccessory', () => {
 
 
   // Persist State
-  it('"persistState": true', async () => {
+  it('"persistState": true', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -182,7 +193,7 @@ describe('switchAccessory', () => {
     expect(switchAccessory.state.switchState).to.equal(false);
   });
 
-  it('"persistState": false', async () => {
+  it('"persistState": false', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -208,7 +219,7 @@ describe('switchAccessory', () => {
 
 
   // IP Address used to for state
-  it('"pingIPAddress": "192.168.1.1", host up', async () => {
+  it('"pingIPAddress": "192.168.1.1", host up', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -222,7 +233,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -232,7 +243,7 @@ describe('switchAccessory', () => {
     clearInterval(pingInterval);
   });
 
-  it('"pingIPAddress": "192.168.1.1", host down', async () => {
+  it('"pingIPAddress": "192.168.1.1", host down', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -246,7 +257,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: false }));
@@ -258,7 +269,7 @@ describe('switchAccessory', () => {
     clearInterval(pingInterval);
   });
 
-  it('"pingIPAddressStateOnly": true, "pingIPAddress": "192.168.1.1", host up', async () => {
+  it('"pingIPAddressStateOnly": true, "pingIPAddress": "192.168.1.1", host up', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -273,7 +284,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
@@ -286,7 +297,7 @@ describe('switchAccessory', () => {
     clearInterval(pingInterval);
   });
 
-  it('"pingIPAddressStateOnly": false, "pingIPAddress": "192.168.1.1", host up', async () => {
+  it('"pingIPAddressStateOnly": false, "pingIPAddress": "192.168.1.1", host up', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -301,7 +312,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    const switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
@@ -316,7 +327,7 @@ describe('switchAccessory', () => {
 
 
   // Ensure the hex is resent after reload
-  it('"resendHexAfterReload": true, "persistState": true', async () => {
+  it('"resendHexAfterReload": true, "persistState": true', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -361,7 +372,7 @@ describe('switchAccessory', () => {
 
 
   // Ensure the hex is not resent after reload
-  it('"resendHexAfterReload": false, "persistState": true', async () => {
+  it('"resendHexAfterReload": false, "persistState": true', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -402,5 +413,78 @@ describe('switchAccessory', () => {
     // Check that no code was sent
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
+  });
+  
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async function() {
+    const { platform, device, log } = setup();
+
+    const config = {
+      name: 'Switch',
+      data,
+      logLevel: 'trace',
+      pingGrace: 0.1,
+      persistState: false,
+      host: device.host.address,
+      mqttStateOnly: true,
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+	{
+          "identifier": "on",
+          "topic": "homebridge-broadlink-rm/UT/on"
+	},
+      ]
+    }
+    
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    await delayForDuration(0.1);
+    
+    await MQTTpublish(log, 'on', 'true');
+    await delayForDuration(0.1);
+    expect(switchAccessory.state.switchState).to.equal(true);
+
+    switchAccessory.mqttClient.end();
+  });
+
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async function() {
+    const { platform, device, log } = setup();
+
+    const config = {
+      name: 'Switch',
+      data,
+      logLevel: 'trace',
+      pingGrace: 0.1,
+      persistState: false,
+      host: device.host.address,
+      mqttStateOnly: false,
+      mqttURL: "mqtt://localhost",
+      mqttTopic: [
+	{
+          "identifier": "on",
+          "topic": "homebridge-broadlink-rm/UT/on"
+	},
+      ]
+    }
+    
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+    await delayForDuration(0.1);
+    
+    MQTTpublish(log, 'on', true);
+    await delayForDuration(0.1);
+    expect(switchAccessory.state.switchState).to.equal(true);
+    await delayForDuration(0.1);
+    MQTTpublish(log, 'on', false);
+    await delayForDuration(0.1);
+    expect(switchAccessory.state.switchState).to.equal(false);
+
+    // Check hex codes were sent
+    hexCheck({ device,
+	       codes: [
+		 'ON',
+		 'OFF'
+	       ],
+	       count: 2
+	     });
+
+    switchAccessory.mqttClient.end();
   });
 })

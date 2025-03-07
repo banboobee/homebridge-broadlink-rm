@@ -10,13 +10,16 @@ class TVAccessory extends BroadlinkRMAccessory {
     // common
     ...this.configCommonKeys,
 
+    //MQTT
+    ...this.configMqttKeys,
+    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
+
     // complex
     data: [
       (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid data config`'],
-    mqttTopic: [
-      (key, value) => this.configIsMQTTTopic(key, value),
-      '`value \'${JSON.stringify(value)}\' is not valid mqttTopic`'],
 
     // selection
     subtype: [
@@ -26,17 +29,11 @@ class TVAccessory extends BroadlinkRMAccessory {
     ],
 
     // string
-    mqttURL: [
-      (key, value) => this.configIsString(value),
-      '`value \'${JSON.stringify(value)}\' is not a string`'],
     'pingIPAddress$': [
       (key, value) => this.configIsString(value),
       '`value \'${JSON.stringify(value)}\' is not a string`'],
 
     // boolean
-    mqttStateOnly: [
-      (key, value) => this.configIsBoolean(value),
-      '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     enableAutoOff: [
       (key, value) => this.configIsBoolean(value),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
@@ -72,6 +69,16 @@ class TVAccessory extends BroadlinkRMAccessory {
     offDuration: [
       (key, value) => this.configIsNumber(value),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value, choices) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`',
+      ['power', 'active', 'source', 'activeidentifier']
+    ],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [

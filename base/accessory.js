@@ -65,6 +65,31 @@ class HomebridgeAccessory {
       },
       '`Unsupported config key. Use \'resendHexAfterReload\' instead`'],
   }
+  static configMqttKeys = {
+    mqttTopic: [
+      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
+    mqttURL: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
+    mqttUsername: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
+    mqttPassword: [
+      (key, value) => this.configIsString(value),
+      '`value ${JSON.stringify(value)} is not a string`'],
+    mqttStateOnly: [
+      (key, value) => this.configIsBoolean(value),
+      '`value ${JSON.stringify(value)} is not a boolean`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`'],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`'],
+  }
   static configDataKeys = {
     on: [
       (key, value) => this.configIsHex(key, value),
@@ -98,19 +123,6 @@ class HomebridgeAccessory {
     data: [
       (key, value) => this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
-  }
-  static configMqttTopicKeys = {
-    identifier: [
-      (key, value) => {return typeof value === 'string'},
-      '`value ${JSON.stringify(value)} is not a string`'],
-    topic: [
-      (key, value) => {return typeof value === 'string'},
-      '`value ${JSON.stringify(value)} is not a string`'],
-    characteristic: [
-      (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
-      ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
-      ],
   }
   static configIsString(value) {
     return typeof value === 'string'
@@ -167,13 +179,24 @@ class HomebridgeAccessory {
       return true;
     }
   }
-  static configIsMQTTTopic(property, value) {
+  static configIsMQTTTopic(property, value, topics) {
     if (this.configIsString(value)) {
       return true;
     } else if (this.configIsArray(value)) {
       value.forEach(element => {
 	if (this.configIsObject(element)) {
-	  this.verifyConfig(element, property, this.configMqttTopicKeys);
+	  const identifier = element?.identifier;
+	  const topic = element?.topic;
+	  const characteristic = element?.characteristic;
+	  this.verifyConfig(element, property, topics);
+	  if (!identifier) {
+	    this.logs.config.error(`failed to verify '${property}' property. missing 'identifier' property.`);
+	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !topics.identifier[2].find(x => x === identifier.toLowerCase())) {
+	    this.logs.config.error(`failed to verify 'identifier' property of '${property}'. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2]}.`);
+	  }
+	  if (!topic) {
+	    this.logs.config.error(`failed to verify '${property}' property. missing 'topic' property.`);
+	  }
 	} else {
 	  this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid mqttTopic.`);
 	}

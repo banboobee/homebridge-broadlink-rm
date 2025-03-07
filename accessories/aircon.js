@@ -13,13 +13,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // common
     ...this.configCommonKeys,
 
+    //MQTT
+    ...this.configMqttKeys,
+    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
+
     // complex
     data: [
       (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
-    mqttTopic: [
-      (key, value) => this.configIsMQTTTopic(key, value),
-      '`value ${JSON.stringify(value)} is not a valid mqttTopic.`'],
 
     // selection
     replaceAutoMode: [
@@ -28,7 +31,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
       ['heat', 'cool']
     ],
     units: [
-      (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
+      (key, value, choices) => {
+	this.logs.config.error(`contains \x1b[33mdeprecated\x1b[0m property '${key}'. Recommend to define temperatures in Celsius and use Setting/General/Language&Region/Temperature.`);
+	return this.configIsSelection(value.toLowerCase(), choices);
+      },
       '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
       ['c', 'f']
     ],
@@ -56,15 +62,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
     temperatureFilePath: [
       (key, value) => this.configIsString(value),
       '`value ${JSON.stringify(value)} is not a string`'],
-    mqttURL: [
-      (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not a string`'],
-    mqttUsername: [
-      (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not a string`'],
-    mqttPassword: [
-      (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not a string`'],
     w1DeviceID: [
       (key, value) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Should be intergrated to temperatureFilePath.`);
@@ -86,9 +83,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       },
       '`Unsupported config key. Use \'turnOnWhenOff\' instead`'],
     enableAutoOff: [
-      (key, value) => this.configIsBoolean(value),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
-    mqttStateOnly: [
       (key, value) => this.configIsBoolean(value),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     heatOnly: [
@@ -186,6 +180,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	return true;
       },
       '`Unsupported config key.`'],
+  }
+  static configMqttTopicKeys = {
+    identifier: [
+      (key, value, choices) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`',
+      ['unkown', 'temperature', 'humidity', 'mode', 'targetheatingcoolingstate', 'targetheatercoolerstate', 'targettemperature', 'coolingthresholdtemperature', 'heatingthresholdtemperature']
+    ],
+    topic: [
+      (key, value) => {return typeof value === 'string'},
+      '`value ${JSON.stringify(value)} is not a string`'],
+    characteristic: [
+      (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
+      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
+    ],
   }
   static configDataKeys = {
     on: [

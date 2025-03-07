@@ -277,7 +277,14 @@ describe('airConAccessory', async function() {
           identifier: "y",
           characteristic: "currentRelativeHumidity",
           topic: "homebridge-broadlink-rm/UT/weather"
-        }
+        },
+	{						// ERROR
+          characteristic: "currentRelativeHumidity",
+	},
+	{
+          identifier: "y",				// ERROR
+          topic: "homebridge-broadlink-rm/UT/weather"
+	}
       ],
     };
     airConAccessory = new platform.classTypes['air-conditioner'](log, config3, platform);
