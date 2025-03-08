@@ -13,7 +13,7 @@ class LightAccessory extends SwitchAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+    mqttTopic: [	// override to use own configMQTTTopicKeys
       (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 

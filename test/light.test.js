@@ -33,12 +33,53 @@ const defaultConfig = {
   persistState: false
 };
 
-describe('lightAccessory', async () => {
+describe('lightAccessory', async function() {
 
   const MQTTready = await MQTTtest();
   
+  let lightAccessory;
+
+  afterEach(function() {
+    lightAccessory?.mqttClient?.end();
+  })
+
+  it('check config', async function() {
+    const { platform, device, log } = setup();
+
+    const config = {
+      ...defaultConfig,
+      host: device.host.address,
+      pingGrace: '0.1',
+      onDelay: '0.1',
+      enableAutoOn: true,
+      noHistory: 'false',
+      mqttTopic: [
+	{
+          identifier: "on",
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          identifier: "off",
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          identifier: "on",
+          topic: "homebridge-broadlink-rm/UT/on",
+	  characteristic: 'on',
+	  
+	},
+      ]
+    }
+    
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
+     await delayForDuration(0.1);
+  });
+
   // Light Turn On
-  it('turns on', async () => {
+  it('turns on', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -48,7 +89,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1
     }
     
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
     expect(lightAccessory.state.switchState).to.equal(true);
@@ -72,7 +113,7 @@ describe('lightAccessory', async () => {
 
 
   // Light Turn On then Off
-  it('turns off', async () => {
+  it('turns off', async function() {
     const { platform, device, log } = setup();
 
 
@@ -82,7 +123,7 @@ describe('lightAccessory', async () => {
       host: device.host.address
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -105,7 +146,7 @@ describe('lightAccessory', async () => {
 
 
   // Last Known Brightness
-  it('"useLastKnownBrightness" : true', async () => {
+  it('"useLastKnownBrightness" : true', async function() {
     const { platform, device, log } = setup();
 
 
@@ -117,7 +158,7 @@ describe('lightAccessory', async () => {
       host: device.host.address
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 20);
     await delayForDuration(0.2);
@@ -163,7 +204,7 @@ describe('lightAccessory', async () => {
 
 
   // Default Brightness
-  it('"useLastKnownBrightness": false', async () => {
+  it('"useLastKnownBrightness": false', async function() {
     const { platform, device, log } = setup();
 
 
@@ -174,7 +215,7 @@ describe('lightAccessory', async () => {
       host: device.host.address
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 20);
     await delayForDuration(0.2);
@@ -222,7 +263,7 @@ describe('lightAccessory', async () => {
 
 
   // Auto Off
-  it('"enableAutoOff": true, "onDuration": 1', async () => {
+  it('"enableAutoOff": true, "onDuration": 1', async function() {
     const { platform, device, log } = setup();
 
 
@@ -234,7 +275,7 @@ describe('lightAccessory', async () => {
       onDuration: 1
     }
     
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -254,7 +295,7 @@ describe('lightAccessory', async () => {
 
 
   // Auto On
-  it('"enableAutoOn": true, "offDuration": 1', async () => {
+  it('"enableAutoOn": true, "offDuration": 1', async function() {
     const { platform, device, log } = setup();
 
 
@@ -266,7 +307,7 @@ describe('lightAccessory', async () => {
       offDuration: 1
     }
     
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -290,7 +331,7 @@ describe('lightAccessory', async () => {
 
 
   // Set Brightness
-  it('brightness set to 20', async () => {
+  it('brightness set to 20', async function() {
     const { platform, device, log } = setup();
 
 
@@ -301,7 +342,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 20);
     await delayForDuration(0.2);
     expect(lightAccessory.state.brightness).to.equal(20);
@@ -319,7 +360,7 @@ describe('lightAccessory', async () => {
     expect(sentHexCodeCount).to.equal(2);
   });
 
-  it('brightness set to 32 (closest 30)', async () => {
+  it('brightness set to 32 (closest 30)', async function() {
     const { platform, device, log } = setup();
 
 
@@ -330,7 +371,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 32);
     await delayForDuration(0.2);
     expect(lightAccessory.state.brightness).to.equal(32);
@@ -348,7 +389,7 @@ describe('lightAccessory', async () => {
     expect(sentHexCodeCount).to.equal(2);
   });
 
-  it('brightness set to 36 (closest 40)', async () => {
+  it('brightness set to 36 (closest 40)', async function() {
     const { platform, device, log } = setup();
 
 
@@ -361,7 +402,7 @@ describe('lightAccessory', async () => {
     
     
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 36);
     await delayForDuration(0.2);
     expect(lightAccessory.state.brightness).to.equal(36);
@@ -381,7 +422,7 @@ describe('lightAccessory', async () => {
 
 
   // Set HUE
-  it('hue set to 20', async () => {
+  it('hue set to 20', async function() {
     const { platform, device, log } = setup();
 
 
@@ -394,7 +435,7 @@ describe('lightAccessory', async () => {
     
     
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Hue, 20);
     await delayForDuration(0.2);
     expect(lightAccessory.state.hue).to.equal(20);
@@ -412,7 +453,7 @@ describe('lightAccessory', async () => {
     expect(sentHexCodeCount).to.equal(2);
   });
 
-  it('hue set to 32 (closest 30)', async () => {
+  it('hue set to 32 (closest 30)', async function() {
     const { platform, device, log } = setup();
 
 
@@ -423,7 +464,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Hue, 32);
     await delayForDuration(0.2);
     expect(lightAccessory.state.hue).to.equal(32);
@@ -441,7 +482,7 @@ describe('lightAccessory', async () => {
     expect(sentHexCodeCount).to.equal(2);
   });
 
-  it('hue set to 36 (closest 40)', async () => {
+  it('hue set to 36 (closest 40)', async function() {
     const { platform, device, log } = setup();
 
 
@@ -452,7 +493,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.1
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Hue, 36);
     await delayForDuration(0.2);
     expect(lightAccessory.state.hue).to.equal(36);
@@ -472,7 +513,7 @@ describe('lightAccessory', async () => {
 
 
   // onDelay
-  it('"onDelay": 0.5', async () => {
+  it('"onDelay": 0.5', async function() {
     const { platform, device, log } = setup();
 
 
@@ -483,7 +524,7 @@ describe('lightAccessory', async () => {
       onDelay: 0.5
     }
 
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 20);
     await delayForDuration(0.2);
     expect(lightAccessory.state.brightness).to.equal(20);
@@ -521,7 +562,7 @@ describe('lightAccessory', async () => {
 
 
   // Persist State
-  it('"persistState": true', async () => {
+  it('"persistState": true', async function() {
     const { platform, device, log } = setup();
 
 
@@ -553,7 +594,7 @@ describe('lightAccessory', async () => {
     expect(lightAccessory.state.switchState).to.equal(false);
   });
 
-  it('"persistState": false', async () => {
+  it('"persistState": false', async function() {
         const { platform, device, log } = setup();
 
 
@@ -578,7 +619,7 @@ describe('lightAccessory', async () => {
 
 
   // Ensure the hex is resent after reload
-  it('"resendHexAfterReload": true, "persistState": true', async () => {
+  it('"resendHexAfterReload": true, "persistState": true', async function() {
     const { platform, device, log } = setup();
 
     
@@ -632,7 +673,7 @@ describe('lightAccessory', async () => {
 
 
   // Ensure the hex is not resent after reload
-  it('"resendHexAfterReload": false, "persistState": true', async () => {
+  it('"resendHexAfterReload": false, "persistState": true', async function() {
     const { platform, device, log } = setup();
 
 
@@ -674,7 +715,7 @@ describe('lightAccessory', async () => {
     expect(sentHexCodeCount).to.equal(0);
   });
 
-  it('ColorTemperature+/-, Brightness+/-', async () => {
+  it('ColorTemperature+/-, Brightness+/-', async function() {
     const { platform, device, log } = setup();
 
     const config = {
@@ -701,7 +742,7 @@ describe('lightAccessory', async () => {
     }
     
     // Turn On Light
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     device.setFailureResponseOnSendData('random');
 
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -735,7 +776,7 @@ describe('lightAccessory', async () => {
 
   }).timeout(3000);
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async function() {
     const { platform, device, log } = setup();
     const config = {
       ...defaultConfig,
@@ -758,7 +799,7 @@ describe('lightAccessory', async () => {
       host: device.host.address
     };
     
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     await delayForDuration(0.3);
     
     MQTTpublish(log, 'On', 'true');
@@ -777,7 +818,7 @@ describe('lightAccessory', async () => {
     lightAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async function() {
     const { platform, device, log } = setup();
     const config = {
       name: 'Light',
@@ -807,7 +848,7 @@ describe('lightAccessory', async () => {
       host: device.host.address
     };
     
-    const lightAccessory = new platform.classTypes['light'](log, config, platform);
+    lightAccessory = new platform.classTypes['light'](log, config, platform);
     await delayForDuration(0.3);
     
     MQTTpublish(log, 'On', 'true');
@@ -825,7 +866,7 @@ describe('lightAccessory', async () => {
     lightAccessory.mqttClient.end();
   });
   
-  it('exclusives', async () => {
+  it('exclusives', async function() {
     const config = {
       isUnitTest: true,
       hideScanFrequencyButton: true,

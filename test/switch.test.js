@@ -25,6 +25,43 @@ describe('switchAccessory', async function() {
     switchAccessory?.mqttClient?.end();
   })
 
+  it('check config', async function() {
+    const { platform, device, log } = setup();
+
+    const config = {
+      name: 'Switch',
+      data,
+      logLevel: 'DEBUG',
+      pingGrace: 0.1,
+      persistState: 'false',
+      enableAutoOn: true,
+      noHistory: 'false',
+      host: device.host.address,
+      mqttTopic: [
+	{
+          identifier: "on",
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          identifier: "off",
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          topic: "homebridge-broadlink-rm/UT/on"
+	},
+	{
+          identifier: "on",
+          topic: "homebridge-broadlink-rm/UT/on",
+	  characteristic: 'on',
+	  
+	},
+      ]
+    }
+    
+    switchAccessory = new platform.classTypes['switch'](log, config, platform);
+     await delayForDuration(0.1);
+  });
+
   // Switch Turn On
   it('turns on', async function() {
     const { platform, device, log } = setup();

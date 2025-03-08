@@ -15,7 +15,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+    mqttTopic: [	// override to use own configMQTTTopicKeys
       (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
@@ -27,7 +27,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // selection
     replaceAutoMode: [
       (key, value, choices) => this.configIsSelection(value, choices),
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['heat', 'cool']
     ],
     units: [
@@ -35,12 +35,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.logs.config.error(`contains \x1b[33mdeprecated\x1b[0m property '${key}'. Recommend to define temperatures in Celsius and use Setting/General/Language&Region/Temperature.`);
 	return this.configIsSelection(value.toLowerCase(), choices);
       },
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['c', 'f']
     ],
     tempSourceUnits: [
       (key, value) => this.configIsString(value),
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['c', 'f']
     ],
     temperatureDisplayUnits: [
@@ -192,7 +192,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`value ${JSON.stringify(value)} is not a string`'],
     characteristic: [
       (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
     ],
   }
@@ -219,7 +219,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   static configTemperatureKeys = {
     'pseudo-mode': [
       (key, value, choices) => choices.find(x => x === value),
-      '`value ${JSON.stringify(value)} is not one of ${choices.join()}`',
+      '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['heat', 'cool']
     ],
     data: [

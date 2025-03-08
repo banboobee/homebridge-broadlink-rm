@@ -12,7 +12,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configIsMQTTTopicKeys
+    mqttTopic: [	// override to use own configMQTTTopicKeys
       (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
@@ -24,7 +24,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     // selection
     subtype: [
       (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['tv', 'stb', 'receiver', 'stick']
     ],
 
@@ -143,7 +143,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       '`value \'${JSON.stringify(value)}\' is not a string`'],
     type: [
       (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
-      '`value \'${JSON.stringify(value)}\' is not one of ${choices.join()}`',
+      '`value \'${JSON.stringify(value)}\' is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['other', 'home_screen', 'tuner', 'hdmi', 'composite_video', 's_video', 'component_video', 'dvi', 'airplay', 'usb', 'application']
     ],
     data: [

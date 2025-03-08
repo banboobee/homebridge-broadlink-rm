@@ -192,7 +192,7 @@ class HomebridgeAccessory {
 	  if (!identifier) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'identifier' property.`);
 	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !topics.identifier[2].find(x => x === identifier.toLowerCase())) {
-	    this.logs.config.error(`failed to verify 'identifier' property of '${property}'. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2]}.`);
+	    this.logs.config.error(`failed to verify 'identifier' property of '${property}'. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2].map(x => `"${x}"`).join()}.`);
 	  }
 	  if (!topic) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'topic' property.`);

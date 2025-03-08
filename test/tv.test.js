@@ -53,17 +53,53 @@ const defaultConfig = {
   persistState: false
 };
 
-describe('TVAccessory', async () => {
+describe('TVAccessory', async function() {
 
   const MQTTready = await MQTTtest();
   
-  it('tun on', async () => {
+  let TVAccessory;
+
+  afterEach(function() {
+    TVAccessory?.mqttClient?.end();
+  })
+
+  it('check config', async function() {
+    const { platform, device, log } = setup();
+
+    const config = JSON.parse(JSON.stringify(defaultConfig));
+    config.host = device.host.address
+    config.enableAutoOn = true,
+    config.mqttStateOnly = 'true';
+    config.mqttTopic = [
+      {
+        identifier: "power",
+        topic: "homebridge-broadlink-rm/UT/Power"
+      },
+      {
+        identifier: "off",
+        topic: "homebridge-broadlink-rm/UT/Power"
+      },
+      {
+        topic: "homebridge-broadlink-rm/UT/Power"
+      },
+      {
+        identifier: "Power",
+        topic: "homebridge-broadlink-rm/UT/Power",
+	characteristic: 'on',
+      },
+    ]
+    
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
+     await delayForDuration(0.1);
+  });
+
+  it('tun on', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     expect(TVAccessory.constructor.isUnitTest).to.equal(true);
 
     // Turn on
@@ -75,14 +111,14 @@ describe('TVAccessory', async () => {
     hexCheck({ device, codes: [ 'ON' ], count: 1 });
   });
 
-  it('tun off', async () => {
+  it('tun off', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     // Turn off
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     TVAccessory.serviceManager.setCharacteristic(Characteristic.Active, false);
     await delayForDuration(0.1);
     expect(TVAccessory.state.switchState).to.equal(false);
@@ -91,14 +127,14 @@ describe('TVAccessory', async () => {
     hexCheck({ device, codes: [ 'OFF' ], count: 1 });
   });
 
-  it('Select source', async () => {
+  it('Select source', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     // Select channel
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     TVAccessory.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 1);
     await delayForDuration(0.1);
     expect(TVAccessory.state.currentInput).to.equal(1);
@@ -108,11 +144,11 @@ describe('TVAccessory', async () => {
 
   });
 
-  it('Remote', async () => {
+  it('Remote', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     const config = JSON.parse(JSON.stringify(defaultConfig));
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
 
     // Remote keys
     TVAccessory.serviceManager.setCharacteristic(Characteristic.RemoteKey, Characteristic.RemoteKey.PLAY_PAUSE);
@@ -151,11 +187,11 @@ describe('TVAccessory', async () => {
 	     });
   });
 
-  it('Volume', async () => {
+  it('Volume', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     const config = JSON.parse(JSON.stringify(defaultConfig));
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     
     // Volume control
     TVAccessory.speakerService.setCharacteristic(Characteristic.Mute, true);
@@ -177,7 +213,7 @@ describe('TVAccessory', async () => {
 	     });
   });
 
-  it('"persistState": true', async () => {
+  it('"persistState": true', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     let config = JSON.parse(JSON.stringify(defaultConfig));
@@ -211,13 +247,13 @@ describe('TVAccessory', async () => {
     expect(TVAccessory.state.currentInput).to.equal(2);
   });
 
-  it('automation', async () => {
+  it('automation', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.persistState = true;
 
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
 
     // Simultaneously Turn on and select channel
     TVAccessory.serviceManager.setCharacteristic(Characteristic.Active, true);
@@ -231,7 +267,7 @@ describe('TVAccessory', async () => {
     hexCheck({ device, codes: [ 'ON', 'Channel-B' ], count: 2 });
   });
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": true', async function() {
     const { platform, device, log } = setup();
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address
@@ -247,7 +283,7 @@ describe('TVAccessory', async () => {
         "topic": "homebridge-broadlink-rm/UT/Source"
       }
     ];
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     await delayForDuration(0.1);
     
     await MQTTpublish(log, 'Power', 'on');
@@ -260,7 +296,7 @@ describe('TVAccessory', async () => {
     TVAccessory.mqttClient.end();
   });
 
-  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async () => {
+  (MQTTready ? it : it.skip)('"mqttStateOnly": false', async function() {
     const { platform, device, log } = setup();
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address
@@ -276,7 +312,7 @@ describe('TVAccessory', async () => {
         "topic": "homebridge-broadlink-rm/UT/Source"
       }
     ];
-    const TVAccessory = new platform.classTypes['tv'](log, config, platform);
+    TVAccessory = new platform.classTypes['tv'](log, config, platform);
     await delayForDuration(0.1);
     
     MQTTpublish(log, 'Power', 'on');
