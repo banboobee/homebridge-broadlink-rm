@@ -185,7 +185,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     identifier: [
       (key, value, choices) => {return typeof value === 'string'},
       '`value ${JSON.stringify(value)} is not a string`',
-      ['unkown', 'temperature', 'humidity', 'mode', 'targetheatingcoolingstate', 'targetheatercoolerstate', 'targettemperature', 'coolingthresholdtemperature', 'heatingthresholdtemperature']
+      ['unknown', 'temperature', 'humidity', 'mode', 'targetheatingcoolingstate', 'targetheatercoolerstate', 'targettemperature', 'coolingthresholdtemperature', 'heatingthresholdtemperature']
     ],
     topic: [
       (key, value) => {return typeof value === 'string'},
