@@ -132,8 +132,8 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   static configIsBoolean(value) {
     return typeof value === 'boolean'
   }
-  static configIsNumber(value) {
-    return typeof value !== 'string' && !Number.isNaN(Number(value))
+  static configIsNumber(value, range = undefined) {
+    return typeof value !== 'string' && !Number.isNaN(Number(value)) && !(range?.[0] > value) && !(range?.[1] < value)
   }
   static configIsSelection(value, oneof) {
     return oneof.find(x => x === value);
