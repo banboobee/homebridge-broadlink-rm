@@ -154,6 +154,8 @@ describe('airConAccessory', async function() {
     const { platform, log } = setup();
     
     const config1 = {
+      enableAutoOff: true,
+      onDuration: 0,
       tempSourceUnits: 'celsius',// ERROR
       temperatureFilePath: 1000,	// ERROR
       temperatureDisplayUnits: 'c',	// ERROR

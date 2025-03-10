@@ -83,7 +83,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
       },
       '`Unsupported config key. Use \'turnOnWhenOff\' instead`'],
     enableAutoOff: [
-      (key, value) => this.configIsBoolean(value),
+      // (key, value) => this.configIsBoolean(value),
+      (key, value) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	return true;
+      },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     heatOnly: [
       (key, value) => this.configIsBoolean(value),
@@ -114,7 +118,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, value) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Not implemented.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
       '`Unsupported config key.`'],
@@ -172,11 +176,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
       (key, value) => this.configIsNumber(value),
       '`value ${JSON.stringify(value)} is not a number`'],
     onDuration: [
-      (key, value) => this.configIsNumber(value),
-      '`value ${JSON.stringify(value)} is not a number`'],
+      (key, value, range) => this.configIsNumber(value, range),
+      '`value ${JSON.stringify(value)} is not a positive number`',
+      [1]
+    ],
     offDuration: [
       (key, value) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Not implemented.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
       '`Unsupported config key.`'],
@@ -569,13 +575,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async checkAutoOff() {
     const {config, data} = this;
-    const {enableAutoOff, enableAutoOn} = config;
-    let {onDuration} = config;
-    onDuration = onDuration || 60;
+    // const {enableAutoOff, enableAutoOn} = config;
+    const {onDuration} = config;
+    // onDuration = onDuration || 60;
     
-    if (enableAutoOn) {
-      this.logs.error(`enableAutoOn is not supported.`);
-    } else if (enableAutoOff && parseInt(onDuration) > 0) {
+    // if (enableAutoOn) {
+    //   this.logs.error(`enableAutoOn is not supported.`);
+    // } else
+    if (/*enableAutoOff && */parseInt(onDuration) > 0) {
       if (this.autoOffTimeoutPromise) {
 	const NULL = () => {};	// disables 'Error: Timeout Cancelled'
 	this.autoOffTimeoutPromise.cancel(NULL);
