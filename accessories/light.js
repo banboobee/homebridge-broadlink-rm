@@ -14,123 +14,123 @@ class LightAccessory extends SwitchAccessory {
     //MQTT
     ...this.configMqttKeys,
     mqttTopic: [	// override to use own configMQTTTopicKeys
-      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
     // complex
     data: [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      (key, values) => this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     exclusives: [
-      (key, value) => this.configIsArray(value) && this.configIsExclusives(key, value),
+      (key, values) => this.configIsArray(values[0]) && this.configIsExclusives(key, values),
       '`value ${JSON.stringify(value)} is not a valid accessory name array.`'],
     
     // string
     'pingIPAddress$': [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
 
     // boolean
     useLastKnownBrightness: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableAutomaticOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableAutomaticOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     pingIPAddressStateOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     pingUseArp: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     history: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
 
     // number
     defaultBrightness: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     defaultColorTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pingFrequency: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pingGrace: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     onDelay: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     onDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     offDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
   }
   static configMqttTopicKeys = {
     identifier: [
-      (key, value, choices) => {return typeof value === 'string'},
+      (key, values, choices) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`',
       ['on', 'brightness']
     ],
     topic: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     off: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     white: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     'brightness\\+$': [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     'brightness\\-$': [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     '^brightness.+$': [
-      (key, value) => {return !Number.isNaN(Number(key.match('(brightness)(.+)$')[2])) && this.configIsHex(key, value)},
+      (key, values) => {return !Number.isNaN(Number(key.match('(brightness)(.+)$')[2])) && this.configIsHex(key, values)},
       '`brightness suffix is not a number`'],
     '^hue.+$': [
-      (key, value) => {return !Number.isNaN(Number(key.match('(hue)(.+)$')[2])) && this.configIsHex(key, value)},
+      (key, values) => {return !Number.isNaN(Number(key.match('(hue)(.+)$')[2])) && this.configIsHex(key, values)},
       '`hue suffix is not a number`'],
     availableBrightnessSteps: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     availableColorTemperatureSteps: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     'colorTemperature+': [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     'colorTemperature-': [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
   }
-  static configIsExclusives(property, value) {
-    // console.log(property, value);
-    value.forEach(element => {
-      if (!this.configIsString(property, element)) {
+  static configIsExclusives(property, values) {
+    // console.log(property, values);
+    values[0].forEach(element => {
+      if (!this.configIsString(element)) {
 	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid accessory name.`);
       }
     });
@@ -143,7 +143,7 @@ class LightAccessory extends SwitchAccessory {
   }
   
   checkConfig(config) {
-    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys); 
   }
 
   setDefaults () {

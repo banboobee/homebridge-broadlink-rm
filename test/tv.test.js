@@ -69,23 +69,23 @@ describe('TVAccessory', async function() {
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address
     config.enableAutoOn = true,
-    config.mqttStateOnly = 'true';
+    config.mqttStateOnly = 'true';		// ERROR
     config.mqttTopic = [
       {
         identifier: "power",
         topic: "homebridge-broadlink-rm/UT/Power"
       },
       {
-        identifier: "off",
+        identifier: "off",			// ERROR
         topic: "homebridge-broadlink-rm/UT/Power"
       },
-      {
+      {						// ERROR
         topic: "homebridge-broadlink-rm/UT/Power"
       },
       {
         identifier: "Power",
         topic: "homebridge-broadlink-rm/UT/Power",
-	characteristic: 'on',
+	characteristic: 'on',			// DEBUG
       },
     ]
     

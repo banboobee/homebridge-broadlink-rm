@@ -31,11 +31,11 @@ describe('switchAccessory', async function() {
     const config = {
       name: 'Switch',
       data,
-      logLevel: 'DEBUG',
+      logLevel: 'DEBUG',	// ERROR
       pingGrace: 0.1,
-      persistState: 'false',
+      persistState: 'false',	// ERROR
       enableAutoOn: true,
-      noHistory: 'false',
+      noHistory: 'false',	// ERROR
       host: device.host.address,
       mqttTopic: [
 	{
@@ -43,10 +43,10 @@ describe('switchAccessory', async function() {
           topic: "homebridge-broadlink-rm/UT/on"
 	},
 	{
-          identifier: "off",
+          identifier: "off",	// ERROR
           topic: "homebridge-broadlink-rm/UT/on"
 	},
-	{
+	{			// ERROR
           topic: "homebridge-broadlink-rm/UT/on"
 	},
 	{

@@ -49,10 +49,10 @@ describe('lightAccessory', async function() {
     const config = {
       ...defaultConfig,
       host: device.host.address,
-      pingGrace: '0.1',
-      onDelay: '0.1',
+      pingGrace: '0.1',		// ERROR
+      onDelay: '0.1',		// ERROR
       enableAutoOn: true,
-      noHistory: 'false',
+      noHistory: 'false',	// ERROR
       mqttTopic: [
 	{
           identifier: "on",
@@ -62,13 +62,13 @@ describe('lightAccessory', async function() {
           identifier: "off",
           topic: "homebridge-broadlink-rm/UT/on"
 	},
-	{
+	{			// ERROR
           topic: "homebridge-broadlink-rm/UT/on"
 	},
 	{
           identifier: "on",
           topic: "homebridge-broadlink-rm/UT/on",
-	  characteristic: 'on',
+	  characteristic: 'on',	// ERROR
 	  
 	},
       ]

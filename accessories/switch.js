@@ -13,78 +13,78 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     //MQTT
     ...this.configMqttKeys,
     mqttTopic: [	// override to use own configMQTTTopicKeys
-      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
     // complex
     data: [
-      (key, value) => this.configIsString(value) || this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      (key, values) => this.configIsString(values[0]) || this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
 
     // string
     'pingIPAddress$': [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
 
     // boolean
     enableAutoOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableAutomaticOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableAutomaticOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     pingIPAddressStateOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     pingUseArp: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     stateless: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     history: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
 
     // number
     pingFrequency: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pingGrace: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     onDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     offDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
   }
   static configMqttTopicKeys = {
     identifier: [
-      (key, value, choices) => {return typeof value === 'string'},
+      (key, values, choices) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`',
       ['on']
     ],
     topic: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     off: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
   }
 
@@ -104,7 +104,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys); 
   }
   
   setDefaults () {

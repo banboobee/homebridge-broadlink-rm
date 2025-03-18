@@ -16,35 +16,35 @@ class AirConAccessory extends BroadlinkRMAccessory {
     //MQTT
     ...this.configMqttKeys,
     mqttTopic: [	// override to use own configMQTTTopicKeys
-      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
     // complex
     data: [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      (key, values) => this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configDataKeys),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
 
     // selection
     replaceAutoMode: [
-      (key, value, choices) => this.configIsSelection(value, choices),
+      (key, values, choices) => this.configIsSelection(values[0], choices),
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['heat', 'cool']
     ],
     units: [
-      (key, value, choices) => {
+      (key, values, choices) => {
 	this.logs.config.error(`contains \x1b[33mdeprecated\x1b[0m property '${key}'. Recommend to define temperatures in Celsius and use Setting/General/Language&Region/Temperature.`);
-	return this.configIsSelection(value.toLowerCase(), choices);
+	return this.configIsSelection(values[0].toLowerCase(), choices);
       },
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['c', 'f']
     ],
     tempSourceUnits: [
-      (key, value) => this.configIsString(value),
+      (key, values, choices) => this.configIsSelection(values[0], choices),
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['c', 'f']
     ],
     temperatureDisplayUnits: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'units' property instead.`);
 	return true;
       },
@@ -54,16 +54,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // string
     '^autoSwitch$': [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     '^autoSwitchName$': [
-      (key, value) => value === undefined || this.configIsString(value),
+      (key, values) => value === undefined || this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     temperatureFilePath: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     w1DeviceID: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Should be intergrated to temperatureFilePath.`);
 	return true;
       },
@@ -71,59 +71,59 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // boolean
     noHistory: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     turnOnWhenOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     sendOnWhenOff: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'turnOnWhenOff' property instead.`);
 	return true;
       },
       '`Unsupported config key. Use \'turnOnWhenOff\' instead`'],
     enableAutoOff: [
-      // (key, value) => this.configIsBoolean(value),
-      (key, value) => {
+      // (key, values) => this.configIsBoolean(values[0]),
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
 	return true;
       },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     heatOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     coolOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableModeHistory: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableTargetTemperatureHistory: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHumidity: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     ignoreTemperatureWhenOff: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. No need scene/autmation to work.`);
 	return true;
       },
       '`Unsupported config key`'],
     sendTemperatureOnlyWhenOff: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Deprecated in original repository.`);
 	return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
       '`Unsupported config key.`'],
     batteryAlerts: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
@@ -131,57 +131,57 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // number
     minimumAutoOnOffDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     autoMinimumDuration: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'minimumAutoOnOffDuration' property instead.`);
 	return true;
       },
       '`Unsupported config key. Use \'minimumAutoOnOffDuration\' instead`'],
     minTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     maxTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     tempStepSize: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     temperatureUpdateFrequency: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     temperatureAdjustment: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     humidityAdjustment: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     defaultCoolTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     defaultHeatTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     autoHeatTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     autoCoolTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pseudoDeviceTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     heatTemperature: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     onDuration: [
-      (key, value, range) => this.configIsNumber(value, range),
+      (key, values, range) => this.configIsNumber(values[0], range),
       '`value ${JSON.stringify(value)} is not a positive number`',
       [1]
     ],
     offDuration: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
@@ -189,58 +189,58 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
   static configMqttTopicKeys = {
     identifier: [
-      (key, value, choices) => {return typeof value === 'string'},
+      (key, values, choices) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`',
       ['unknown', 'temperature', 'humidity', 'mode', 'targetheatingcoolingstate', 'targetheatercoolerstate', 'targettemperature', 'coolingthresholdtemperature', 'heatingthresholdtemperature']
     ],
     topic: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     characteristic: [
-      (key, value, choices) => {return choices.find(x => x === value.toLowerCase())},
+      (key, values, choices) => {return choices.find(x => x === values[0].toLowerCase())},
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
     ],
   }
   static configDataKeys = {
     on: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     'off$': [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     offDryMode: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}' of 'data'. Use context HEX instead.`);
 	return true;
       },
       '`Unsupported config key. Use context HEX instead`'],
     '^temperature.+$': [
-      (key, value) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, value)},
+      (key, values) => {return !Number.isNaN(Number(key.match('(temperature)(.+)$')[2])) && this.configIsTemperature(key, values)},
       '`temperature suffix is not a number`'],
     '^(heat|cool|auto).+$': [
-      (key, value) => {return !Number.isNaN(Number(key.match('(heat|cool|auto)(.+)$')[2])) && this.configIsHex(key, value)},
+      (key, values) => {return !Number.isNaN(Number(key.match('(heat|cool|auto)(.+)$')[2])) && this.configIsHex(key, values)},
       '`temperature suffix is not a number`'],
   }
   static configTemperatureKeys = {
     'pseudo-mode': [
-      (key, value, choices) => choices.find(x => x === value),
+      (key, values, choices) => choices.find(x => x === values[0]),
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['heat', 'cool']
     ],
     data: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a string`'],
   }
-  static configIsTemperature(property, value) {
-    // console.log('configIsTemperature', property, value);
-    if (this.configIsString(value) || this.configIsArray(value)) {
+  static configIsTemperature(property, values) {
+    // console.log('configIsTemperature', property, values);
+    if (this.configIsString(values[0]) || this.configIsArray(values[0])) {
       this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
       return true;
-    } else if (this.configIsObject(value)) {
-      const mode = Object.keys(value).find?.(x => x === 'pseudo-mode');
-      const data = Object.keys(value).find?.(x => x === 'data');
-      this.verifyConfig(value, property, this.configTemperatureKeys);
+    } else if (this.configIsObject(values[0])) {
+      const mode = Object.keys(values[0]).find?.(x => x === 'pseudo-mode');
+      const data = Object.keys(values[0]).find?.(x => x === 'data');
+      this.verifyConfig(values, property, this.configTemperatureKeys);
       if (!mode) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
       }
@@ -293,7 +293,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys);
+    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys);
   }
 
   correctReloadedState(state) {

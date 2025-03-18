@@ -13,149 +13,151 @@ class TVAccessory extends BroadlinkRMAccessory {
     //MQTT
     ...this.configMqttKeys,
     mqttTopic: [	// override to use own configMQTTTopicKeys
-      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
     // complex
     data: [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configDataKeys),
+      (key, values) => this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configDataKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid data config`'],
 
     // selection
     subtype: [
-      (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
+      (key, values, choices) => this.configIsSelection(values[0].toLowerCase(), choices),
       '`value \'${JSON.stringify(value)}\' is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['tv', 'stb', 'receiver', 'stick']
     ],
 
     // string
     'pingIPAddress$': [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a string`'],
 
     // boolean
     enableAutoOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     enableAutoOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     disableAutomaticOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     disableAutomaticOff: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     pingIPAddressStateOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     pingUseArp: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
     syncInputSourceWhenOn: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a boolean`'],
 
     // number
     pingFrequency: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
     pingGrace: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
     onDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
     offDuration: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value \'${JSON.stringify(value)}\' is not a number`'],
   }
   static configMqttTopicKeys = {
     identifier: [
-      (key, value, choices) => {return typeof value === 'string'},
+      (key, values, choices) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`',
       ['power', 'active', 'source', 'activeidentifier']
     ],
     topic: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`']
   }
   static configDataKeys = {
     on: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     off: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     'volume': [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configVolumeKeys),
+      (key, values) => this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configVolumeKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid volume config`'],
     'remote': [
-      (key, value) => this.configIsObject(value) && this.verifyConfig(value, key, this.configRemoteKeys),
+      (key, values) => this.configIsObject(values[0]) && this.verifyConfig(values, key, this.configRemoteKeys),
       '`value \'${JSON.stringify(value)}\' is not a valid remote config`'],
     'inputs': [
-      (key, value) => this.configIsArray(value) && this.configIsInputs(key, value),
+      (key, values) => this.configIsArray(values[0]) && this.configIsInputs(key, values),
       '`value \'${JSON.stringify(value)}\' is not a valid inputs config`'],
   }
   static configVolumeKeys = {
     up: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     down: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     mute: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
   static configRemoteKeys = {
     select: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     arrowUp: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     arrowDown: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     arrowLeft: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     arrowRight: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     back: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     exit: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     playPause: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
     info: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
   static configInputsKeys = {
     name: [
-      (key, value) => {return this.configIsString(key, value)},
+      (key, values) => {return this.configIsString(values[0])},
       '`value \'${JSON.stringify(value)}\' is not a string`'],
     type: [
-      (key, value, choices) => this.configIsSelection(value.toLowerCase(), choices),
+      (key, values, choices) => this.configIsSelection(values[0].toLowerCase(), choices),
       '`value \'${JSON.stringify(value)}\' is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['other', 'home_screen', 'tuner', 'hdmi', 'composite_video', 's_video', 'component_video', 'dvi', 'airplay', 'usb', 'application']
     ],
     data: [
-      (key, value) => {return this.configIsHex(key, value)},
+      (key, values) => {return this.configIsHex(key, values)},
       '`value \'${JSON.stringify(value)}\' is not a valid HEX code`'],
   }
-  static configIsInputs(property, value) {
-    value.forEach(element => {
+  static configIsInputs(property, values) {
+    values[0].forEach(element => {
       if (this.configIsObject(element)) {
-	this.verifyConfig(element, property, this.configInputsKeys);
+	values.unshift(element);
+	this.verifyConfig(values, property, this.configInputsKeys);
+	values.shift();
       } else {
-	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid input config`);
+	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid input config.`);
       }
     });
     return true;
@@ -189,7 +191,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig(config, undefined, this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys); 
   }
   
   setDefaults() {

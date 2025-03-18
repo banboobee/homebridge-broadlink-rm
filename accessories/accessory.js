@@ -8,60 +8,60 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   static configCommonKeys = {
     // common
     name: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     type: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     host: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     disabled: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     disableLogs: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     logLevel: [
-      (key, value, choices) => this.configIsSelection(value, choices),
+      (key, values, choices) => this.configIsSelection(values[0], choices),
       '`${JSON.stringify(value)} should be one of: ${choices.map(x => `"${x}"`).join()}`',
       ['trace', 'debug', 'info', 'warning', 'error']
     ],
     isUnitTest: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
 	return true;
       },
       '`value ${JSON.stringify(value)} is not a boolean`'],
     persistState: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     allowResend: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     preventResendHex: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'allowresend' property instead.`);
 	return true;
       },
       '`Unsupported config key. Use \'allowResend\' instead`'],
     resendHexAfterReloadDelay: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     'resendHexAfterReload$': [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     resendDataAfterReloadDelay: [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'resendHexAfterReloadDelay' property instead.`);
 	return true;
       },
       '`Unsupported config key. Use \'resendHexAfterReloadDelay\' instead`'],
     'resendDataAfterReload$': [
-      (key, value) => {
+      (key, values) => {
 	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'resendHexAfterReload' property instead.`);
 	return true;
       },
@@ -69,61 +69,61 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   }
   static configMqttKeys = {
     mqttTopic: [
-      (key, value) => this.configIsMQTTTopic(key, value, this.configMqttTopicKeys),
+      (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
     mqttURL: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     mqttUsername: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     mqttPassword: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     mqttStateOnly: [
-      (key, value) => this.configIsBoolean(value),
+      (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
   }
   static configMqttTopicKeys = {
     identifier: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     topic: [
-      (key, value) => {return typeof value === 'string'},
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
   }
   static configDataKeys = {
     on: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     off: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
   }
   static configHexKeys = {
     data: [
-      (key, value) => this.configIsHex(key, value),
+      (key, values) => this.configIsHex(key, values),
       '`value ${JSON.stringify(value)} is not a valid HEX code`'
     ],
   }
   static configAdvancedHexKeys = {
     timeout: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pause: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     sendCount: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     interval: [
-      (key, value) => this.configIsNumber(value),
+      (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     eval: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     data: [
-      (key, value) => this.configIsString(value),
+      (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
   }
   static configIsString(value) {
@@ -144,18 +144,19 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   static configIsObject(value) {
     return typeof value === 'object' && !this.configIsArray(value);
   }
-  static configIsHex(property, value) {
+  static configIsHex(property, values) {
     // console.log('configIsHex', property, value);
-    if (this.configIsString(value)) {
+    if (this.configIsString(values[0])) {
       return true;
-    } else if (this.configIsArray(value)) {
+    } else if (this.configIsArray(values[0])) {
       let data = false;
-      value.forEach(element => {
+      values[0].forEach(element => {
 	if (this.configIsObject(element)) {
+	  values.unshift(element);
 	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
 	  const r = Object.keys(element).find?.(x => x === 'sendCount');
 	  const x = Object.keys(element).find?.(x => x === 'interval');
-	  this.verifyConfig(element, property, this.configAdvancedHexKeys);
+	  this.verifyConfig(values, property, this.configAdvancedHexKeys);
 	  if (!!r && !d) {
 	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
 	  }
@@ -164,6 +165,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  }
 	  data |= !!d;
 	  // console.log(`d:${d} r:${r} x:${x} data:${data}`);
+	  values.shift();
 	} else {
 	  this.logs.config.error(`failed to verify '${property}' property of 'data'. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
 	}
@@ -172,25 +174,26 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
       }
       return true;
-    } else if (this.configIsObject(value)) {
-      const data = Object.keys(value).find?.(x => x === 'data');
-      this.verifyConfig(value, property, this.configHexKeys);
+    } else if (this.configIsObject(values[0])) {
+      const data = Object.keys(values[0]).find?.(x => x === 'data');
+      this.verifyConfig(values, property, this.configHexKeys);
       if (!data) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
       }
       return true;
     }
   }
-  static configIsMQTTTopic(property, value, topics) {
-    if (this.configIsString(value)) {
+  static configIsMQTTTopic(property, values, topics) {
+    if (this.configIsString(values[0])) {
       return true;
-    } else if (this.configIsArray(value)) {
-      value.forEach(element => {
+    } else if (this.configIsArray(values[0])) {
+      values[0].forEach(element => {
 	if (this.configIsObject(element)) {
+	  values.unshift(element);
 	  const identifier = element?.identifier;
 	  const topic = element?.topic;
 	  const characteristic = element?.characteristic;
-	  this.verifyConfig(element, property, topics);
+	  this.verifyConfig(values, property, topics);
 	  if (!identifier) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'identifier' property.`);
 	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !topics.identifier[2].find(x => x === identifier.toLowerCase())) {
@@ -199,32 +202,35 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  if (!topic) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'topic' property.`);
 	  }
+	  values.shift();
 	} else {
 	  this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid mqttTopic.`);
 	}
       });
       return true;
     } else {
-      this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(value)}' is not a valid mqttTopic.`);
+      this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(values[0])}' is not a valid mqttTopic.`);
       return true;
     }
   }
-  static verifyConfig(config, property, options) {
-    Object.keys(config).forEach((key) => {
+  static verifyConfig(values, property, options) {
+    Object.keys(values[0]).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
-      const value = config[key];
+      const value = values[0][key];
+      values.unshift(value);
       // this.logs.config.debug(key, value, match);
       // console.log(key, value, match);
       if (match) {
 	const checker = options[match][0];
 	const message = options[match][1];
 	const choices = options[match][2];
-	if (!checker(key, value, choices)) {
-	  this.logs.config.error(`failed to verify '${key}' property. ${eval(message)}.`);
+	if (!checker(key, values, choices)) {
+	  this.logs.config.error(`failed to verify '${key}' property${property ? ` of '${property}'` : ''}. ${eval(message)}.`);
 	}
       } else {
 	this.logs.config.debug(`contains unknown property '${key}'${property ? ` in property '${property}'` : ''}.`);
       }
+      values.shift();
     })
 
     return true;
