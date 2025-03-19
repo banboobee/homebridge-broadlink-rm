@@ -70,6 +70,14 @@ describe('TVAccessory', async function() {
     config.host = device.host.address
     config.enableAutoOn = true,
     config.mqttStateOnly = 'true';		// ERROR
+    config.data.inputs.push(
+      {
+	name: 'Channel X',
+	type: 'unknown',			// ERROR
+	unknown: 10,
+	data: 'Channel-X'
+      },
+    );
     config.mqttTopic = [
       {
         identifier: "power",

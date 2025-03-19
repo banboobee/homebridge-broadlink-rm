@@ -57,7 +57,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     '^autoSwitchName$': [
-      (key, values) => value === undefined || this.configIsString(values[0]),
+      (key, values) => values[0] === undefined || this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     temperatureFilePath: [
       (key, values) => this.configIsString(values[0]),
@@ -140,10 +140,42 @@ class AirConAccessory extends BroadlinkRMAccessory {
       },
       '`Unsupported config key. Use \'minimumAutoOnOffDuration\' instead`'],
     minTemperature: [
-      (key, values) => this.configIsNumber(values[0]),
+      // (key, values) => this.configIsNumber(values[0]),
+      (key, values) => {
+	if (this.configIsNumber(values[0])) {
+	  let {minTemperature, maxTemperature}  = values[1];
+	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
+	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
+	  if (minTemperature > maxTemperature) {
+	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${minTemperature} must be less than maxTemperature(${maxTemperature}). Swapped.`);
+	    values[1]['minTemperature'] = maxTemperature;
+	    values[1]['maxTemperature'] = minTemperature;
+	  }
+	  return true;
+	} else {
+	  values[1]['minTemperature'] = undefined;
+	  return false;
+	}
+      },
       '`value ${JSON.stringify(value)} is not a number`'],
     maxTemperature: [
-      (key, values) => this.configIsNumber(values[0]),
+      // (key, values) => this.configIsNumber(values[0]),
+      (key, values) => {
+	if (this.configIsNumber(values[0])) {
+	  let {minTemperature, maxTemperature}  = values[1];
+	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
+	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
+	  if (minTemperature > maxTemperature) {
+	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${maxTemperature} must be more than minTemperature(${minTemperature}). Swapped.`);
+	    values[1]['minTemperature'] = maxTemperature;
+	    values[1]['maxTemperature'] = minTemperature;
+	  }
+	  return true;
+	} else {
+	  values[1]['maxTemperature'] = undefined;
+	  return false;
+	}
+      },
       '`value ${JSON.stringify(value)} is not a number`'],
     tempStepSize: [
       (key, values) => this.configIsNumber(values[0]),
@@ -170,7 +202,24 @@ class AirConAccessory extends BroadlinkRMAccessory {
       (key, values) => this.configIsNumber(values[0]),
       '`value ${JSON.stringify(value)} is not a number`'],
     pseudoDeviceTemperature: [
-      (key, values) => this.configIsNumber(values[0]),
+      (key, values) => {
+	if (this.configIsNumber(values[0])) {
+	  let {minTemperature, maxTemperature}  = values[1];
+	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
+	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
+	  if (values[0] < minTemperature) {
+	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${JSON.stringify(values[0])} must be more than the minTemperature(${minTemperature}). Adjusted.`);
+	    values[1]['pseudoDeviceTemperature'] = minTemperature;
+	  }
+	  if (values[0] > maxTemperature) {
+	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${JSON.stringify(values[0])} must be less than the maxTemperature(${maxTemperature}). Adjusted.`);
+	    values[1]['pseudoDeviceTemperature'] = maxTemperature;
+	  }
+	  return true;
+	} else {
+	  return false;
+	}
+      },
       '`value ${JSON.stringify(value)} is not a number`'],
     heatTemperature: [
       (key, values) => this.configIsNumber(values[0]),
@@ -197,7 +246,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       (key, values) => this.configIsString(values[0]),
       '`value ${JSON.stringify(value)} is not a string`'],
     characteristic: [
-      (key, values, choices) => {return choices.find(x => x === values[0].toLowerCase())},
+      (key, values, choices) => this.configIsSelection(values[0].toLowerCase(), choices),
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['temperature', 'currenttemperature', 'humidity', 'currentrelativehumidity']
     ],
@@ -224,7 +273,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
   static configTemperatureKeys = {
     'pseudo-mode': [
-      (key, values, choices) => choices.find(x => x === values[0]),
+      (key, values, choices) => this.configIsSelection(values[0], choices),
       '`value ${JSON.stringify(value)} is not one of ${choices.map(x => `"${x}"`).join()}`',
       ['heat', 'cool']
     ],
@@ -238,8 +287,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
       return true;
     } else if (this.configIsObject(values[0])) {
-      const mode = Object.keys(values[0]).find?.(x => x === 'pseudo-mode');
-      const data = Object.keys(values[0]).find?.(x => x === 'data');
+      const mode = values[0]['pseudo-mode'];
+      const data = values[0]['data'];
       this.verifyConfig(values, property, this.configTemperatureKeys);
       if (!mode) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);

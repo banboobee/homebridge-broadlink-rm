@@ -153,9 +153,9 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       values[0].forEach(element => {
 	if (this.configIsObject(element)) {
 	  values.unshift(element);
-	  const d = Object.keys(element).find?.(x => x === 'data' || x === 'eval');
-	  const r = Object.keys(element).find?.(x => x === 'sendCount');
-	  const x = Object.keys(element).find?.(x => x === 'interval');
+	  const d = element['data'] || element['eval'];
+	  const r = element['sendCount'];
+	  const x = element['interval'];
 	  this.verifyConfig(values, property, this.configAdvancedHexKeys);
 	  if (!!r && !d) {
 	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
@@ -175,7 +175,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       }
       return true;
     } else if (this.configIsObject(values[0])) {
-      const data = Object.keys(values[0]).find?.(x => x === 'data');
+      const data = values[0]['data'];
       this.verifyConfig(values, property, this.configHexKeys);
       if (!data) {
 	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
@@ -196,7 +196,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  this.verifyConfig(values, property, topics);
 	  if (!identifier) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'identifier' property.`);
-	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !topics.identifier[2].find(x => x === identifier.toLowerCase())) {
+	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !this.configIsSelection(identifier.toLowerCase(), topics.identifier[2])) {
 	    this.logs.config.error(`failed to verify 'identifier' property of '${property}'. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2].map(x => `"${x}"`).join()}.`);
 	  }
 	  if (!topic) {
