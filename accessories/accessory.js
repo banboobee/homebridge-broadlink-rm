@@ -149,8 +149,10 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     if (this.configIsString(values[0])) {
       return true;
     } else if (this.configIsArray(values[0])) {
+      const property0 = property;
       let data = false;
-      values[0].forEach(element => {
+      values[0].forEach((element, i) => {
+	property = `${property0}[${i}]`;
 	if (this.configIsObject(element)) {
 	  values.unshift(element);
 	  const d = element['data'] || element['eval'];
@@ -158,27 +160,27 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  const x = element['interval'];
 	  this.verifyConfig(values, property, this.configAdvancedHexKeys);
 	  if (!!r && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'sendCount' without HEX code.`);
+	    this.logs.config.error(`failed to verify '${property}' property. 'sendCount' without HEX code.`);
 	  }
 	  if (!!x && !d) {
-	    this.logs.config.error(`failed to verify '${property}' property of 'data'. 'interval' without HEX code.`);
+	    this.logs.config.error(`failed to verify '${property}' property. 'interval' without HEX code.`);
 	  }
 	  data |= !!d;
 	  // console.log(`d:${d} r:${r} x:${x} data:${data}`);
 	  values.shift();
 	} else {
-	  this.logs.config.error(`failed to verify '${property}' property of 'data'. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
+	  this.logs.config.error(`failed to verify '${property}' property. '${JSON.stringify(element)}' is not a valid advanced HEX code.`);
 	}
       })
       if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+	this.logs.config.error(`failed to verify '${property}' property. missing HEX code.`);
       }
       return true;
     } else if (this.configIsObject(values[0])) {
       const data = values[0]['data'];
       this.verifyConfig(values, property, this.configHexKeys);
       if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+	this.logs.config.error(`failed to verify '${property}' property. missing HEX code.`);
       }
       return true;
     }
@@ -187,7 +189,9 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     if (this.configIsString(values[0])) {
       return true;
     } else if (this.configIsArray(values[0])) {
-      values[0].forEach(element => {
+      const property0 = property;
+      values[0].forEach((element, i) => {
+	property = `${property0}[${i}]`;
 	if (this.configIsObject(element)) {
 	  values.unshift(element);
 	  const identifier = element?.identifier;
@@ -214,21 +218,23 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     }
   }
   static verifyConfig(values, property, options) {
+    const property0 = property;
     Object.keys(values[0]).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
       const value = values[0][key];
       values.unshift(value);
+      property = `${property0}.${key}`;
       // this.logs.config.debug(key, value, match);
       // console.log(key, value, match);
       if (match) {
 	const checker = options[match][0];
 	const message = options[match][1];
 	const choices = options[match][2];
-	if (!checker(key, values, choices)) {
-	  this.logs.config.error(`failed to verify '${key}' property${property ? ` of '${property}'` : ''}. ${eval(message)}.`);
+	if (!checker(property, values, choices)) {
+	  this.logs.config.error(`failed to verify '${property}' property. ${eval(message)}.`);
 	}
       } else {
-	this.logs.config.debug(`contains unknown property '${key}'${property ? ` in property '${property}'` : ''}.`);
+	this.logs.config.debug(`contains unknown property '${property}'.`);
       }
       values.shift();
     })

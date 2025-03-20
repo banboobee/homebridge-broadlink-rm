@@ -30,7 +30,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
   }
 
   setDefaults() {

@@ -147,7 +147,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
 	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
 	  if (minTemperature > maxTemperature) {
-	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${minTemperature} must be less than maxTemperature(${maxTemperature}). Swapped.`);
+	    this.logs.config.error(`failed to verify '${key}' property. value ${minTemperature} must be less than maxTemperature(${maxTemperature}). Swapped.`);
 	    values[1]['minTemperature'] = maxTemperature;
 	    values[1]['maxTemperature'] = minTemperature;
 	  }
@@ -166,7 +166,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
 	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
 	  if (minTemperature > maxTemperature) {
-	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${maxTemperature} must be more than minTemperature(${minTemperature}). Swapped.`);
+	    this.logs.config.error(`failed to verify '${key}' property. value ${maxTemperature} must be more than minTemperature(${minTemperature}). Swapped.`);
 	    values[1]['minTemperature'] = maxTemperature;
 	    values[1]['maxTemperature'] = minTemperature;
 	  }
@@ -208,11 +208,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  minTemperature = this.configIsNumber(minTemperature) ? minTemperature : 10;	// HAP default
 	  maxTemperature = this.configIsNumber(maxTemperature) ? maxTemperature : 38;	// HAP default
 	  if (values[0] < minTemperature) {
-	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${JSON.stringify(values[0])} must be more than the minTemperature(${minTemperature}). Adjusted.`);
+	    this.logs.config.error(`failed to verify '${key}' property. value ${JSON.stringify(values[0])} must be more than the minTemperature(${minTemperature}). Adjusted.`);
 	    values[1]['pseudoDeviceTemperature'] = minTemperature;
 	  }
 	  if (values[0] > maxTemperature) {
-	    this.logs.config.error(`failed to verify '${key}' property of 'data'. value ${JSON.stringify(values[0])} must be less than the maxTemperature(${maxTemperature}). Adjusted.`);
+	    this.logs.config.error(`failed to verify '${key}' property. value ${JSON.stringify(values[0])} must be less than the maxTemperature(${maxTemperature}). Adjusted.`);
 	    values[1]['pseudoDeviceTemperature'] = maxTemperature;
 	  }
 	  return true;
@@ -260,7 +260,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     offDryMode: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}' of 'data'. Use context HEX instead.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use context HEX instead.`);
 	return true;
       },
       '`Unsupported config key. Use context HEX instead`'],
@@ -284,17 +284,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
   static configIsTemperature(property, values) {
     // console.log('configIsTemperature', property, values);
     if (this.configIsString(values[0]) || this.configIsArray(values[0])) {
-      this.logs.config.error(`failed to verify '${property}' property of 'data'. HEX code needs to be specified with a mode.`);
+      this.logs.config.error(`failed to verify '${property}' property. HEX code needs to be specified with a mode.`);
       return true;
     } else if (this.configIsObject(values[0])) {
       const mode = values[0]['pseudo-mode'];
       const data = values[0]['data'];
       this.verifyConfig(values, property, this.configTemperatureKeys);
       if (!mode) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing 'pseudo-mode' property.`);
+	this.logs.config.error(`failed to verify '${property}' property. missing 'pseudo-mode' property.`);
       }
       if (!data) {
-	this.logs.config.error(`failed to verify '${property}' property of 'data'. missing HEX code.`);
+	this.logs.config.error(`failed to verify '${property}' property. missing HEX code.`);
       }
       return true;
     } else {
@@ -342,7 +342,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], undefined, this.constructor.configKeys);
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
 
   correctReloadedState(state) {
