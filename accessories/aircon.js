@@ -91,7 +91,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     enableAutoOff: [
       // (key, values) => this.configIsBoolean(values[0]),
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
 	return true;
       },
       '`value ${JSON.stringify(value)} is not a boolean`'],
