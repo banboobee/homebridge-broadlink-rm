@@ -155,6 +155,7 @@ describe('airConAccessory', async function() {
     const { platform, log } = setup();
     
     const config1 = {
+      noHumidity: true,		// ERROR
       maxTemperature: 18,	// ERROR
       minTemperature: 25,	// ERROR
       pseudoDeviceTemperature: 40,	// ERROR
