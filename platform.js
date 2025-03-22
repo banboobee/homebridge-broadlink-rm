@@ -9,128 +9,129 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
   static configKeys = {
     // string
     platform: [
-      (key, value) => {return typeof value === 'string'},
-      '`value ${JSON.stringify(value)} is not a string`'],
+      (key, values) => {return typeof values[0] === 'string'},
+      '`value ${JSON.stringify(values[0])} is not a string`'],
     name: [
-      (key, value) => {return typeof value === 'string'},
-      '`value ${JSON.stringify(value)} is not a string`'],
+      (key, values) => {return typeof values[0] === 'string'},
+      '`value ${JSON.stringify(values[0])} is not a string`'],
     homebridgeDirectory: [
-      (key, value) => {return typeof value === 'string'},
-      '`value ${JSON.stringify(value)} is not a string`'],
+      (key, values) => {return typeof values[0] === 'string'},
+      '`value ${JSON.stringify(values[0])} is not a string`'],
 
     // boolean
     hideScanFrequencyButton: [
-      (key, value) => {return typeof value === 'boolean'},
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {return typeof values[0] === 'boolean'},
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     hideLearnButton: [
-      (key, value) => {return typeof value === 'boolean'},
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {return typeof values[0] === 'boolean'},
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     hideWelcomeMessage:  [
-      (key, value) => {return typeof value === 'boolean'},
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {return typeof values[0] === 'boolean'},
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     disableLogs: [
-      (key, value) => {
-	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}' of config.`);
+      (key, values) => {
+	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}'.`);
 	return true;
       },
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     debug: [
-      (key, value) => {return typeof value === 'boolean'},
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {return typeof values[0] === 'boolean'},
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     isUnitTest: [
-      (key, value) => {
-	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}' of config.`);
+      (key, values) => {
+	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mUnsupported\x1b[0m property '${key}'.`);
 	return true;
       },
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
 
     // number
     deviceDiscoveryTimeout:  [
-      (key, value) => {return typeof value !== 'string' && !Number.isNaN(Number(value))},
-      '`value ${JSON.stringify(value)} is not a number`'],
+      (key, values) => {return typeof values[0] !== 'string' && !Number.isNaN(Number(values[0]))},
+      '`value ${JSON.stringify(values[0])} is not a number`'],
 
     // selection
     logLevel: [
-      (key, value, choices) => {return choices.find(x => x === value)},
-      '`${JSON.stringify(value)} should be one of: ${choices.map(x => `"${x}"`).join()}`',
-      // `\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`
+      (key, values, choices) => {return choices.find(x => x === values[0])},
+      '`${JSON.stringify(values[0])} should be one of: ${choices.map(x => `"${x}"`).join()}`',
       ['trace', 'debug', 'info', 'warning', 'error']
     ],
 
     // complex
     hosts: [
-      (key, value) => {
-	return Array.isArray(value) && (value.forEach(element => {
+      (key, values) => {
+	return Array.isArray(values[0]) && (values[0].forEach((element, i) => {
+	  const property = `${key}[${i}]`
 	  if (!Array.isArray(element) && typeof element === 'object') {
+	    values.unshift(element);
 	    let address = false, mac = false;
-	    this.verifyConfig(element, key, {
+	    this.verifyConfig(values, property, {
 	      address: [
-		(key, value) => {address = true; return typeof value === 'string';},
-		'`value ${JSON.stringify(value)} is not a string`'],
+		(key, values) => {address = true; return typeof values[0] === 'string';},
+		'`value ${JSON.stringify(values[0])} is not a string`'],
 	      mac: [
-		(key, value) => {mac = true; return typeof value === 'string';},
-		'`value ${JSON.stringify(value)} is not a string`'],
+		(key, values) => {mac = true; return typeof values[0] === 'string';},
+		'`value ${JSON.stringify(values[0])} is not a string`'],
 	      isRFSupported: [
-		(key, value) => {return typeof value === 'boolean'},
-		'`value ${JSON.stringify(value)} is not a boolean`'],
+		(key, values) => {return typeof values[0] === 'boolean'},
+		'`value ${JSON.stringify(values[0])} is not a boolean`'],
 	      isRM4: [
-		(key, value) => {return typeof value === 'boolean'},
-		'`value ${JSON.stringify(value)} is not a string`'],
+		(key, values) => {return typeof values[0] === 'boolean'},
+		'`value ${JSON.stringify(values[0])} is not a string`'],
 	    });
 	    if (!address) {
-	      // this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. 'address' property is missing.`);
-	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. '${JSON.stringify(element)}' should contain a unique value for address (e.g. "192.168.1.23").`);
+	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${property}' property. hosts option should contain a unique value for address (e.g. "192.168.1.23").`);
 	    }
 	    if (!mac) {
-	      // this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. 'mac' property is missing.`);
-	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. '${JSON.stringify(element)}' should contain a unique value for mac (e.g. "34:ea:34:e7:d7:28").`);
+	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${property}' property. hosts option should contain a unique value for mac (e.g. "34:ea:34:e7:d7:28").`);
 	    }
+	    values.shift();
 	  } else {
-	    // this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. value '${JSON.stringify(element)}' is not a valid host.`);
-	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. '${JSON.stringify(element)}' should be an object.`);
+	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${property}' property. Each item in the hosts array should be an object.`);
 	  }
 	}), true);
       },
-      // '`value ${JSON.stringify(value)} is not a valid hosts`'],
-      '`hosts ${JSON.stringify(value)} should be an array of objects`'],
+      '`hosts should be an array of objects`'],
     accessories: [
-      (key, value, choices) => {
-	if (Array.isArray(value)) {
-	  const unknownTypes = value.reduce((x, y) => {
+      (key, values, choices) => {
+	if (Array.isArray(values[0])) {
+	  const unknownTypes = values[0].reduce((x, y) => {
 	    if (!y.type || !Object.keys(this.classTypes).find(z => z === y.type)) {
 	      x.push(`"${y.type ?? ''}"`);
 	    }
 	    return x;
 	  }, []);
 	  if (unknownTypes.length > 0) {
-	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. Each accessory must be configured with a type (e.g. "switch"). Missing or Unknown type(s) ${unknownTypes}.`);
-	    // `Each accessory must be configured with a "type". e.g. "switch"`
+	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property. Each accessory must be configured with a type (e.g. "switch"). Missing or Unknown type(s) ${unknownTypes}.`);
 	  }
 	  return true;
 	} else {
 	  return false;
 	}
       },
-      '`value ${JSON.stringify(value)} is not a valid accessories`']
+      '`value ${JSON.stringify(values[0])} is not a valid accessories`']
   }
 
-  static verifyConfig(config, property, options) {
-    Object.keys(config).forEach((key) => {
+  static verifyConfig(values, property, options) {
+    const property0 = property;
+    Object.keys(values[0]).forEach((key) => {
       const match = Object.keys(options).find(y => key.match(y));
-      const value = config[key];
+      const value = values[0][key];
+      values.unshift(value);
+      const property = `${property0}.${key}`;
       // console.log(key, match, value);
       if (match) {
 	const checker = options[match][0];
 	const message = options[match][1];
 	const choices = options[match][2];
-	if (!checker(key, value, choices)) {
-	  this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property of config. ${eval(message)}.`);
+	if (!checker(property, values, choices)) {
+	  this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${property}' property. ${eval(message)}.`);
 	}
       } else {
 	if (this.logLevel < 2) {
-	  this.log(`\x1b[90m[CONFIG DEBUG] Unknown property '${key}'${property ? ` in property '${property}'` : ''} of config.\x1b[0m`);
+	  this.log(`\x1b[90m[CONFIG DEBUG] Unknown property '${property}'.\x1b[0m`);
 	}
       }
+      values.shift();
     })
 
     return true;
@@ -163,7 +164,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
   }
 
   checkConfig(config) {
-    BroadlinkRMPlatform.verifyConfig(config, undefined, this.constructor.configKeys);
+    BroadlinkRMPlatform.verifyConfig([config], '', this.constructor.configKeys);
   }
 
   addAccessories (accessories) {

@@ -153,7 +153,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   static configIsInputs(property, values) {
     const property0 = property;
     values[0].forEach((element, i) => {
-      property = `${property0}[${i}]`;
+      const property = `${property0}[${i}]`;
       if (this.configIsObject(element)) {
 	values.unshift(element);
 	this.verifyConfig(values, property, this.configInputsKeys);

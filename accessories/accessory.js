@@ -152,7 +152,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       const property0 = property;
       let data = false;
       values[0].forEach((element, i) => {
-	property = `${property0}[${i}]`;
+	const property = `${property0}[${i}]`;
 	if (this.configIsObject(element)) {
 	  values.unshift(element);
 	  const d = element['data'] || element['eval'];
@@ -191,7 +191,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     } else if (this.configIsArray(values[0])) {
       const property0 = property;
       values[0].forEach((element, i) => {
-	property = `${property0}[${i}]`;
+	const property = `${property0}[${i}]`;
 	if (this.configIsObject(element)) {
 	  values.unshift(element);
 	  const identifier = element?.identifier;
@@ -201,7 +201,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  if (!identifier) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'identifier' property.`);
 	  } else if (!characteristic && this.configIsString(identifier) && topics?.identifier?.[2] && !this.configIsSelection(identifier.toLowerCase(), topics.identifier[2])) {
-	    this.logs.config.error(`failed to verify 'identifier' property of '${property}'. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2].map(x => `"${x}"`).join()}.`);
+	    this.logs.config.error(`failed to verify '${property}.identifier' property. value ${JSON.stringify(identifier)} is not one of ${topics.identifier[2].map(x => `"${x}"`).join()}.`);
 	  }
 	  if (!topic) {
 	    this.logs.config.error(`failed to verify '${property}' property. missing 'topic' property.`);
@@ -223,7 +223,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       const match = Object.keys(options).find(y => key.match(y));
       const value = values[0][key];
       values.unshift(value);
-      property = `${property0}.${key}`;
+      const property = `${property0}.${key}`;
       // this.logs.config.debug(key, value, match);
       // console.log(key, value, match);
       if (match) {

@@ -106,16 +106,17 @@ describe('disableLogs', () => {
     config = {
       isUnitTest: true,
       disableLogs: true,
+      logLevel: 'debug',
       hosts: [
 	{
 	  address: '192.168.0.1',
 	  mac: 'xx:xx:xx:xx',
 	  isRM4: true,
 	  isRFSupported: true,
-	  unknown: true,
+	  unknown: true,		// debug
 	},
 	{
-	  unknown: true,
+	  unknown: true,		// debug
 	  // address: '192.168.0.1',	// error
 	  // mac: 'xx:xx:xx:xx',	// error
 	  isRM4: true,
