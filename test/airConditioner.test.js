@@ -38,6 +38,7 @@ const defaultConfig = {
   replaceAutoMode: 'cool',
   logLevel: 'trace',
   noHistory: true,
+  history: false,
   isUnitTest: true,
   allowResend: false,
   persistState: false
@@ -180,6 +181,7 @@ describe('airConAccessory', async function() {
       replaceAutoMode: 'cold',	// ERROR
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: 'false',	// ERROR
       data: {
 	on: 'ON',
@@ -939,6 +941,7 @@ describe('airConAccessory', async function() {
       },
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1007,6 +1010,7 @@ describe('airConAccessory', async function() {
       onDuration: 1,
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1054,6 +1058,7 @@ describe('airConAccessory', async function() {
       ],
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       mqttStateOnly: false,
       host: device.host.address
@@ -1100,6 +1105,7 @@ describe('airConAccessory', async function() {
       ],
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1136,6 +1142,7 @@ describe('airConAccessory', async function() {
       mqttTopic: "homebridge-broadlink-rm/UT/x",
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1175,6 +1182,7 @@ describe('airConAccessory', async function() {
       ],
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1218,6 +1226,7 @@ describe('airConAccessory', async function() {
       ],
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       host: device.host.address
     };
@@ -1250,6 +1259,7 @@ describe('airConAccessory', async function() {
       },
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       mqttURL: "mqtt://localhost",
       mqttTopic: [
@@ -1295,6 +1305,7 @@ describe('airConAccessory', async function() {
       },
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       mqttURL: "mqtt://localhost",
       mqttTopic: [
@@ -1366,6 +1377,7 @@ describe('airConAccessory', async function() {
       },
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       persistState: false,
       mqttStateOnly: false,
       host: device.host.address

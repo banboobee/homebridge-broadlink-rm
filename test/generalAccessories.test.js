@@ -371,6 +371,7 @@ describe('disableLogs', () => {
       replaceAutoMode: 'cool',
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       isUnitTest: true,
       persistState: false,
       host: device.host.address
@@ -434,6 +435,7 @@ describe('disableLogs', () => {
       replaceAutoMode: 'cool',
       logLevel: 'trace',
       noHistory: true,
+      history: false,
       isUnitTest: true,
       persistState: false,
       host: device.host.address

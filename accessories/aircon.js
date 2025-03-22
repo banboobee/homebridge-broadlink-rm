@@ -71,6 +71,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // boolean
     noHistory: [
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
+    history: [
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     turnOnWhenOff: [
@@ -326,7 +332,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // this.HeatingCoolingConfigKeys = HeatingCoolingConfigKeys;
     
     // Fakegato setup
-    if(config.noHistory !== true) {
+    // if(config.noHistory !== true) {
+    if(config.history === true) {
       this.historyService = new this.platform.HistoryService(
 	config.enableModeHistory ? 'custom' : 'room',
 	this.serviceManager.accessory,
@@ -374,6 +381,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.temperatureAdjustment ??= 0;
     config.humidityAdjustment ??= 0;
     config.autoSwitchName ??= config.autoSwitch;
+    config.history ??= true;
 
     // if (config.preventResendHex === undefined && config.allowResend === undefined) {
     //   config.preventResendHex = false;
@@ -824,7 +832,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     //Process Fakegato history
     if (!Number.isNaN(Number(this.state.currentTemperature))) {
-      if (!config.noHistory) {
+      // if (!config.noHistory) {
+      if (config.history === true) {
 	//this.lastUpdatedAt = Date.now();
 	this.logs.trace(`onTemperature: Logging data to history. temperture: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
 	if (noHumidity) {
@@ -846,8 +855,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async thermoHistory() {
     const {HeatingCoolingStates} = this;
-    const {noHistory, enableModeHistory} = this.config;
-    if (noHistory !== true && enableModeHistory) {
+    const {/*noHistory, */history, enableModeHistory} = this.config;
+    if (/*noHistory !== true &&*/ history === true && enableModeHistory) {
       const {targetHeatingCoolingState, currentTemperature, targetTemperature} = this.state;
       let valve = 0;
       if (targetHeatingCoolingState !== HeatingCoolingStates.off) {
@@ -1232,7 +1241,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     config.enableTargetTemperatureHistory = config.enableTargetTemperatureHistory === true || false;
     config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
-    if (config.noHistory !== true) {
+    // if (config.noHistory !== true) {
+    if (config.history === true) {
       if (config.enableTargetTemperatureHistory === true) {
 	this.logs.info(`accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
       } else if (config.enableModeHistory === true) {
@@ -1240,7 +1250,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
     }
 
-    if(config.noHistory !== true && config.enableModeHistory) {
+    // if(config.noHistory !== true && config.enableModeHistory) {
+    if(config.history === true && config.enableModeHistory) {
       this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ValvePosition);
       this.serviceManager.addGetCharacteristic({
 	name: 'currentValvePosition',

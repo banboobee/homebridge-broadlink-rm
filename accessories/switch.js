@@ -29,13 +29,13 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     // boolean
     enableAutoOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
 	return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'offDuration' property sololy..`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
 	return true;
       },
       '`Unsupported config key.`'],
@@ -61,8 +61,11 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     history: [
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
@@ -104,7 +107,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     super(log, config, platform);
 
     // Fakegato setup
-    if (config.history === true || config.noHistory === false) {
+    if (config.history === true/* || config.noHistory === false*/) {
       // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.addEntry(
@@ -121,8 +124,9 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   
   setDefaults () {
     const { config } = this;
-    config.pingFrequency = config.pingFrequency || 1;
-    config.pingGrace = config.pingGrace || 10;
+    config.pingFrequency ??= 1;
+    config.pingGrace ??= 10;
+    config.history ??= false;
 
     // config.offDuration = config.offDuration || 60;
     // config.onDuration = config.onDuration || 60;
@@ -329,7 +333,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { Service, Characteristic } = this;
     const { data, name, config } = this;
     const { on, off } = data || { };
-    const history = config.history === true || config.noHistory === false;
+    const history = config.history === true/* || config.noHistory === false*/;
     
     this.serviceManager = new this.serviceManagerClass(name, Service.Switch, this.log);
 

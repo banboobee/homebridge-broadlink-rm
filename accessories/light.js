@@ -36,13 +36,13 @@ class LightAccessory extends SwitchAccessory {
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
 	return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'offDuration' property sololy.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
 	return true;
       },
       '`Unsupported config key.`'],
@@ -65,8 +65,11 @@ class LightAccessory extends SwitchAccessory {
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     history: [
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
@@ -163,9 +166,10 @@ class LightAccessory extends SwitchAccessory {
     
     const { config } = this;
 
-    config.onDelay = config.onDelay || 0.1;
-    config.defaultBrightness = config.defaultBrightness || 100;
-    config.defaultColorTemperature = config.defaultColorTemperature || 500;
+    config.onDelay ??= 0.1;
+    config.defaultBrightness ??= 100;
+    config.defaultColorTemperature ??= 500;
+    config.history ??= false;
   }
 
   reset () {
@@ -543,7 +547,7 @@ class LightAccessory extends SwitchAccessory {
     const { Service, Characteristic } = this;
     const { data, name, config } = this;
     const { on, off } = data || { };
-    const history = config.history === true || config.noHistory === false;
+    const history = config.history === true/* || config.noHistory === false*/;
     
     //this.serviceManager = new this.serviceManagerClass(name, Service.Lightbulb, this.log);
     this.serviceManager = new this.serviceManagerClass(name, history ? Service.Switch : Service.Lightbulb, this.log);
