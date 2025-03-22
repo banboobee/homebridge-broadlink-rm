@@ -52,6 +52,11 @@ describe('lightAccessory', async function() {
       pingGrace: '0.1',		// ERROR
       onDelay: '0.1',		// ERROR
       enableAutoOn: true,
+      enableAutoOff: true,
+      disableAutomaticOn: true,
+      disableAutomaticOff: true,
+      onDuration: '1.0',
+      offDuration: '1.0',
       noHistory: 'false',	// ERROR
       mqttTopic: [
 	{

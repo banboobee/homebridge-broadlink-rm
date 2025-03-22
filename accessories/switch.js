@@ -28,17 +28,29 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     // boolean
     enableAutoOff: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     enableAutoOn: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'offDuration' property sololy..`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     disableAutomaticOn: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     disableAutomaticOff: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     pingIPAddressStateOnly: [
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
@@ -112,20 +124,20 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     config.pingFrequency = config.pingFrequency || 1;
     config.pingGrace = config.pingGrace || 10;
 
-    config.offDuration = config.offDuration || 60;
-    config.onDuration = config.onDuration || 60;
+    // config.offDuration = config.offDuration || 60;
+    // config.onDuration = config.onDuration || 60;
 
-    if (config.enableAutoOn === undefined && config.disableAutomaticOn === undefined) {
-      config.enableAutoOn = false;
-    } else if (config.disableAutomaticOn !== undefined) {
-      config.enableAutoOn = !config.disableAutomaticOn;
-    }
+    // if (config.enableAutoOn === undefined && config.disableAutomaticOn === undefined) {
+    //   config.enableAutoOn = false;
+    // } else if (config.disableAutomaticOn !== undefined) {
+    //   config.enableAutoOn = !config.disableAutomaticOn;
+    // }
 
-    if (config.enableAutoOff === undefined && config.disableAutomaticOff === undefined) {
-      config.enableAutoOff = false;
-    } else if (config.disableAutomaticOff !== undefined) {
-      config.enableAutoOff = !config.disableAutomaticOff;
-    }
+    // if (config.enableAutoOff === undefined && config.disableAutomaticOff === undefined) {
+    //   config.enableAutoOff = false;
+    // } else if (config.disableAutomaticOff !== undefined) {
+    //   config.enableAutoOff = !config.disableAutomaticOff;
+    // }
   }
 
   reset () {
@@ -239,9 +251,10 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, state, serviceManager } = this;
-      const { enableAutoOff, onDuration } = config;
+      const { /*enableAutoOff,*/ onDuration } = config;
 
-      if (state.switchState && enableAutoOff) {
+      // if (state.switchState && enableAutoOff) {
+      if (state.switchState && typeof onDuration !== 'string' && Number(onDuration) > 0) {
         this.logs.info(`setSwitchState: automatically turn off in ${onDuration} seconds`);
 
         this.autoOffTimeoutPromise = delayForDuration(onDuration);
@@ -256,9 +269,10 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
       const { config, state, serviceManager } = this;
-      const { enableAutoOn, offDuration } = config;
+      const { /*enableAutoOn,*/ offDuration } = config;
 
-      if (!state.switchState && enableAutoOn) {
+      // if (!state.switchState && enableAutoOn) {
+      if (!state.switchState && typeof offDuration !== 'string' && Number(offDuration) > 0) {
         this.logs.info(`setSwitchState: automatically turn on in ${offDuration} seconds`);
 
         this.autoOnTimeoutPromise = delayForDuration(offDuration);

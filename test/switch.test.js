@@ -35,6 +35,11 @@ describe('switchAccessory', async function() {
       pingGrace: 0.1,
       persistState: 'false',	// ERROR
       enableAutoOn: true,
+      enableAutoOff: true,
+      onDuration: '1.0',
+      offDuration: '1.0',
+      disableAutomaticOn: true,
+      disableAutomaticOff: true,
       noHistory: 'false',	// ERROR
       host: device.host.address,
       mqttTopic: [

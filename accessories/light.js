@@ -35,17 +35,29 @@ class LightAccessory extends SwitchAccessory {
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOff: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'onDuration' property sololy.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     enableAutoOn: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. USE 'offDuration' property sololy.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     disableAutomaticOn: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     disableAutomaticOff: [
-      (key, values) => this.configIsBoolean(values[0]),
-      '`value ${JSON.stringify(value)} is not a boolean`'],
+      (key, values) => {
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	return true;
+      },
+      '`Unsupported config key.`'],
     pingIPAddressStateOnly: [
       (key, values) => this.configIsBoolean(values[0]),
       '`value ${JSON.stringify(value)} is not a boolean`'],
