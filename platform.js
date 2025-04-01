@@ -94,16 +94,34 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     accessories: [
       (key, values, choices) => {
 	if (Array.isArray(values[0])) {
-	  const unknownTypes = values[0].reduce((x, y) => {
-	    if (!y.type || !Object.keys(this.classTypes).find(z => z === y.type)) {
-	      x.push(`"${y.type ?? ''}"`);
+	  // const unknownTypes = values[0].reduce((x, y) => {
+	  //   if (!y.type || !Object.keys(this.classTypes).find(z => z === y.type)) {
+	  //     x.push(`"${y.type ?? ''}"`);
+	  //   }
+	  //   return x;
+	  // }, []);
+	  // if (unknownTypes.length > 0) {
+	  //   this.deprecatedTypes.forEach(x => {
+	  //     if (unknownTypes.find(y => `"${x}"` === y)) {
+	  // 	this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m \x1b[33mObsoleted\x1b[0m accessory type "${x}". Use "switch" type accessory with advanced HEX structure.`);
+	  //     }
+	  //   })
+	  //   this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property. Each accessory must be configured with a type (e.g. "switch"). Missing or Unknown type(s) ${unknownTypes}.`);
+	  // }
+	  values[0].forEach((x, i) => {
+	    if (typeof x === 'object' && !Array.isArray(x)) {
+	      if (!x.type) {
+		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}]' property. Each accessory must be configured with a type (e.g. "switch").`);
+	      } else if (this.deprecatedTypes.find(y => y === x.type)) {
+		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].type' property. \x1b[33mdeprecated\x1b[0m '${x.type} accessory has been removed.`);
+	      } else if (!Object.keys(this.classTypes).find(y => y === x.type)) {
+		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].type' property. homebridge-broadlink-rm doesn't support accessories of type '${x.type}'.`);
+	      }
+	    } else {
+	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}]' property. value ${JSON.stringify(x)} is not a valid accessories.`);
 	    }
-	    return x;
-	  }, []);
-	  if (unknownTypes.length > 0) {
-	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '${key}' property. Each accessory must be configured with a type (e.g. "switch"). Missing or Unknown type(s) ${unknownTypes}.`);
-	  }
-	  return true;
+	  });
+  	  return true;
 	} else {
 	  return false;
 	}
@@ -137,6 +155,11 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     return true;
   }
   
+  static deprecatedTypes = [
+    'switch-multi',
+    'switch-multi-repeat',
+    'switch-repeat'
+  ];
   static classTypes = {
     'air-conditioner': require('./accessories/aircon'),
     'air-purifier': require('./accessories/air-purifier'),

@@ -62,7 +62,20 @@ describe('disableLogs', () => {
         },
         {				// error
           name: 'Test4',
-        }
+        },
+        {
+          name: 'Test5',		// error
+          type: 'switch-multi',
+        },
+        {
+          name: 'Test6',		// error
+          type: 'switch-multi-repeat',
+        },
+        {
+          name: 'Test7',		// error
+          type: 'switch-repeat',
+        },
+        'switch-repeat',
       ]
     };
   
