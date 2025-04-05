@@ -1,38 +1,26 @@
-# Homebridge Broadlink RM Pro
+# Homebridge-Broadlink-RM-PoC
 
-## Introduction
-Welcome to the Broadlink RM Mini and Broadlink RM Pro plugin for [Homebridge](https://github.com/nfarina/homebridge).
+## What is this?
+As the name implies, this repository is to prove the efficiencies of my Pull-Requests(PRs), and to share them with ___developers___.
+The findings are based the issues on [original](https://github.com/lprhodes/homebridge-broadlink-rm) and [base](https://github.com/kiwi-cam/homebridge-broadlink-rm), and pulled to base repository. Although almost of them were silently rejected like falling into a Black Hole, I don't mind. The maintainer should keep the repository within his manageable range. But they are working 24 hours a day, 365 days a year.
 
-This plugin allows you to control your RM Mini and RM Pro with HomeKit using the Home app and Siri.
+## My thought to original
 
-## Like this plugin?
+The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed ___amazingly well___ in the early era of [Homebridge](https://github.com/homebridge/homebridge). The [author](https://github.com/lprhodes) efficiently managed group of accessories with its own functions. But with progress of development of Homebridge, those own functions are outdated and needed to be up to date.
 
-If you like this plugin and want to show your support then please star the Github repo, or better yet; buy me a drink using [Paypal](https://paypal.me/kiwicamRM).
+## Notice for developers
 
-Thank you!
+1. Scene or automation of conventional plugins will be lost. Use your development environment for the experiments.
+2. I'm only interested in the accessories of air-conditioner, switch, light, learn-code and tv, since not using others. No changes were made for the others and should work as conventional.
+3. Welcome PRs for the issues and/or your improvements.
 
-## Installation
+## Changes to original/base repository
 
-This plugin can be added via the Web interface, or if you perfer the terminal:
-   `npm install -g homebridge-broadlink-rm-pro`
-For more information, refer to the [documentation](https://broadlink.kiwicam.nz/#installation).
-
-## Documentation
-
-**Documentation can be found [here](https://broadlink.kiwicam.nz).** If you have any trouble after reading through the information please raise an issue and we'll help out as best we can.
-
-If the plugin is unable to discover your device, it's likely you've locked the device with the cloud so it no longer accepts local connections. In this case, follow these steps:
-1. Open the [Broadlink app](https://apps.apple.com/us/app/broadlink/id1450257910)
-2. From the Home screen, tap on your Broadlink device
-3. Tap the ... in the top right
-4. Scroll down and toggle "Lock device" to Off
-5. Tap OK when prompted "Confirm to unlock the device"
-
-<img src="https://i.imgur.com/DMTUbDo.png" width="40%" height="40%">
-
-This plugin should now be able to discover your device.
+1. group light accessories which states are mutually exclusive.
+2. air-conditioner accessory to turn off automatically after onDuration seconds.
+3. EVE history view of target temperature and mode for air-conditioner accessory (kiwi-cam#452).
+4. EVE history view of light accessory (unfortunately, disabled in EVE as of now).
+5. lock status of broadlink devices to be detected automatically and warn to unlock. 
 
 ## Thanks
-Original: Thanks to @tattn (https://github.com/tattn/homebridge-rm-mini3), @PJCzx (https://github.com/PJCzx/homebridge-thermostat), @momodalo (https://github.com/momodalo/broadlinkjs), and @lprhodes (https://github.com/lprhodes/homebridge-broadlink-rm) whose time and effort got this started.
-
-In this fork: Thanks to @kiwi-cam (https://github.com/kiwi-cam), @Cloudore (https://github.com/Cloudore) and @Faisalthe01 (https://github.com/Faisalthe01) for your work!
+@lprhodes (https://github.com/lprhodes/homebridge-broadlink-rm) for your original work.
