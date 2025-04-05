@@ -19,25 +19,26 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 
 ## Changes to original/base repository
 
-1. group light accessories which states are mutually exclusive.
+1. group light accessories which states are mutually exclusive (kiwi-cam/homebridge-broadlink-rm#445).
 2. air-conditioner accessory to turn off automatically after onDuration seconds (kiwi-cam/homebridge-broadlink-rm#445).
 3. EVE history view of target-temperature/mode for air-conditioner accessory (kiwi-cam/homebridge-broadlink-rm#452).
 4. ___fixed bug___ in counting reachability of broadlink devices (kiwi-cam/homebridge-broadlink-rm#459).
 5. skip pinging to unreferenced devices in config to reduce network traffic (kiwi-cam/homebridge-broadlink-rm#460).
 6. sync status between plugins using MQTT for air-conditioner accessory (kiwi-cam/homebridge-broadlink-rm#469).
-7. allwed missing IR/RF command in advanced HEX (kiwi-cam#519).
-8. enabled simultaneous IR/RF command sennding of accessory for scene/automation to work (kiwi-cam/homebridge-broadlink-rm#520). deprecated
-9. enabled simultaneous IR/RF command sennding of broadlink device for ___scene/automation to work___ (kiwi-cam/homebridge-broadlink-rm#528).
+7. allowed missing IR/RF command in advanced HEX (kiwi-cam#519).
+8. made possible simultaneous IR/RF command sending of accessory for scene/automation to work (kiwi-cam/homebridge-broadlink-rm#520). deprecated
+9. made possible simultaneous IR/RF command sending of broadlink device for ___scene/automation to work___ (kiwi-cam/homebridge-broadlink-rm#528).
 10. Sync channel selection of TV accessory when powered on to support scene/automation to work (kiwi-cam/homebridge-broadlink-rm#529).
 11. +/- controls of brightness/hue for light accessory (kiwi-cam/homebridge-broadlink-rm#530). 
 12. ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature (kiwi-cam/homebridge-broadlink-rm#658).
-13. ___fixed bug___ that default minStep parameter of target temperature for air-conditioner doesn't take effect until re-start. (kiwi-cam/homebridge-broadlink-rm#662).
-14. take closest temperature in config for target temperature selection to support floating point minStep configuration. This may also help fahrenheit configuration. (kiwi-cam/homebridge-broadlink-rm#663).
+13. ___fixed bug___ that default minStep parameter of target temperature for air-conditioner does not take effect until re-start. (kiwi-cam/homebridge-broadlink-rm#662).
+14. take closest temperature in config for target temperature selection to support floating point minStep configuration. This may also help Fahrenheit configuration. (kiwi-cam/homebridge-broadlink-rm#663).
 15. moved to ___dynamic platform plugin___ from accessory plugin to ___keep room/scene/automation___ in failing to re-start (kiwi-cam/homebridge-broadlink-rm#664).
 16. ___learning RF code to work.___
-17. learing RF code for ___specified frequency to work___. (kiwi-cam/homebridge-broadlink-rm#706)
-18. lock status of broadlink devices to be detected automatically and warn to unlock. (kiwi-cam/broadlinkjs-rm#25)
-19. EVE history view of light accessory (disabled in EVE as of now).
+17. learning RF code for ___specified frequency to work___. (kiwi-cam/homebridge-broadlink-rm#706)
+18. ___fixed bug___that version of v62093 broadlink firmware to fail in authentication (kiwi-cam/broadlinkjs-rm#24).
+19. lock status of broadlink devices to be detected automatically and warn to unlock. (kiwi-cam/broadlinkjs-rm#25)
+20. EVE history view of light accessory (disabled in EVE as of now).
 
 ## Thanks
 [@lprhodes](https://github.com/lprhodes/homebridge-broadlink-rm) for your amazing original work.
