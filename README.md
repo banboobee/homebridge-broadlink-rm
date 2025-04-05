@@ -17,7 +17,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. I'm only interested in the accessories of ___air-conditioner, switch, light, learn-code and tv___, since not using others. No changes were made for the others and should work as in conventional.
 1. Welcome PRs for the issues and/or your improvements.
 
-## Changes to original/base repository
+## Changes to original/base repositories
 
 1. group light accessories which states are mutually exclusive ([base#445](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/445)).
 1. air-conditioner accessory to turn off automatically after onDuration seconds ([base#446](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/446)).
@@ -27,7 +27,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. sync status between plugins using MQTT for air-conditioner accessory ([base#469](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/469)).
 1. allowed missing IR/RF command in advanced HEX ([base#519](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/519)).
 1. made possible simultaneous IR/RF command sending of broadlink device ([base#520](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/520)).
-1. ___scene/automation to work___ ([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)).
+1. ___scene/automation for accessories with multiple IR/RF commands to work___([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)).
 1. Sync channel selection of TV accessory when powered on to support scene/automation to work ([base#529](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/529)).
 1. +/- controls of brightness/hue for light accessory ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
 1. ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature ([base#658](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/658)).
