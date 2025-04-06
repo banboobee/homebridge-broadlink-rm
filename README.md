@@ -42,20 +42,20 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. Homebridge won't show ___'slows down' messages___ for characteristics of 'Current Temperature' or 'Current Relative Humidity' any more.
 1. publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
 1. ___AUTO mode___ for air-conditioner to work.
-1. switched to Homebridge native state persisting for accessories except tv.
+1. switched to Homebridge native accessory status persisting except tv.
 1. refactored broadlinkjs-rm library referencing to python-broadlink so that ___IR/RF commands would return the results of failure or success___.
 1. consistent logging for which internal structures are refactored.
 1. removed deprecated accessories of switch-multi, switch-multi-repeat, switch-repeat.
-1. removed W1Device from air-conditioner accessory. similar but different codes for two types of text interfaces are redundant.
+1. removed W1Device from air-conditioner accessory. similar but different functions of two text interfaces for temperature are redundant.
 1. removed battery related properties from air-conditioner accessory of which physical device does not have a battery.
-1. introduced characteristic property of mqttTopic in config to resolve a ___whack-a-mole solution___ ([base#467](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/467)) for MQTT temperature identifier.
-1. keep input source ___order___ in config for tv accessory. ___renaming or hiding___ of input sources are also supported.
-1. re-enabled unit tests which are performed as regression test when pushing the codes to github.
+1. introduced characteristic property of mqttTopic to resolve a ___whack-a-mole solution___ ([base#467](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/467)) for MQTT temperature identifier.
+1. keep input source ___order___ in config for tv accessory. ___renaming or hiding___ are also supported.
+1. re-enabled/extended unit tests and perform regression test in pushing to github.
 1. fixed linting rules and errors.
 1. completely refactored air-conditioner accessory to improve the reliabilities.
-1. implemented StatusActive characteristic for unresponsive accessories to set inactive state ([base#742](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/742)).
-1. IR/RF command ___failure___ would ___revert___ the status of accessory.
-1. removed offDry mode of air-conditioner accessory and implemented context HEX for replacement.
+1. set accessories associating with ___offline device to inacctive___ ([base#742](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/742)).
+1. IR/RF command ___failure___ would ___revert___ accessory status.
+1. removed offDry mode of air-conditioner accessory. implemented context HEX for the replacement.
 1. unified config properties and removed redundant or ambiguous.
 1. verify config comprehensively. unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
 
