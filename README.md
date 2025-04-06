@@ -39,6 +39,25 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. ___fixed bug___ that version of v62093 broadlink firmware to fail in authentication ([base/broadlinkjs-rm#24](https://github.com/kiwi-cam/broadlinkjs-rm/pull/24)).
 1. lock status of broadlink devices to be detected automatically and warn to unlock ([base/broadlinkjs-rm#25](https://github.com/kiwi-cam/broadlinkjs-rm/pull/25)).
 1. EVE history view of switch/light accessories (disabled in EVE as of now).
+1. Homebridge won't show 'slows down' messages for characteristics of 'Current Temperature' or 'Current Relative Humidity' any more.
+1. publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
+1. AUTO mode for air-conditioner to work.
+1. switched to Homebridge native state persisting for accessories except tv.
+1. refactored broadlinkjs-rm library referencing to python-broadlink so that IR/RF commands would return the results of failure or success.
+1. consistent logging for which internal structures are refactored.
+1. removed deprecated accessories of switch-multi, switch-multi-repeat, switch-repeat.
+1. removed W1Device from air-conditioner accessory. similar but different codes for two types of text interfaces are redundant.
+1. removed battery related properties from air-conditioner accessory of which physical device does not have a battery.
+1. intriduced mqttTopic characteristic property to resolve a whack-a-mole solution ([base#467](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/467)) for temperature identifier.
+1. keep input soucrce order in config for tv accessory. renaming or hiding of input sources are also supported.
+1. re-enabled unit tests which are performed as regression test when pushing the codes to github.
+1. fixed linting rules and errors.
+1. completely refactored air-conditioner accessory to improve the reliabilities.
+1. implemented StatusActive characteristic for unresponsive accessories to set inactive state ([base#742](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/742)).
+1. removed offDry mode and implemented context HEX instead for air-conditioner accessory.
+1. unified config properties and removed redundant or ambiguous.
+1. veryfy config comprehensively. unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
 
 ## Thanks
-[@lprhodes](https://github.com/lprhodes/homebridge-broadlink-rm) for your amazing original work.
+- [@lprhodes](https://github.com/lprhodes/homebridge-broadlink-rm) for your amazing original work.
+- [@felipediel](https://github.com/mjg59/python-broadlink/commits?author=felipediel) for the implementation reference of python-broadlink.
