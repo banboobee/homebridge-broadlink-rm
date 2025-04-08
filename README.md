@@ -21,15 +21,17 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 
 1. &#x2611; group light accessories which states are mutually exclusive ([base#445](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/445)).
 1. &#x2611; air-conditioner accessory to turn off automatically after onDuration seconds ([base#446](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/446)).
+1. &#x2610; Homebridge won't complain ___'slows down'___ any more for characteristics of 'Current Temperature' or 'Current Relative Humidity'.
 1. &#x2610; EVE history view of target-temperature/mode for air-conditioner accessory ([base#452](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/452)).
 1. &#x2611; ___fixed bug___ in counting reachability of broadlink devices ([base#459](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/459)).
 1. &#x2610; skip pinging to unreferenced devices in config to reduce network traffic ([base#460](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/460)).
 1. &#x2610; sync status between plugins using MQTT for air-conditioner accessory ([base#469](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/469)).
 1. &#x2611; allowed missing IR/RF command in advanced HEX ([base#519](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/519)).
 1. &#x2611; enabled broadlink device to send simultaneous IR/RF commands ([base#520](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/520)).
-1. &#x2610; ___scene/automation___ for accessories with ___multiple IR/RF commands (e.g. tv)___ to work ([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)).
+1. &#x2610; ___scene/automation___ for accessories with ___multiple IR/RF commands___ (e.g. tv) to work ([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)).
 1. &#x2610; Sync channel selection of tv accessory when powered-on to support scene/automation ([base#529](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/529)).
-1. &#x2610; +/- controls of brightness/hue for light accessory ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
+1. &#x2610; +/- controls of brightness/colorTemperature for light accessory ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
+1. &#x2610; publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
 1. &#x2610; ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature ([base#658](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/658)).
 1. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
 1. &#x2610; take closest target temperature in config to support floating point minStep ([base#663](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/663)). also for Fahrenheit.
@@ -43,8 +45,6 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. &#x2610; learning RF code for ___specified frequency___ ([base#706](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/706)).
 1. &#x2611; ___fixed bug___ that version of v62093 broadlink firmware to fail in authentication ([base/broadlinkjs-rm#24](https://github.com/kiwi-cam/broadlinkjs-rm/pull/24)).
 1. &#x2610; lock status of broadlink devices to be detected automatically and warn to unlock ([base/broadlinkjs-rm#25](https://github.com/kiwi-cam/broadlinkjs-rm/pull/25)).
-1. &#x2610; Homebridge won't show ___'slows down'___ messages for characteristics of 'Current Temperature' or 'Current Relative Humidity' any more.
-1. &#x2610; publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
 1. &#x2610; consistent logging for which internal structures are refactored.
 1. &#x2610; removed deprecated accessories of switch-multi, switch-multi-repeat, switch-repeat.
 1. &#x2610; removed W1Device from air-conditioner accessory. similar but different functions for two temperature text interfaces are redundant.
