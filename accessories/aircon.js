@@ -526,7 +526,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { allowResend } = config;
 
     if (state.targetHeatingCoolingState === state.currentHeatingCoolingState &&
-	state.targetTemperature === state.userSpecifiedTargetTemperature && !allowResend && !this.previouslyOff) {
+	state.targetTemperature &&	// need to operate for initial state
+	state.targetTemperature === state.userSpecifiedTargetTemperature &&
+	!allowResend && !this.previouslyOff) {
       this.logs.debug(`setTargetTemperature: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
       return;
     }
@@ -580,7 +582,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
       
       // Check to see if it's changed
-      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && !allowResend) {
+      if (state.targetHeatingCoolingState === state.currentHeatingCoolingState &&
+	  state.targetTemperature &&	// need to operate for initial state
+	  !allowResend) {
 	this.logs.debug(`setTargetHeatingCoolingState: No updates on targetTemperature(${state.targetTemperature}) and targetHeatingCoolingState(${state.targetHeatingCoolingState})`);
 	return;
       }
@@ -721,10 +725,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
       // this temperature rather than one automatically set.
       state.userSpecifiedTargetTemperature = finalTemperature;
     } catch(e) {
-      this.serviceManager
-	// .updateCharacteristic(Characteristic.TargetHeatingCoolingState, currentHeatingCoolingState)
-	// .updateCharacteristic(Characteristic.CurrentHeatingCoolingState, currentHeatingCoolingState)
-	.updateCharacteristic(Characteristic.TargetTemperature, previousTemperature);
+      if (previousTemperature) {	// avoid homekit warning to initial(undefined) state
+	this.serviceManager
+	//.updateCharacteristic(Characteristic.TargetHeatingCoolingState, currentHeatingCoolingState)
+	//.updateCharacteristic(Characteristic.CurrentHeatingCoolingState, currentHeatingCoolingState)
+	  .updateCharacteristic(Characteristic.TargetTemperature, previousTemperature);
+      }
       this.logs.trace(`reverted targetHeatingCoolingState:${this.state.targetHeatingCoolingState} currentHeatingCoolingState:${this.state.currentHeatingCoolingState} targetTemperature:${this.state.targetTemperature}`);
       throw(e);
     }
@@ -821,7 +827,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (!Number.isNaN(Number(temperature))) {
       if (temperature === 0xf9) {	// temperature issue of broadlink
-	this.logs.debug(`onTemperature: ignored invalid temperature of ${temperature} where known broadlink firmware issue.`);
+	this.logs.debug(`onTemperature: ignored invalid temperature ${temperature} known as broadlink firmware issue.`);
       } else {
 	temperature += temperatureAdjustment;
 	if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
