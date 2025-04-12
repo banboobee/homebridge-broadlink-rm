@@ -17,11 +17,11 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. I'm only interested in the accessories of ___air-conditioner, switch, light, learn-code and tv___, since not using others. No changes were made for the others and should work as in conventional.
 1. Welcome PRs for the issues and/or your improvements.
 
-## Changes to original/base repositories (&#x2611; marged to base)
+## Changes to original/base repositories (least recent. &#x2611; marged to base)
 
 1. &#x2611; group light accessories which states are mutually exclusive ([base#445](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/445)).
 1. &#x2611; air-conditioner accessory to turn off automatically after onDuration seconds ([base#446](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/446)).
-1. &#x2610; Homebridge won't complain ___'slows down'___ any more for characteristics of 'Current Temperature' or 'Current Relative Humidity'.
+1. &#x2610; Homebridge won't complain ___'slows down'___ (e.g. [base#740](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/740)) any more for characteristics of 'Current Temperature' or 'Current Relative Humidity'.
 1. &#x2610; EVE history view of target-temperature/mode for air-conditioner accessory ([base#452](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/452)).
 1. &#x2611; ___fixed bug___ in counting reachability of broadlink devices ([base#459](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/459)).
 1. &#x2610; skip pinging to unreferenced devices in config to reduce network traffic ([base#460](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/460)).
@@ -36,14 +36,14 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
 1. &#x2610; take closest target temperature in config to support floating point minStep ([base#663](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/663)). also for Fahrenheit.
 1. &#x2610; EVE history view of switch/light accessories (disabled in EVE as of now).
-1. &#x2610; ___AUTO mode___ for air-conditioner to work.
-1. &#x2610; moved to ___dynamic platform plugin___ to ___keep room/scene/automation___ in failing to re-start ([base#664](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/664)).
+1. &#x2610; ___AUTO mode___ for air-conditioner (e.g. [base#756](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/756)) to work.
+1. &#x2610; moved to ___dynamic platform plugin___ to ___keep room/scene/automation___ (e.g. [base#609](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/609)) in failing to re-start ([base#664](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/664)).
 1. &#x2610; switched to native Homebridge accessory status persisting except tv.
 1. &#x2610; refactored broadlinkjs-rm library referencing to python-broadlink so that ___IR/RF commands___ would return the results of ___failure or success___.
 1. &#x2610; IR/RF command ___failure___ would ___revert___ accessory status.
-1. &#x2610; ___learning RF code to work___.
-1. &#x2610; learning RF code for ___specified frequency___ ([base#706](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/706)).
-1. &#x2611; ___fixed bug___ that version of v62093 broadlink firmware to fail in authentication ([base/broadlinkjs-rm#24](https://github.com/kiwi-cam/broadlinkjs-rm/pull/24)).
+1. &#x2610; ___learning RF code___ (e.g. [base#45](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/45), [base#753](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/753)) to work.
+1. &#x2610; learning RF code for ___specified frequency___ (e.g. [base#676](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/676)) ([base#706](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/706)).
+1. &#x2611; ___fixed bug___ that version of v62093 broadlink firmware (e.g. [base#580](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/580), [base#598](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/598)) to fail in authentication ([base/broadlinkjs-rm#24](https://github.com/kiwi-cam/broadlinkjs-rm/pull/24)).
 1. &#x2610; lock status of broadlink devices to be detected automatically and warn to unlock ([base/broadlinkjs-rm#25](https://github.com/kiwi-cam/broadlinkjs-rm/pull/25)).
 1. &#x2610; consistent logging for which internal structures are refactored.
 1. &#x2610; removed deprecated accessories of switch-multi, switch-multi-repeat, switch-repeat.
@@ -57,7 +57,9 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. &#x2610; set accessories associating with ___offline device___ to ___inacctive___ ([base#742](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/742)).
 1. &#x2610; removed offDry mode of air-conditioner accessory. implemented context HEX for the replacement.
 1. &#x2610; unified config properties and removed redundant or ambiguous.
-1. &#x2610; verify config comprehensively. unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
+1. &#x2610; verify config comprehensively to help proper configuration (e.g. [base#655](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/655)). unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
+1. &#x2610; ignored invalid temperature reporting of bradlink device ([home-assistant/core#50098](https://github.com/home-assistant/core/pull/50098)).
+1. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
 
 ## ToDo
 - [x] collect available config properties
