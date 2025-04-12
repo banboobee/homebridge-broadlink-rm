@@ -338,14 +338,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // this.HeatingCoolingConfigKeys = HeatingCoolingConfigKeys;
     
     // Fakegato setup
-    // if(config.noHistory !== true) {
     if(config.history === true) {
       this.historyService = new this.platform.HistoryService(
-	config.enableModeHistory ? 'custom' : 'room',
+	config.enableModeHistory === true ? 'custom' : 'room',
 	this.serviceManager.accessory,
 	{storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
 
-      if (config.enableModeHistory) {
+      if (config.enableModeHistory === true) {
 	this.valveInterval = 1;
       }
     }
@@ -388,7 +387,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.temperatureAdjustment ??= 0;
     config.humidityAdjustment ??= 0;
     config.autoSwitchName ??= config.autoSwitch;
-    config.history ??= true;
 
     // if (config.preventResendHex === undefined && config.allowResend === undefined) {
     //   config.preventResendHex = false;
@@ -402,22 +400,19 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.defaultCoolTemperature ??= 16;
     config.defaultHeatTemperature ??= 30;
     // ignore Humidity if set to not use it, or using Temperature source that doesn't support it
-    if(/*config.noHumidity*/ config.humidity !== true || config.pseudoDeviceTemperature){
-      state.currentHumidity = null;
-      // config.noHumidity = true;
+    if(config.humidity !== true || config.pseudoDeviceTemperature){
+      state.currentHumidity = undefined;
       config.humidity = false;
     }
-    // else {
-    //   config.noHumidity = false;
-    // }
 
     // Used to determine when we should use the defaultHeatTemperature or the
     // defaultHeatTemperature
     config.heatTemperature ??= 22;
 
     // Set state default values
-    // state.targetTemperature ??= config.minTemperature;
-    // state.targetTemperature ??= config.maxTemperature || config.minTemperature;
+    // if (!this.constructor.isUnitTest) {
+    //   state.targetTemperature ??= config.maxTemperature || config.minTemperature || 30;
+    // }
     state.currentHeatingCoolingState ??= Characteristic.CurrentHeatingCoolingState.OFF;
     state.targetHeatingCoolingState ??= Characteristic.TargetHeatingCoolingState.OFF;
     state.firstTemperatureUpdate = true;
@@ -822,17 +817,21 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async onTemperature(temperature, humidity) {
     const { Characteristic } = this;
     const { config, state } = this;
-    const { temperatureAdjustment, humidityAdjustment, /*noHumidity,*/ tempSourceUnits } = config;
+    const { temperatureAdjustment, humidityAdjustment, tempSourceUnits } = config;
 
     if (!Number.isNaN(Number(temperature))) {
-      temperature += temperatureAdjustment;
-      if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
-      state.currentTemperature = temperature;
-      this.logs.trace(`onTemperature: update temperature ${temperature}`);
-      this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
+      if (temperature === 0xf9) {	// temperature issue of broadlink
+	this.logs.debug(`onTemperature: ignored invalid temperature of ${temperature} where known broadlink firmware issue.`);
+      } else {
+	temperature += temperatureAdjustment;
+	if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
+	state.currentTemperature = temperature;
+	this.logs.trace(`onTemperature: update temperature ${temperature}`);
+	this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
+      }
     }
 
-    if (/*!noHumidity*/ config.humidity === true && !Number.isNaN(Number(humidity))) {
+    if (config.humidity === true && !Number.isNaN(Number(humidity))) {
       humidity += humidityAdjustment;
       state.currentHumidity = humidity;
       this.logs.trace(`onTemperature: update humidity ${humidity}`);
@@ -841,20 +840,19 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     //Process Fakegato history
     if (!Number.isNaN(Number(this.state.currentTemperature))) {
-      // if (!config.noHistory) {
       if (config.history === true) {
-	//this.lastUpdatedAt = Date.now();
-	this.logs.trace(`onTemperature: Logging data to history. temperture: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
-	if (/*noHumidity*/ config.humidity !== true) {
-          this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
-	} else {
-          this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+	const entry = {time: Math.round(new Date().valueOf() / 1000)};
+	entry['temp'] = this.state.currentTemperature;
+	if (config.humidity === true) {
+	  entry['humidity'] = this.state.currentHumidity;
 	}
+	this.logs.trace(`onTemperature: Logging data to history.`, entry);
+	this.historyService.addEntry(entry);
       }
-      if (/*noHumidity*/ config.humidity !== true) {
-	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
-      } else {
+      if (config.humidity === true) {
 	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
+      } else {
+	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
       }
     }
     
@@ -864,19 +862,19 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async thermoHistory() {
     const {HeatingCoolingStates} = this;
-    const {/*noHistory, */history, enableModeHistory} = this.config;
-    if (/*noHistory !== true &&*/ history === true && enableModeHistory) {
+    const {history, enableModeHistory} = this.config;
+    if (history === true && enableModeHistory === true) {
       const {targetHeatingCoolingState, currentTemperature, targetTemperature} = this.state;
       let valve = 0;
       if (targetHeatingCoolingState !== HeatingCoolingStates.off) {
 	valve = (currentTemperature - targetTemperature)/targetTemperature*100*2 + 50;
 	valve = valve < 1 ? 1 : (valve > 100 ? 100 : valve);
       }
-      this.historyService.addEntry({
-	time: Math.round(new Date().valueOf() / 1000),
-	setTemp: this.state.targetTemperature,
-	valvePosition: valve
-      });
+      const entry = {time: Math.round(new Date().valueOf() / 1000)};
+      entry['setTemp'] = this.state.targetTemperature || 30;
+      entry['valvePosition'] = valve;
+      this.logs.trace(`thermoHistory: Logging data to history.`, entry);
+      this.historyService.addEntry(entry);
       
       this.valveInterval = Math.min(this.valveInterval * 1/0.7, 10);
       this.valveTimer = setTimeout(() => {
@@ -887,7 +885,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperature() {
     const { config, host, logLevel, log } = this;
-    const { mqttURL, mqttTopic, temperatureFilePath/*, noHumidity*/ } = config;
+    const { mqttURL, mqttTopic, temperatureFilePath } = config;
 
     // Read temperature from file
     if (temperatureFilePath) {
@@ -901,7 +899,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       let topic, temperature, humidity;
       if ((topic = mqttTopic?.filter(x => x.identifier.match(/^unknown$/i))[0])) {
 	temperature = this.mqttValueForIdentifier('temperature');
-	// humidity = noHumidity ? undefined : this.mqttValueForIdentifier('humidity');
 	humidity = config.humidity !== true ? undefined : this.mqttValueForIdentifier('humidity');
 	this.logs.trace(`updateTemperature: {mqttValueForIdentifier: {"tepmerature":${temperature}, "humidity":${humidity}}}`);
 	this.onTemperature(temperature, humidity);
@@ -915,7 +912,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	if ((topic = mqttTopic?.filter(x =>
 	  x.identifier.match(/^humidity$/i) ||
 	    x.characteristic?.match(/^currentrelativehumidity$/i))[0])) {
-	  // humidity = noHumidity ? undefined : this.mqttValueForIdentifier(topic.identifier);
 	  humidity = config.humidity !== true ? undefined : this.mqttValueForIdentifier(topic.identifier);
 	  this.logs.trace(`updateTemperature: {mqttValueForIdentifier: {"${topic.identifier}":${humidity}}}`);
 	}
@@ -944,9 +940,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperatureFromFile() {
     const { config, state } = this;
-    const { temperatureFilePath/*, noHumidity*/} = config;
-    let humidity = null;
-    let temperature = null;
+    const { temperatureFilePath } = config;
+    let humidity = undefined;
+    let temperature = undefined;
 
     this.logs.trace(`updateTemperatureFromFile reading file: ${temperatureFilePath}`);
 
@@ -957,9 +953,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
       if (data === undefined || data.trim().length === 0) {
         this.logs.warn(`updateTemperatureFromFile error reading file: ${temperatureFilePath}, using previous Temperature`);
-        // if (!noHumidity) {humidity = (state.currentHumidity || 0);}
-        if (config.humidity === true) {humidity = (state.currentHumidity || 0);}
-        temperature = (state.currentTemperature || 0);
+        if (config.humidity === true) {humidity = (state.currentHumidity/* || 0*/);}
+        temperature = (state.currentTemperature/* || 0*/);
       }
 
       const lines = data.split(/\r?\n/);
@@ -970,7 +965,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
           if(-1 < line.indexOf(':')){
             const value = line.split(':');
             if(value[0] == 'temperature') {temperature = parseFloat(value[1]);}
-            // if(value[0] == 'humidity' && !noHumidity) {humidity = parseFloat(value[1]);}
             if(value[0] == 'humidity' && config.humidity === true) {humidity = parseFloat(value[1]);}
           }
         });
@@ -1151,7 +1145,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  } else {
 	    this.mqttValues['temperature'] = temperature;
 	  }
-	  // if (!config.noHumidity) {
 	  if (config.humidity === true) {
 	    humidity = Number(this.findKey(value, '^humidity$|^relativehumidity$')?.[0]);
 	    this.logs.trace(`onMQTTMessage: parsed himidity ${humidity}`);
@@ -1253,9 +1246,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager = new this.serviceManagerClass(name, Service.Thermostat, this.log);
 
-    config.enableTargetTemperatureHistory = config.enableTargetTemperatureHistory === true || false;
-    config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
-    // if (config.noHistory !== true) {
+    config.history ??= true;
+    config.humidity ??= true;
+    config.enableTargetTemperatureHistory ??= false;
+    config.enableModeHistory ??= config.enableTargetTemperatureHistory || false;
     if (config.history === true) {
       if (config.enableTargetTemperatureHistory === true) {
 	this.logs.info(`accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
@@ -1264,8 +1258,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
     }
 
-    // if(config.noHistory !== true && config.enableModeHistory) {
-    if(config.history === true && config.enableModeHistory) {
+    if (config.history === true && config.enableModeHistory === true) {
       this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ValvePosition);
       this.serviceManager.addGetCharacteristic({
 	name: 'currentValvePosition',
@@ -1275,7 +1268,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	bind: this
       });
       
-      if (config.enableTargetTemperatureHistory) {
+      if (config.enableTargetTemperatureHistory === true) {
 	this.serviceManager.service.addOptionalCharacteristic(this.platform.eve.Characteristics.ProgramData);
 	this.serviceManager.addGetCharacteristic({
 	  name: 'setProgramData',
@@ -1289,7 +1282,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.serviceManager.addSetCharacteristic({
 	  name: 'setProgramCommand',
 	  type: this.platform.eve.Characteristics.ProgramCommand,
-	  // type: ProgramCommandCharacteristic,
 	  method: this.setProgramCommand,
 	  bind: this,
 	});
@@ -1397,7 +1389,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       bind: this
     });
 
-    // if (!config.noHumidity){
     if (config.humidity === true){
       this.serviceManager.addGetCharacteristic({
         name: 'currentHumidity',
@@ -1425,10 +1416,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	if (event.newValue !== event.oldValue) {
 	  const value = event.newValue;
 	  if (this.historyService) {
-	    // this.log(`adding history of targetTemperature.`, value)
-	    this.historyService.addEntry(
-	      {time: Math.round(new Date().valueOf()/1000),
-	       setTemp: value || 30});
+	    const entry = {time: Math.round(new Date().valueOf() / 1000)};
+	    entry['setTemp'] = value || 30;
+	    this.logs.trace(`targetTemperatureOnChange: Logging data to history.`, entry);
+	    this.historyService.addEntry(entry);
 	  }
 	  await this.mqttpublish('targetTemperature', value);
 	}
