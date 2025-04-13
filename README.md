@@ -33,7 +33,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. &#x2610; +/- controls of brightness/colorTemperature for light accessory ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
 1. &#x2610; publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
 1. &#x2610; ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature ([base#658](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/658)).
-1. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
+1. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting (e.g. [base#605](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/605)) ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
 1. &#x2610; take closest target temperature in config to support floating point minStep ([base#663](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/663)). also for Fahrenheit.
 1. &#x2610; EVE history view of switch/light accessories (disabled in EVE as of now).
 1. &#x2610; ___AUTO mode___ for air-conditioner (e.g. [base#756](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/756)) to work.
@@ -41,7 +41,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 1. &#x2610; switched to native Homebridge accessory status persisting except tv.
 1. &#x2610; refactored broadlinkjs-rm library referencing to python-broadlink so that ___IR/RF commands___ would return the results of ___failure or success___.
 1. &#x2610; IR/RF command ___failure___ would ___revert___ accessory status.
-1. &#x2610; ___learning RF code___ (e.g. [base#45](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/45), [base#753](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/753)) to work.
+1. &#x2610; ___learning RF code___ (e.g. [base#45](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/45), [base#753](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/753) and [base#387](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/387#issuecomment-1146733780)) to work.
 1. &#x2610; learning RF code for ___specified frequency___ (e.g. [base#676](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/676)) ([base#706](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/706)).
 1. &#x2611; ___fixed bug___ that version of v62093 broadlink firmware (e.g. [base#580](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/580), [base#598](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/598)) to fail in authentication ([base/broadlinkjs-rm#24](https://github.com/kiwi-cam/broadlinkjs-rm/pull/24)).
 1. &#x2610; lock status of broadlink devices to be detected automatically and warn to unlock ([base/broadlinkjs-rm#25](https://github.com/kiwi-cam/broadlinkjs-rm/pull/25)).
