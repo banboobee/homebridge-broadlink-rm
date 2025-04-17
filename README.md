@@ -30,7 +30,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 9. &#x2611; enabled broadlink device to send simultaneous IR/RF commands ([base#520](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/520)).
 10. &#x2610; ___scene/automation___ for accessories with ___multiple IR/RF commands___ (e.g. tv) to work ([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)).
 11. &#x2610; Sync channel selection of tv accessory when powered-on to support scene/automation ([base#529](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/529)).
-12. &#x2610; +/- controls of brightness/colorTemperature for light accessory ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
+12. &#x2610; +/- controls of brightness/colorTemperature for light accessory (e.g. [original#292](https://github.com/lprhodes/homebridge-broadlink-rm/issues/292), [original#57](https://github.com/lprhodes/homebridge-broadlink-rm/issues/57), [original#389](https://github.com/lprhodes/homebridge-broadlink-rm/issues/389)) ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
 13. &#x2610; publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
 14. &#x2610; ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature ([base#658](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/658)).
 15. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting (e.g. [base#605](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/605)) ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
@@ -56,7 +56,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 35. &#x2610; completely refactored air-conditioner accessory to improve the reliabilities.
 36. &#x2610; set accessories associating with ___offline device___ to ___inacctive___ ([base#742](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/742)).
 37. &#x2610; removed offDry mode of air-conditioner accessory. implemented context HEX for the replacement.
-38. &#x2610; unified config properties and removed redundant or ambiguous.
+38. &#x2610; tidied up config properties. removed redundant and ambiguous.
 39. &#x2610; verify config comprehensively to help proper configuration (e.g. [base#655](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/655)). unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
 40. &#x2610; ignored invalid temperature reporting of bradlink device ([home-assistant/core#50098](https://github.com/home-assistant/core/pull/50098)).
 41. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
