@@ -282,10 +282,10 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     //Error catch
     if (hex === undefined) return;
 
-    // Get the Broadlink device
+    // Get the Broadlink device. host might be undefined.
     const device = getDevice({ host, log });
 
-    if (!host || !device) {	// Error reporting
+    if (!device) {	// Error reporting.
       await sendData({ host, hexData: hex, log, name, logLevel });
       throw new function () {
 	return {
@@ -344,7 +344,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 	  const { data: hex, interval = 0.1, sendCount = 1} = data[i];
 	  
           // await this.performRepeatSend(data[index], actionCallback);
-	  for (let j = 0; timeout && hex && j < sendCount; j++) {
+	  for (let j = 0; timeout && typeof hex === 'string' && j < sendCount; j++) {
 	    r += await sendData({ host, hexData: hex, log, name, logLevel });
 	    x++;
 	    

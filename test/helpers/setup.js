@@ -49,6 +49,7 @@ const setup = (config) => {
 
   const platform = new FakePlatform(log, config, homebridge);
   addDevice(device)
+  broadlink.log = log;
 
   return { platform, device, log }
 }

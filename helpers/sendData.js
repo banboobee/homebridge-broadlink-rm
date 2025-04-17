@@ -4,7 +4,11 @@ const { broadlink, getDevice } = require('./getDevice');
 const convertProntoCode = require('./convertProntoCode')
 
 module.exports = async ({ host, hexData, log, name, logLevel }) => {
-  assert(hexData && typeof hexData === 'string', `\x1b[31m[ERROR]: \x1b[0m${name} sendData (HEX value is missing)`);
+  // assert(hexData && typeof hexData === 'string', `\x1b[31m[ERROR]: \x1b[0m${name} sendData (HEX value is missing)`);
+  if (!hexData || typeof hexData !== 'string') {
+    broadlink.logs.error(`\x1b[0m${name} sendData (HEX value is missing)`);
+    return -1;
+  }
 
   // Check for pronto code
   if (hexData.substring(0, 4) === '0000') {
