@@ -118,11 +118,11 @@ class LightAccessory extends SwitchAccessory {
       (key, values) => {return this.configIsHex(key, values)},
       '`value ${JSON.stringify(value)} is not a valid HEX code`'],
     'brightness\\+$': [
-      (key, values) => {return this.configIsHex(key, values)},
-      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
+      (key, values) => {return this.configIsString(key, values)},
+      '`HEX code needs to be string`'],
     'brightness\\-$': [
-      (key, values) => {return this.configIsHex(key, values)},
-      '`value ${JSON.stringify(value)} is not a valid HEX code`'],
+      (key, values) => {return this.configIsString(key, values)},
+      '`HEX code needs to be string`'],
     '^brightness.+$': [
       (key, values) => {return !Number.isNaN(Number(key.match('(brightness)(.+)$')[2])) && this.configIsHex(key, values)},
       '`brightness suffix is not a number`'],
@@ -130,10 +130,30 @@ class LightAccessory extends SwitchAccessory {
       (key, values) => {return !Number.isNaN(Number(key.match('(hue)(.+)$')[2])) && this.configIsHex(key, values)},
       '`hue suffix is not a number`'],
     availableBrightnessSteps: [
-      (key, values) => this.configIsNumber(values[0]),
+      (key, values) => {
+	if (this.configIsNumber(values[0])) {
+	  const i = values[1]['brightness+'];
+	  const d = values[1]['brightness-'];
+	  if (!i || !d) {
+	    this.logs.config.error(`failed to verify '${key}' property. brightness+ and brightness-\x1b[0m need to be set.`);
+	  }
+	  return true;
+	}
+	return false;
+      },
       '`value ${JSON.stringify(value)} is not a number`'],
     availableColorTemperatureSteps: [
-      (key, values) => this.configIsNumber(values[0]),
+      (key, values) => {
+	if (this.configIsNumber(values[0])) {
+	  const i = values[1]['colorTemperature+'];
+	  const d = values[1]['colorTemperature-'];
+	  if (!i || !d) {
+	    this.logs.config.error(`failed to verify '${key}' property. colorTemperature+ and colorTemperature-\x1b[0m need to be set.`);
+	  }
+	  return true;
+	}
+	return false;
+      },
       '`value ${JSON.stringify(value)} is not a number`'],
     'colorTemperature+': [
       (key, values) => {return this.configIsHex(key, values)},
@@ -158,6 +178,13 @@ class LightAccessory extends SwitchAccessory {
   }
   
   checkConfig(config) {
+    // const {on, off} = config?.data || {};
+    // const d = config?.data?.['brightness+'] && config?.data?.['brightness-'];
+    const {availableBrightnessSteps: s} = config?.data || {};
+    const b = config?.data && Object.keys(config.data)?.find(x => x.match('brightness\\d+$'));
+    if (!s && !b) {
+      this.logs.config.error(`failed to verify '.data' property. missing brightness properties.`);
+    }
     this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
   }
 

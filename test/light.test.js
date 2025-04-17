@@ -46,7 +46,7 @@ describe('lightAccessory', async function() {
   it('check config', async function() {
     const { platform, device, log } = setup();
 
-    const config = {
+    const config1 = {
       ...defaultConfig,
       host: device.host.address,
       pingGrace: '0.1',		// ERROR
@@ -79,8 +79,26 @@ describe('lightAccessory', async function() {
       ]
     }
     
-    lightAccessory = new platform.classTypes['light'](log, config, platform);
-     await delayForDuration(0.1);
+    lightAccessory = new platform.classTypes['light'](log, config1, platform);
+    await delayForDuration(0.1);
+
+    const config2 = {
+      ...defaultConfig,
+      host: device.host.address,
+      data: {
+	availableBrightnessSteps:10,
+        // 'brightness+': 'BRIGHTNESS+',
+        'brightness-': 'BRIGHTNESS-',
+	availableColorTemperatureSteps:10,
+      }
+    }
+    
+    lightAccessory = new platform.classTypes['light'](log, config2, platform);
+    await delayForDuration(0.1);
+
+    lightAccessory = new platform.classTypes['light'](log, undefined, platform);
+    await delayForDuration(0.1);
+
   });
 
   // Light Turn On

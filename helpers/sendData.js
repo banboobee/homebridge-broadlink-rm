@@ -1,4 +1,4 @@
-const assert = require('assert')
+// const assert = require('assert')
 
 const { broadlink, getDevice } = require('./getDevice');
 const convertProntoCode = require('./convertProntoCode')
