@@ -28,7 +28,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 7. &#x2610; sync status between plugins using MQTT for air-conditioner accessory ([base#469](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/469)).
 8. &#x2611; allowed missing IR/RF command in advanced HEX ([base#519](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/519)).
 9. &#x2611; enabled broadlink device to send simultaneous IR/RF commands ([base#520](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/520)).
-10. &#x2610; ___scene/automation___ for accessories with ___multiple IR/RF commands___ (e.g. tv) to work ([~~~base#528~~~](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528)) ([~~~base#610~~~](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/610)) ([this#PR4.4.11-3](https://github.com/banboobee/homebridge-broadlink-rm/tree/PR4.4.11-3)).
+10. &#x2610; ___scene/automation___ for accessories with ___multiple IR/RF commands___ (e.g. tv) to work ~~([base#528](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/528))~~ ~~([base#610](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/610))~~ ([this#PR4.4.11-3](https://github.com/banboobee/homebridge-broadlink-rm/tree/PR4.4.11-3)).
 11. &#x2610; Sync channel selection of tv accessory when powered-on to support scene/automation ([base#529](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/529)).
 12. &#x2610; +/- controls of brightness/colorTemperature for light accessory (e.g. [original#292](https://github.com/lprhodes/homebridge-broadlink-rm/issues/292), [original#57](https://github.com/lprhodes/homebridge-broadlink-rm/issues/57), [original#389](https://github.com/lprhodes/homebridge-broadlink-rm/issues/389)) ([base#530](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/530)).
 13. &#x2610; publish/receive accessory statuses of air-conditioner, switch, light and tv via MQTT.
@@ -61,31 +61,31 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 40. &#x2610; ignored invalid temperature reporting of bradlink device ([home-assistant/core#50098](https://github.com/home-assistant/core/pull/50098)).
 41. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
 
-## Summary of changes
-| code                        | changes  | Unit<br>test | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
-|:---------------------------:|:--------:|:------------:|:--------------:|:-----------------:|:----------------:|:----------------:|
-| base                        | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| air-<br>conditioner         | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| learn-ir                    | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| learn-code                  | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| switch                      | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| light                       | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| tv                          | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         |                  |
-| garage-door-<br>opener      |          | &#x2714;     |                |                   |                  |                  |
-| lock                        |          | &#x2714;     |                |                   |                  |                  |
-| fan                         |          | &#x2714;     |                |                   |                  |                  |
-| fanv1                       |          |              |                |                   |                  |                  |
-| outlet                      |          | &#x2714;     |                |                   |                  |                  |
-| window-<br>covering         |          | &#x2714;     |                |                   |                  |                  |
-| window                      |          | -            | -              | -                 | -                |                  |
-| air-purifier                |          |              |                |                   |                  |                  |
-| humidifier-<br>dehumidifier |          |              |                |                   |                  |                  |
-| temperature<br>Sensor       |          |              |                |                   |                  |                  |
-| humidity<br>Sensor          |          |              |                |                   |                  |                  |
-| heater-cooler               |          |              |                |                   |                  |                  |
-| switch-<br>multi            | removed  | removed      | -              | -                 | -                | -                |
-| switch-<br>multi-repeat     | removed  | -            | -              | -                 | -                | -                |
-| switch-<br>repeat           | removed  | -            | -              | -                 | -                | -                |
+#### Summary
+| code                    | changes  | Unit<br>test | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
+|:-----------------------:|:--------:|:------------:|:--------------:|:-----------------:|:----------------:|:----------------:|
+| base                    | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| air-conditioner         | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| learn-ir                | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| learn-code              | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| switch                  | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| light                   | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| tv                      | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| garage-door-opener      |          | &#x2714;     |                |                   |                  |                  |
+| lock                    |          | &#x2714;     |                |                   |                  |                  |
+| fan                     |          | &#x2714;     |                |                   |                  |                  |
+| outlet                  |          | &#x2714;     |                |                   |                  |                  |
+| window-covering         |          | &#x2714;     |                |                   |                  |                  |
+| window                  |          | -            | -              | -                 | -                |                  |
+| fanv1                   |          |              |                |                   |                  |                  |
+| air-purifier            |          |              |                |                   |                  |                  |
+| humidifier-dehumidifier |          |              |                |                   |                  |                  |
+| temperatureSensor       |          |              |                |                   |                  |                  |
+| humiditySensor          |          |              |                |                   |                  |                  |
+| heater-cooler           |          |              |                |                   |                  |                  |
+| switch-multi            | removed  | removed      | -              | -                 | -                | -                |
+| switch-repeat           | removed  | -            | -              | -                 | -                | -                |
+| switch-multi-repeat     | removed  | -            | -              | -                 | -                | -                |
 
 ## ToDo
 - [x] collect available config properties
