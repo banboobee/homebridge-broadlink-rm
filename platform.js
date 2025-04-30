@@ -118,7 +118,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
 		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].type' property. homebridge-broadlink-rm doesn't support accessories of type '${x.type}'.`);
 	      }
 	    } else {
-	    this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}]' property. value ${JSON.stringify(x)} is not a valid accessories.`);
+	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}]' property. value ${JSON.stringify(x)} is not a valid accessories.`);
 	    }
 	  });
   	  return true;

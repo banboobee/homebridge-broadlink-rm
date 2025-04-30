@@ -136,7 +136,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       '`Unsupported config key.`'],
     batteryAlerts: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. disabled.`);
+	values[1]['batteryAlerts'] = false;
 	return true;
       },
       '`Unsupported config key.`'],
@@ -459,6 +460,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { serviceManager, state } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let update = targetHeatingCoolingState;
+
+    // redundant code. to eliminate temperatureSensor warnings.
+    if (this.state.currentHeatingCoolingState === undefined) return;
 
     this.state.currentHeatingCoolingState = targetHeatingCoolingState;
     if (targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.AUTO) {
