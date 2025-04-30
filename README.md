@@ -14,10 +14,10 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 ## Notice to developers
 
 1. ___room/scene/automation___ of conventional plugins will be lost. Use your development environment for the experiments.
-2. I'm only interested in the accessories of ___air-conditioner, switch, light, learn-code and tv___, since not using others. No changes were made for the others and should work as in conventional.
+2. I'm only interested in the accessories of ___air-conditioner, switch, light, learn-ir, learn-code and tv___, since not using others. No changes were made for the others and should work as in conventional.
 3. Welcome PRs for the issues and/or your improvements.
 
-## Changes to original/base repositories (least recent. &#x2611; marged to base)
+## Improvements  to original/base repositories (least recent. &#x2611; marged to base)
 
 1. &#x2611; group light accessories which states are mutually exclusive ([base#445](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/445)).
 2. &#x2611; air-conditioner accessory to turn off automatically after onDuration seconds ([base#446](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/446)).
@@ -62,30 +62,30 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 41. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
 
 #### Summary
-| code                    | changes  | Unit<br>test | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
-|:-----------------------:|:--------:|:------------:|:--------------:|:-----------------:|:----------------:|:----------------:|
-| base                    | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| air-conditioner         | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| learn-ir                | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| learn-code              | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| switch                  | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| light                   | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| tv                      | &#x2714; | &#x2714;     | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
-| garage-door-opener      |          | &#x2714;     |                |                   |                  |                  |
-| lock                    |          | &#x2714;     |                |                   |                  |                  |
-| fan                     |          | &#x2714;     |                |                   |                  |                  |
-| outlet                  |          | &#x2714;     |                |                   |                  |                  |
-| window-covering         |          | &#x2714;     |                |                   |                  |                  |
-| window                  |          | -            | -              | -                 | -                |                  |
-| fanv1                   |          |              |                |                   |                  |                  |
-| air-purifier            |          |              |                |                   |                  |                  |
-| humidifier-dehumidifier |          |              |                |                   |                  |                  |
-| temperatureSensor       |          |              |                |                   |                  |                  |
-| humiditySensor          |          |              |                |                   |                  |                  |
-| heater-cooler           |          |              |                |                   |                  |                  |
-| switch-multi            | removed  | removed      | -              | -                 | -                | -                |
-| switch-repeat           | removed  | -            | -              | -                 | -                | -                |
-| switch-multi-repeat     | removed  | -            | -              | -                 | -                | -                |
+| code                    | improvements | Unit<br>test | EVE<br>history<br>views | MQTT<br>subscribe/<br>publish | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
+|:-----------------------:|:------------:|:------------:|:-----------------------:|:-----------------------------:|:--------------:|:-----------------:|:----------------:|:----------------:|
+| platform                | &#x2714;     | &#x2714;     | -                       | -                             | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| air-conditioner         | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| switch                  | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| light                   | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| tv                      | &#x2714;     | &#x2714;     | -                       | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| learn-ir                | &#x2714;     | &#x2714;     | -                       |                               | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| learn-code              | &#x2714;     | &#x2714;     | -                       |                               | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| switch-multi            | removed      | removed      |                         |                               | -              | -                 | -                | -                |
+| switch-repeat           | removed      | -            |                         |                               | -              | -                 | -                | -                |
+| switch-multi-repeat     | removed      | -            |                         |                               | -              | -                 | -                | -                |
+| garage-door-opener      |              | &#x2714;     |                         |                               |                |                   |                  |                  |
+| lock                    |              | &#x2714;     |                         |                               |                |                   |                  |                  |
+| fan                     |              | &#x2714;     |                         |                               |                |                   |                  |                  |
+| outlet                  |              | &#x2714;     |                         |                               |                |                   |                  |                  |
+| window-covering         |              | &#x2714;     |                         |                               |                |                   |                  |                  |
+| window                  |              | -            |                         |                               | -              | -                 | -                |                  |
+| fanv1                   |              |              |                         |                               |                |                   |                  |                  |
+| air-purifier            |              |              |                         |                               |                |                   |                  |                  |
+| humidifier-dehumidifier |              |              |                         |                               |                |                   |                  |                  |
+| temperatureSensor       |              |              |                         |                               |                |                   |                  |                  |
+| humiditySensor          |              |              |                         |                               |                |                   |                  |                  |
+| heater-cooler           |              |              |                         |                               |                |                   |                  |                  |
 
 ## ToDo
 - [x] collect available config properties
