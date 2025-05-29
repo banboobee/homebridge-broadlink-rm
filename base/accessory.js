@@ -65,6 +65,7 @@ class HomebridgeAccessory {
         this.logLevel = 1;
         break;
       case 'trace':
+      case 'verbose':
         this.logLevel = 0;
         break;
       default:
@@ -190,7 +191,7 @@ class HomebridgeAccessory {
         return;
       }
 
-      if (!ignorePreviousValue && this.state[propertyName] == value && !this.isReloadingState) {
+      if (!ignorePreviousValue && this.state[propertyName] === value && !this.isReloadingState) {
         if (!allowResend) {
           this.logs.debug(`set${capitalizedPropertyName}: already ${value} (no data sent - B)`);
 

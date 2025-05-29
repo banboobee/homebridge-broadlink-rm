@@ -46,6 +46,7 @@ class HomebridgePlatform {
         this.logLevel = 1;
         break;
       case 'trace':
+      case 'verbose':
         this.logLevel = 0;
         break;
       default:

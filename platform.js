@@ -53,7 +53,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     logLevel: [
       (key, values, choices) => {return choices.find(x => x === values[0])},
       '`${JSON.stringify(values[0])} should be one of: ${choices.map(x => `"${x}"`).join()}`',
-      ['trace', 'debug', 'info', 'warning', 'error']
+      ['verbose', 'trace', 'debug', 'info', 'warning', 'error']
     ],
 
     // complex

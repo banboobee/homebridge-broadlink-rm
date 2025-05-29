@@ -28,7 +28,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     logLevel: [
       (key, values, choices) => this.configIsSelection(values[0], choices),
       '`${JSON.stringify(value)} should be one of: ${choices.map(x => `"${x}"`).join()}`',
-      ['trace', 'debug', 'info', 'warning', 'error']
+      ['verbose', 'trace', 'debug', 'info', 'warning', 'error']
     ],
     isUnitTest: [
       (key, values) => {
