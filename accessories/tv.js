@@ -300,7 +300,8 @@ class TVAccessory extends BroadlinkRMAccessory {
       // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${active ? 'on' : 'off'}.`);
       if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
 	this.logs.info(`received ping response. Sync input source.`);
-	await this.setInputSource();	// sync if asynchronously turned on
+	// await this.setInputSource();	// sync if asynchronously turned on
+	this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, this.state.currentInput);
       }
     }
     this.lastPingResponse = active;
