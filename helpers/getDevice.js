@@ -13,10 +13,12 @@ const startKeepAlive = (device) => {
   //   return;
   
   if(!device.host.port) {return;}
-  device.ping && setInterval(async () => {
-    broadlink.logs.trace('sending keepalive to', device.host.address,':',device.host.port);
-    device.ping();
-  }, keepAliveFrequency);
+  if (device.ping) {
+    device.keepAliveInterval = setInterval(async () => {
+      broadlink.logs.trace('sending keepalive to', device.host.address,':',device.host.port);
+      device.ping();
+    }, keepAliveFrequency);
+  }
 }
 
 const startPing = (device) => {
@@ -27,53 +29,55 @@ const startPing = (device) => {
   device.retryCount = 1;
 
   // setInterval(async () => {await device.mutex?.use(async () => {
-  device.pauseWhile && setInterval(async () => {device.pauseWhile(async () => {
-    try {
-      ping.sys.probe(device.host.address, (active, err) => {
-        broadlink.logs.trace(`pinging Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''})`);
-        if(err){
-          // broadlink.logs.error(`error pinging Broadlink RM device at ${device.host.address}. ${err}`);
-          throw err;
-        }
-        
-        if (!active && device.state === 'active' && device.retryCount === 2) {
-	  broadlink.logs.warn(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
-
-          device.state = 'inactive';
-          device.retryCount = 0;
-	  platform?.accessories.forEach((x) => {
-	    if (x.host === device.host.address || x.host === device.host.macAddress) {
-	      x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, false);
-              x.logs.warn(`is inactive due to offline the device.`);
-	    }
-	  });
-        } else if (!active && device.state === 'active') {
-	  broadlink.logs.trace(`Broadlink RM device at ${device.host.address} is no longer reachable. (attempt ${device.retryCount})`);
-
-          device.retryCount += 1;
-        } else if (active && device.state !== 'active') {
-          if (device.state === 'inactive') {
-	    broadlink.logs.info(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);
+  if (device.pauseWhile) {
+    device.pingInterval = setInterval(async () => {device.pauseWhile(async () => {
+      try {
+	ping.sys.probe(device.host.address, (active, err) => {
+          broadlink.logs.trace(`pinging Broadlink RM device ${device.name ?? ''} at ${device.host.address} (${device.host.macAddress || ''})`);
+          if(err){
+            // broadlink.logs.error(`error pinging Broadlink RM device ${device.name ?? ''} at ${device.host.address}. ${err}`);
+            throw err;
+          }
+          
+          if (!active && device.state === 'active' && device.retryCount === 2) {
+	    broadlink.logs.warn(`Broadlink RM device ${device.name ?? ''} at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
+	    
+            device.state = 'inactive';
+            device.retryCount = 0;
 	    platform?.accessories.forEach((x) => {
 	      if (x.host === device.host.address || x.host === device.host.macAddress) {
-		x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true);
-		x.logs.info(`is back Online. Host device is re-descovered.`);
+		x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, false);
+		x.logs.warn(`is inactive due to offline the device.`);
 	      }
 	    });
-	  }
-
-          device.state = 'active';
-          device.retryCount = 0;
-        } else if (active && device.retryCount !== 0 ) {
-          //Acive - reset retry counter
-          device.retryCount = 0;
-        }
-      }, {timeout: pingTimeout});
-      // await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-    } catch (err) {
-      broadlink.logs.error(`error pinging Broadlink RM device at ${device.host.address}. ${err}`);
-    }
-  })}, pingFrequency);
+          } else if (!active && device.state === 'active') {
+	    broadlink.logs.trace(`Broadlink RM device ${device.name ?? ''} at ${device.host.address} is no longer reachable. (attempt ${device.retryCount})`);
+	    
+            device.retryCount += 1;
+          } else if (active && device.state !== 'active') {
+            if (device.state === 'inactive') {
+	      broadlink.logs.info(`Broadlink RM device ${device.name ?? ''} at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);
+	      platform?.accessories.forEach((x) => {
+		if (x.host === device.host.address || x.host === device.host.macAddress) {
+		  x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true);
+		  x.logs.info(`is back Online. Host device is re-descovered.`);
+		}
+	      });
+	    }
+	    
+            device.state = 'active';
+            device.retryCount = 0;
+          } else if (active && device.retryCount !== 0 ) {
+            //Acive - reset retry counter
+            device.retryCount = 0;
+          }
+	}, {timeout: pingTimeout});
+	// await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+      } catch (err) {
+	broadlink.logs.error(`error pinging Broadlink RM device ${device.name ?? ''} at ${device.host.address}. ${err}`);
+      }
+    })}, pingFrequency);
+  }
 }
 
 const discoveredDevices = {};
@@ -99,6 +103,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     broadlink.discover();
   }
 
+  broadlink.removeAllListeners('deviceReady');
   broadlink.on('deviceReady', async (device) => {
     let macAddressParts, macAddress;
     if (device.mac.includes(":")) {
@@ -110,7 +115,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     device.host.macAddress = macAddress;
 
     const v = await device.getFWversion?.(logLevel);
-    broadlink.logs.info(`Discovered ${device.model} (0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
+    broadlink.logs.info(`Discovered ${device.model} (${device.name ? device.name+', ' : ''}0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
     addDevice(device);
 
     const accessories = platform.accessories?.filter((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress);
@@ -179,4 +184,4 @@ const getDevice = ({ host, log, learnOnly }) => {
   return device;
 }
 
-module.exports = { broadlink, getDevice, discoverDevices, addDevice };
+module.exports = { broadlink, getDevice, discoverDevices, discoveredDevices, addDevice };

@@ -68,10 +68,10 @@ const getAccessories = async (config) => {
   return { platform, device, log, accessories };
 }
 
-const getDevices = (config) => {
+const getDevices = (config, auto = true) => {
   const { platform, device, log } = setup(config)
 
-  discoverDevices(true, log, 0, 1);
+  discoverDevices(auto, log, 0, 1);
   
   return { platform, device, log, broadlink };
 }

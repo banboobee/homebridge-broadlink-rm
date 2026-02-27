@@ -28,4 +28,12 @@ describe('learnAccessories', () => {
     
     expect(accessories.length).to.equal(1);
   });
+
+  // hideDiscoverButton
+  it('hideDiscoverButton set to false in config results in 3 accessory', async () => {
+    const config = { disableLogs: true, hideDiscoverButton: false, isUnitTest: true };
+    const {accessories} = await getAccessories(config);
+    
+    expect(accessories.length).to.equal(3);
+  });
 })

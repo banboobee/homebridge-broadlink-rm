@@ -25,6 +25,9 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     hideLearnButton: [
       (key, values) => {return typeof values[0] === 'boolean'},
       '`value ${JSON.stringify(values[0])} is not a boolean`'],
+    hideDiscoverButton:  [
+      (key, values) => {return typeof values[0] === 'boolean'},
+      '`value ${JSON.stringify(values[0])} is not a boolean`'],
     hideWelcomeMessage:  [
       (key, values) => {return typeof values[0] === 'boolean'},
       '`value ${JSON.stringify(values[0])} is not a boolean`'],
@@ -178,7 +181,8 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     'tv': require('./accessories/tv'),
     'temperatureSensor': require('./accessories/temperatureSensor.js'),
     'humiditySensor': require('./accessories/humiditySensor.js'),
-    'heater-cooler': require('./accessories/heater-cooler')
+    'heater-cooler': require('./accessories/heater-cooler'),
+    'discover-device': require('./accessories/discoverDevice')
   }
   classTypes = this.constructor.classTypes;
 
@@ -197,21 +201,27 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     this.showMessage();
     // setTimeout(() => checkForUpdates(log), 1800);
 
-    if (!config.accessories) {config.accessories = []}
+    config.accessories ??= [];
 
     // Add a Learn Code accessory if none exist in the config
     const learnIRAccessories = (config && config.accessories && Array.isArray(config.accessories)) ? config.accessories.filter((accessory) => (accessory.type === 'learn-ir' || accessory.type === 'learn-code')) : [];
-
     if (learnIRAccessories.length === 0) {
-
       if (!config.hideLearnButton) {
-        const learnCodeAccessory = new this.classTypes['learn-ir'](log, { name: 'Learn', scanFrequency: false }, this);
+        const learnCodeAccessory = new this.classTypes['learn-ir'](log, { name: 'Learn', scanFrequency: false,  type: 'learn-ir' }, this);
         accessories.push(learnCodeAccessory);
       }
 
       if (!config.hideScanFrequencyButton) {
-        const scanFrequencyAccessory = new this.classTypes['learn-code'](log, { name: 'Scan Frequency', scanFrequency: true }, this);
+        const scanFrequencyAccessory = new this.classTypes['learn-code'](log, { name: 'Scan Frequency', scanFrequency: true,  type: 'learn-ir' }, this);
         accessories.push(scanFrequencyAccessory);
+      }
+    }
+
+    // Add a Discover Device accessory if none exist in the config
+    if (!config.accessories?.find(accessory => accessory.type === 'discover-device')) {
+      if (config.hideDiscoverButton === false) {
+	const discoverDeviceAccessory = new this.classTypes['discover-device'](log, { name: 'Discover RM', type: 'discover-device', timeout: config.deviceDiscoveryTimeout ?? 1 }, this);
+	accessories.push(discoverDeviceAccessory);
       }
     }
 
@@ -258,7 +268,8 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
   discoverBroadlinkDevices () {
     const { config, log, logLevel } = this;
     const { hosts } = config;
-
+    config.deviceDiscoveryTimeout ??= 60;
+    
     if (!hosts) {
       if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)}
 	discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this);
