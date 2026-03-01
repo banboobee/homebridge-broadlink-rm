@@ -47,7 +47,7 @@ const startPing = (device) => {
 	    platform?.accessories.forEach((x) => {
 	      if (x.host === device.host.address || x.host === device.host.macAddress) {
 		x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, false);
-		x.logs.warn(`is inactive due to offline the device.`);
+		x.logs.warn(`is inactive due to offline the device ${device.name ?? ''}.`);
 	      }
 	    });
           } else if (!active && device.state === 'active') {
@@ -60,7 +60,7 @@ const startPing = (device) => {
 	      platform?.accessories.forEach((x) => {
 		if (x.host === device.host.address || x.host === device.host.macAddress) {
 		  x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true);
-		  x.logs.info(`is back Online. Host device is re-descovered.`);
+		  x.logs.info(`is back Online. Host device ${device.name ?? ''} is re-descovered.`);
 		}
 	      });
 	    }
@@ -124,7 +124,7 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
       startKeepAlive(device);
       accessories.forEach((x) => {
 	x.serviceManager.updateCharacteristic(platform.api.hap.Characteristic.StatusActive, true)
-	x.logs.debug(`is enabled. Associated host device was found in config.`);
+	x.logs.debug(`is enabled. Associated host device ${device.name ?? ''} was found in config.`);
       });
     }
   })
