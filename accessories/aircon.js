@@ -815,7 +815,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       this.logs.trace(`waiting device ${host} to be ready for 1 sec. attempt:${i+1}`);
       await delayForDuration(1);
     }
-    this.logs.trace(`monitorTemperature: device ${host} ready.`);
+    this.logs.trace(`monitorTemperature: device ${device.name ?? host} ready.`);
 
     device.on('temperature', this.onTemperature.bind(this));
     // device.checkTemperature(logLevel);
@@ -935,14 +935,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const device = getDevice({ host, log });
 
     if (!device || device.state === 'inactive') {
-      this.logs.warn(`updateTemperature: device no longer active, using existing temperature`);
+      this.logs.warn(`updateTemperature: device ${device?.name ?? ''} no longer active, using existing temperature`);
 
       return;
     }
 
     if (device.checkTemperature) {
       device.checkTemperature(logLevel);
-      this.logs.trace(`updateTemperature: requested temperature from device, waiting`);
+      this.logs.trace(`updateTemperature: requested temperature from device ${device.name ?? ''}, waiting`);
     } else {
       this.logs.error(`unable to get temperature. checkTemperature/Humidity not supported for device 0x${device.type.toString(16)}.`);
     }
