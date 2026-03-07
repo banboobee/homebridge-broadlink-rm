@@ -15,6 +15,7 @@ jobs:
           - macOS-latest
     steps:
       - uses: actions/checkout@v3
+        submodules: 'recursive'
       - name: "Use Node.js ${{ matrix.node_version }}"
         uses: actions/setup-node@v3
         with:
