@@ -1,0 +1,3 @@
+[submodule "broadlinkjs-rm"]
+	path = broadlinkjs-rm
+	url = https://github.com/banboobee/broadlinkjs-rm.git

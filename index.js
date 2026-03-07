@@ -1,11 +1,11 @@
 const BroadlinkRMPlatform = require('./platform');
-const homebridgelib = require( 'homebridge-lib');
 const fakegatoHistory = require( 'fakegato-history');
 
-module.exports = (homebridge) => {
+module.exports = async (homebridge) => {
+  const { EveHomeKitTypes } = await import( 'homebridge-lib/EveHomeKitTypes' );
   global.HomebridgeAPI = homebridge;
   global.cachedAccessories = [];
-  global.eve = new homebridgelib.EveHomeKitTypes(homebridge);
+  global.eve = new EveHomeKitTypes( homebridge )
   global.HistoryService = fakegatoHistory( homebridge );
   
   global.Service = homebridge.hap.Service;

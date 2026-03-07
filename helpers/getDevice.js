@@ -1,5 +1,5 @@
 const ping = require('ping');
-const broadlink = new (require('broadlinkjs-rm'));
+const broadlink = new (require('../broadlinkjs-rm'));
 const delayForDuration = require('./delayForDuration');
 const Mutex = require('await-semaphore').Mutex;
 
