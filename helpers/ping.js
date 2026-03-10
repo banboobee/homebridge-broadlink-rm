@@ -6,7 +6,7 @@ const pingIPAddress = (ipAddress, interval, callback) => {
       ping.sys.probe(ipAddress, (isActive) => {
         callback(isActive)
       })
-    } catch (err) {
+    } catch {
       callback(false)
     }
   }, interval * 1000);

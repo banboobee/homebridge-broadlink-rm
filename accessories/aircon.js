@@ -667,7 +667,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	// await this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
 	await this.serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState, this.HeatingCoolingStates.off);
 	await this.serviceManager.updateCharacteristic(Characteristic.CurrentHeatingCoolingState, this.HeatingCoolingStates.off);
-      } catch (e) {
+      } catch {
 	// nothing to do.
       }
     }

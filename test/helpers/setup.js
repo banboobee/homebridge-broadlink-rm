@@ -87,7 +87,7 @@ const MQTTtest = async () => {
   try {
     execSync(`which mosquitto_pub`);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

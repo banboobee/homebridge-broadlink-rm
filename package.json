@@ -6,7 +6,7 @@
   "license": "ISC",
   "scripts": {
     "release": "release-it",
-    "lint": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js .",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js .",
     "lint-fix": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js --fix .",
     "test": "mocha"
   },
@@ -41,8 +41,8 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.47.0",
-    "eslint-plugin-no-autofix": "^1.2.3",
+    "eslint": "^9.39.4",
+    "eslint-plugin-no-autofix": "^2.1.0",
     "hap-nodejs": "^0.14.1",
     "mocha": "^11.7.5",
     "release-it": "^19.2.4"
