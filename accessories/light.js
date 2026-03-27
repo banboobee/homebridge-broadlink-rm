@@ -528,13 +528,6 @@ class LightAccessory extends SwitchAccessory {
     return foundValues
   }
 
-  async getLastActivation(callback) {
-    const lastActivation = this.state.lastActivation ?
-	  Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
-    
-    callback(null, lastActivation);
-  }
-
   // MQTT
   onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
@@ -557,19 +550,6 @@ class LightAccessory extends SwitchAccessory {
     }
   }
 
-  // localCharacteristic(key, uuid, props) {
-  //   const { Characteristic } = this;
-  //   let characteristic = class extends Characteristic {
-  //     constructor() {
-  // 	super(key, uuid);
-  // 	this.setProps(props);
-  //     }
-  //   }
-  //   characteristic.UUID = uuid;
-
-  //   return characteristic;
-  // }
-
   setupServiceManager () {
     const { Service, Characteristic } = this;
     const { data, name, config } = this;
@@ -577,24 +557,73 @@ class LightAccessory extends SwitchAccessory {
     const history = config.history === true/* || config.noHistory === false*/;
     
     //this.serviceManager = new this.serviceManagerClass(name, Service.Lightbulb, this.log);
-    this.serviceManager = new this.serviceManagerClass(name, history ? Service.Switch : Service.Lightbulb, this.log);
+    // this.serviceManager = new this.serviceManagerClass(name, history ? Service.Switch : Service.Lightbulb, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, history ? Service.Outlet : Service.Lightbulb, this.log);
 
     if (history) {
-      // const LastActivationCharacteristic = this.localCharacteristic(
-      // 	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
-      // 	{format: Characteristic.Formats.UINT32,
-      // 	 unit: Characteristic.Units.SECONDS,
-      // 	 perms: [
-      // 	   Characteristic.Perms.READ,
-      // 	   Characteristic.Perms.NOTIFY
-      // 	 ]});
-      
+      this.serviceManager.service.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
+      this.serviceManager.service.updateCharacteristic(Characteristic.LockPhysicalControls, 1);
+      this.serviceManager.addGetCharacteristic({
+	name: 'LockPhysicalControls',
+	type: Characteristic.LockPhysicalControls,
+	method: (callback) => {
+	  callback(null, 1);
+	},
+	bind: this
+      });
+
+      const dummy =
+	    this.serviceManager.accessory.getService(`${name} Consumption`) ||
+	    this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
+      dummy.setHiddenService(true);
+      dummy.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
+	perms: [
+	  this.platform.api.hap.Perms.PAIRED_READ,
+	  this.platform.api.hap.Perms.NOTIFY,
+	  this.platform.api.hap.Perms.HIDDEN
+	]
+      });
+      dummy.updateCharacteristic(eve.Characteristics.TotalConsumption, 0);
+
+      // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.TotalConsumption);
+      // this.serviceManager.addGetCharacteristic({
+      // 	name: 'TotalConsumption',
+      // 	type: eve.Characteristics.TotalConsumption,
+      // 	method: (callback) => {
+      // 	  callback(null, 0);
+      // 	},
+      // 	bind: this
+      // });
+      // this.serviceManager.service.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
+      // 	perms: [
+      // 	  this.platform.api.hap.Perms.PAIRED_READ,
+      // 	  this.platform.api.hap.Perms.NOTIFY,
+      // 	  this.platform.api.hap.Perms.HIDDEN
+      // 	]
+      // });
+
+      // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.CurrentConsumption);
+      // this.serviceManager.addGetCharacteristic({
+      // 	name: 'CurrentConsumption',
+      // 	type: eve.Characteristics.CurrentConsumption,
+      // 	method: (callback) => {
+      // 	  this.historyService?.addEntry(
+      // 	    {time: Math.round(new Date().valueOf()/1000), power: 0}
+      // 	  )
+      // 	  callback(null, 0);
+      // 	},
+      // 	bind: this
+      // });
+
       this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
-	// type: LastActivationCharacteristic,
 	type: eve.Characteristics.LastActivation,
-	method: this.getLastActivation,
+	method: (callback) => {
+	  const lastActivation = this.state.lastActivation ?
+		Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
+	  callback(null, lastActivation);
+	},
 	bind: this
       });
 
