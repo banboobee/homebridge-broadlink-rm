@@ -107,15 +107,15 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     super(log, config, platform);
 
     // Fakegato setup
-    if (config.history === true/* || config.noHistory === false*/) {
-      // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      // this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      this.historyService = new HistoryService('custom', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      this.historyService.addEntry(
-	{time: Math.round(new Date().valueOf()/1000),
-	 status: this.state.switchState ? 1 : 0})
-    }
-      
+    // if (config.history === true/* || config.noHistory === false*/) {
+    //   // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+    //   // this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+    //   this.historyService = new HistoryService('custom', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+    //   this.historyService.addEntry(
+    // 	{time: Math.round(new Date().valueOf()/1000),
+    // 	 status: this.state.switchState ? 1 : 0})
+    // }
+    
     if (!this.constructor.isUnitTest) {this.checkPing(ping)}
   }
 
@@ -288,26 +288,6 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     });
   }
 
-  async getLastActivation(callback) {
-    const lastActivation = this.state.lastActivation ?
-	  Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
-    
-    callback(null, lastActivation);
-  }
-
-  // localCharacteristic(key, uuid, props) {
-  //   const { Characteristic } = this;
-  //   let characteristic = class extends Characteristic {
-  //     constructor() {
-  // 	super(key, uuid);
-  // 	this.setProps(props);
-  //     }
-  //   }
-  //   characteristic.UUID = uuid;
-
-  //   return characteristic;
-  // }
-
   // MQTT
   onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
@@ -330,34 +310,59 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     }
   }
 
-  setupServiceManager () {
+  setupServiceManager (service = undefined) {
     const { Service, Characteristic } = this;
     const { data, name, config } = this;
-    const { on, off } = data || { };
-    const history = config.history === true/* || config.noHistory === false*/;
+    const { on, off } = data || { };	// toggle? verifyConfig to support.
+    const history = config.history === true;
     
-    this.serviceManager = new this.serviceManagerClass(name, Service.Switch, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, service ?? history ? Service.Outlet : Service.Switch, this.log);
 
     if (history) {
-      // const LastActivationCharacteristic = this.localCharacteristic(
-      // 	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
-      // 	{format: Characteristic.Formats.UINT32,
-      // 	 unit: Characteristic.Units.SECONDS,
-      // 	 perms: [
-      // 	   Characteristic.Perms.READ,
-      // 	   Characteristic.Perms.NOTIFY
-      // 	 ]});
-      
+      // Fakegato setup
+      this.historyService = new HistoryService('custom', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService.addEntry(
+	{time: Math.round(new Date().valueOf()/1000),
+	 status: this.state.switchState ? 1 : 0}
+      )
+
+      this.serviceManager.service.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
+      this.serviceManager.service.updateCharacteristic(Characteristic.LockPhysicalControls, 1);
+      this.serviceManager.addGetCharacteristic({
+	name: 'LockPhysicalControls',
+	type: Characteristic.LockPhysicalControls,
+	method: (callback) => {
+	  callback(null, 1);
+	},
+	bind: this
+      });
+
+      const dummy =
+	    this.serviceManager.accessory.getService(`${name} Consumption`) ||
+	    this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
+      dummy.setHiddenService(true);
+      dummy.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
+	perms: [
+	  this.platform.api.hap.Perms.PAIRED_READ,
+	  this.platform.api.hap.Perms.NOTIFY,
+	  this.platform.api.hap.Perms.HIDDEN
+	]
+      });
+      dummy.updateCharacteristic(eve.Characteristics.TotalConsumption, 0);
+
       this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       this.serviceManager.addGetCharacteristic({
 	name: 'LastActivation',
-	// type: LastActivationCharacteristic,
 	type: eve.Characteristics.LastActivation,
-	method: this.getLastActivation,
+	method: (callback) => {
+	  const lastActivation = this.state.lastActivation ?
+		Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
+	  callback(null, lastActivation);
+	},
 	bind: this
       });
     }
-  
+    
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.On,
