@@ -236,25 +236,31 @@ class HomebridgeAccessory {
 
     const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
-    if (this.state[propertyName] === undefined) {
-      const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
-      if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
-        value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
+    try {
+      if (this.state[propertyName] === undefined) {
+	const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
+	if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
+          value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
+	} else {
+          value = 0;
+	}
       } else {
-        value = 0;
+	value = this.state[propertyName];
       }
-    } else {
-      value = this.state[propertyName];
+      
+      if (getValuePromise) {
+	value = await getValuePromise(value);
+	this.state[propertyName] = value;
+      }
+      
+      this.logs.trace(`get${capitalizedPropertyName}: ${value}`);
+      
+      callback(null, value);
+    } catch (e){
+      this.logs.error(`failed getCharacteristicValue of ${props.propertyName} characteristic.`, e.message ?? '');
+      this.logs.trace(e.stack ?? 'Error: empty stack')
+      // throw(e);
     }
-
-    if (getValuePromise) {
-      value = await getValuePromise(value);
-      this.state[propertyName] = value;
-    }
-    
-    this.logs.trace(`get${capitalizedPropertyName}: ${value}`);
-    
-    callback(null, value);
   }
 
   loadState() {
