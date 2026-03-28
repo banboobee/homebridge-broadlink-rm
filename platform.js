@@ -119,6 +119,12 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
 		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].type' property. \x1b[33mdeprecated\x1b[0m '${x.type} accessory has been removed.`);
 	      } else if (!Object.keys(this.classTypes).find(y => y === x.type)) {
 		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].type' property. homebridge-broadlink-rm doesn't support accessories of type '${x.type}'.`);
+	      } else if (x.name && values[0].filter(y => y.name === x.name).length > 1) {
+		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].name' property. Disabled due to duplicating name '${x.name ?? 'anonymous'}'.`);
+		x.disabled = true;
+	      } else if (!x.name && values[0].filter(y => y.name === x.name && y.type === x.type).length > 1) {
+		this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}].name' property. Disabled due to multiple anonymous '${x.type}' accessories.`);
+		x.disabled = true;
 	      }
 	    } else {
 	      this.log(`\x1b[31m[CONFIG ERROR]\x1b[0m Failed to verify '.accessories[${i}]' property. value ${JSON.stringify(x)} is not a valid accessories.`);
