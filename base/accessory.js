@@ -210,7 +210,7 @@ class HomebridgeAccessory {
       callback(null);
 
       // Set toggle data if this is a toggle
-      const data = value ? onData : offData;
+      const data = value ? onData : (offData ?? onData);
 
       if (setValuePromise) {
         await setValuePromise(data, previousValue);
