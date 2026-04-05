@@ -742,7 +742,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 	    if (update !== current) {
               this.logs.debug(`${input.name} setConfiguredName: ${update}`);
 	      this.state[`inputs/${input.name}/ConfiguredName`] = update;
-	      if (update === input.name || update === 'x') {
+	      if (update === input.name || update.toLowerCase() === 'x') {
 		delete this.state[`inputs/${input.name}/ConfiguredName`];
 		inputService.updateCharacteristic(Characteristic.ConfiguredName, input.name);
 	      }
