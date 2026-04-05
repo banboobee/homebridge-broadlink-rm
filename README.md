@@ -35,7 +35,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 14. &#x2610; ___fixed bug___ that throws error on turning off air-conditioner configuring auto heat/cool temperature ([base#658](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/658)).
 15. &#x2610; ___fixed bug___ that default minStep of target temperature for air-conditioner does not take effect until re-starting (e.g. [base#605](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/605)) ([base#662](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/662)).
 16. &#x2610; take closest target temperature in config to support floating point minStep ([base#663](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/663)). also for Fahrenheit.
-17. &#x2610; EVE history view of switch/light accessories (disabled in EVE as of now).
+17. &#x2610; EVE history view of switch/light accessories ~~(disabled in EVE as of now)~~.
 18. &#x2610; ___AUTO mode___ for air-conditioner (e.g. [base#756](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/756)) to work.
 19. &#x2610; moved to ___dynamic platform plugin___ to ___keep room/scene/automation___ (e.g. [base#609](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/609)) in failing to re-start ([base#664](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/664)).
 20. &#x2610; switched to native Homebridge accessory status persisting except tv.
@@ -60,6 +60,7 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 39. &#x2610; verify config comprehensively to help proper configuration (e.g. [base#655](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/655)). unknown properties are reported in debug mode while revised conventional properties are always despite the mode.
 40. &#x2610; ignored invalid temperature reporting of bradlink device ([home-assistant/core#50098](https://github.com/home-assistant/core/pull/50098)).
 41. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
+42. &#x2610; added discover device accessory to discover devices without restarting the plugin. 
 
 #### Summary
 | code                    | improvements | Unit<br>test | EVE<br>history<br>views | MQTT<br>subscribe/<br>publish | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
