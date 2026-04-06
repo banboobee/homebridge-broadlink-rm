@@ -342,8 +342,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if(config.history === true) {
       this.historyService = new this.platform.HistoryService(
 	config.enableModeHistory === true ? 'custom' : 'room',
-	this.serviceManager.accessory,
-	{storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+	this.serviceManager.accessory, {
+	  storage: 'fs',
+	  // filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'
+	});
 
       if (config.enableModeHistory === true) {
 	this.valveInterval = 1;
