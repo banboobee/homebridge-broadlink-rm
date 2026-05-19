@@ -283,7 +283,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
       return;
     }
 
-    discoverDevices(false, log, logLevel);
+    discoverDevices(false, log, logLevel, undefined, this);
 
     if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.`)}
 
@@ -293,7 +293,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     // assert.isArray(hosts, `\x1b[31m[CONFIG ERROR] \x1b[33mhosts\x1b[0m should be an array of objects.`)
 
     Array.isArray(hosts) && hosts.forEach((host) => {
-      if (Array.isArray(hosts) || typeof host !== 'object') return;
+      if (Array.isArray(host) || typeof host !== 'object') return;
       // assert.isObject(host, `\x1b[31m[CONFIG ERROR] \x1b[0m Each item in the \x1b[33mhosts\x1b[0m array should be an object.`)
 
       const { address, isRFSupported, isRM4, mac } = host;
