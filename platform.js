@@ -277,15 +277,13 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     config.deviceDiscoveryTimeout ??= 60;
     
     if (!hosts) {
-      if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)}
-	discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this);
-
+      log(`\x1b[32mAutomatically discovering Broadlink RM devices.\x1b[0m`);
+      discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this);
       return;
     }
 
+    log(`\x1b[33mAutomatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.\x1b[0m`);
     discoverDevices(false, log, logLevel, undefined, this);
-
-    if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.`)}
 
     // assert.isArray(hosts, `\x1b[31m[CONFIG ERROR] \x1b[33mhosts\x1b[0m should be an array of objects.`)
 
@@ -314,8 +312,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     const { config, log } = this;
 
     if (config?.hideWelcomeMessage || this.constructor.isUnitTest) {
-      if (this.logLevel < 3) log(`\x1b[35m[INFO]\x1b[0m Running Homebridge Broadlink RM Plugin version \x1b[32m${npmPackage.version}\x1b[0m`)
-
+      log(`\x1b[32mRunning Homebridge Broadlink RM Plugin version ${npmPackage.version}\x1b[0m`);
       return
     }
 
@@ -324,10 +321,8 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
       log(`**************************************************************************************************************`)
       log(`** Welcome to version \x1b[32m${npmPackage.version}\x1b[0m of the \x1b[34mHomebridge Broadlink RM Plugin\x1b[0m!`)
       log('** ')
-      log(`** Find out what's in the latest release here: \x1b[4mhttps://github.com/kiwi-cam/homebridge-broadlink-rm/blob/master/CHANGELOG.md\x1b[0m`)
+      log(`** Find out the details here: \x1b[4mhttps://github.com/banboobee/homebridge-broadlink-rm/blob/master/README.md\x1b[0m`)
       log(`** `)
-      log(`** If you like this plugin then please star it on GitHub or better yet`)
-      log(`** buy me a drink using Paypal \x1b[4mhttps://paypal.me/kiwicamRM\x1b[0m.`)
       log(`**`)
       log(`** You can disable this message by adding "hideWelcomeMessage": true to the config (see config-sample.json).`)
       log(`**`)
