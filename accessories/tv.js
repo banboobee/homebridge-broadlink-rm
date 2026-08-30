@@ -12,7 +12,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configMQTTTopicKeys
+    mqttTopic: [        // override to use own configMQTTTopicKeys
       (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
@@ -36,26 +36,26 @@ class TVAccessory extends BroadlinkRMAccessory {
     // boolean
     enableAutoOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     pingIPAddressStateOnly: [
@@ -167,16 +167,16 @@ class TVAccessory extends BroadlinkRMAccessory {
     values[0].forEach((element, i) => {
       const property = `${property0}[${i}]`;
       if (this.configIsObject(element)) {
-	values.unshift(element);
-	this.verifyConfig(values, property, this.configInputsKeys);
-	values.shift();
+        values.unshift(element);
+        this.verifyConfig(values, property, this.configInputsKeys);
+        values.shift();
       } else {
-	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid input config.`);
+        this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid input config.`);
       }
     });
     return true;
   }
-  
+
   constructor(log, config = {}, platform) {
     super(log, config, platform);
 
@@ -186,28 +186,28 @@ class TVAccessory extends BroadlinkRMAccessory {
     const {name} = this;
     const {host, persistState} = config;
     if (persistState === false) return;
-    if (this.constructor.isUnitTest) return;	// to avoid duplicate state persisting
-    
+    if (this.constructor.isUnitTest) return;    // to avoid duplicate state persisting
+
     // const state = {...this.serviceManager.accessory.context};
     const state = {...this.serviceManager.state};
-    this.state = new Proxy(state, {	// replace proxy for external accessories
+    this.state = new Proxy(state, {     // replace proxy for external accessories
       set: async function(target, key, value) {
-	Reflect.set(target, key, value);
-	persistentState.save({ host, name, state });
-	this.serviceManager.accessory.context[key] = value;
-	// console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	// console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-	
-	return true
+        Reflect.set(target, key, value);
+        persistentState.save({ host, name, state });
+        this.serviceManager.accessory.context[key] = value;
+        // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+        // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+
+        return true
       }.bind(this)
     })
     this.serviceManager.state = this.state;
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
-  
+
   setDefaults() {
     const { config } = this;
     config.pingFrequency = config.pingFrequency || 1;
@@ -215,7 +215,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     // config.offDuration = config.offDuration || 60;
     // config.onDuration = config.onDuration || 60;
-    
+
     config.subType = config.subType || 'tv';
 
     // if (
@@ -243,7 +243,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     super.reset();
 
     this.stateChangeInProgress = true;
-    
+
     // Clear Timeouts
     if (this.delayTimeoutPromise) {
       this.delayTimeoutPromise.cancel();
@@ -259,17 +259,17 @@ class TVAccessory extends BroadlinkRMAccessory {
       this.autoOnTimeoutPromise.cancel();
       this.autoOnTimeoutPromise = null;
     }
-  
+
     if (this.pingGraceTimeout) {
       this.pingGraceTimeout.cancel();
       this.pingGraceTimeout = null;
     }
-    
+
     if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
       this.serviceManager.setCharacteristic(Characteristic.Active, false);
     }
   }
-  
+
   checkAutoOnOff() {
     this.reset();
     this.checkPingGrace();
@@ -291,7 +291,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   async pingCallback(active) {
     const { Characteristic } = this;
     const { config, state, serviceManager } = this;
-    
+
     if (this.stateChangeInProgress){
       return;
     }
@@ -299,9 +299,9 @@ class TVAccessory extends BroadlinkRMAccessory {
     if (this.lastPingResponse !== undefined && this.lastPingResponse !== active) {
       // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${active ? 'on' : 'off'}.`);
       if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
-	this.logs.info(`received ping response. Sync input source.`);
-	// await this.setInputSource();	// sync if asynchronously turned on
-	this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, this.state.currentInput);
+        this.logs.info(`received ping response. Sync input source.`);
+        // await this.setInputSource(); // sync if asynchronously turned on
+        this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, this.state.currentInput);
       }
     }
     this.lastPingResponse = active;
@@ -325,7 +325,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     this.checkAutoOnOff();
     // console.log(`[${new Date().toLocaleString()}] ${name} Active: set to ${this.state.switchState ? 'ON' : 'OFF'}.`);
   }
-  
+
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
       const { config } = this;
@@ -341,7 +341,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       }
     });
   }
-  
+
   async checkAutoOff() {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
@@ -389,7 +389,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     // const { Characteristic } = this;
     const { data } = this;
     const newValue = this.state.currentInput;
-  
+
     if (
       !data ||
         !data.inputs ||
@@ -400,12 +400,12 @@ class TVAccessory extends BroadlinkRMAccessory {
       this.state.currentInput = previous;
       return;
     }
-  
+
     await this.performSend(data.inputs[newValue].data);
     // this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, newValue);
     // log(`${name} select input source to ${data.inputs[newValue].name}(${newValue}).`);
   }
-  
+
   async onMQTTMessage (identifier, message) {
     const { Characteristic } = this;
     const { config } = this;
@@ -416,9 +416,9 @@ class TVAccessory extends BroadlinkRMAccessory {
       const power = message.toLowerCase() === 'on' ? true : false;
       this.reset();
       if (mqttStateOnly) {
-	this.serviceManager.updateCharacteristic(Characteristic.Active, power);
+        this.serviceManager.updateCharacteristic(Characteristic.Active, power);
       } else {
-	this.serviceManager.setCharacteristic(Characteristic.Active, power);
+        this.serviceManager.setCharacteristic(Characteristic.Active, power);
       }
       this.logs.debug(`onMQTTMessage: set Active to ${this.state.switchState}.`);
       return;
@@ -426,15 +426,15 @@ class TVAccessory extends BroadlinkRMAccessory {
     if (identifier.toLowerCase() === 'source' || identifier.toLowerCase() === 'activeidentifier') {
       const index = this.config.data.inputs.findIndex(x => x?.name?.toLowerCase() === message.toLowerCase());
       if (index > 0 && index < this.config.data.inputs.length) {
-	// this.reset();
-	if (mqttStateOnly) {
-	  this.serviceManager.updateCharacteristic(Characteristic.ActiveIdentifier, index);
-	} else {
-	  this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, index);
-	}
-	this.logs.debug(`onMQTTMessage: set ActiveIdentifier to ${this.state.currentInput}.`);
+        // this.reset();
+        if (mqttStateOnly) {
+          this.serviceManager.updateCharacteristic(Characteristic.ActiveIdentifier, index);
+        } else {
+          this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, index);
+        }
+        this.logs.debug(`onMQTTMessage: set ActiveIdentifier to ${this.state.currentInput}.`);
       } else {
-	this.logs.error(`onMQTTMessage: Unknown source ${message}.`);
+        this.logs.error(`onMQTTMessage: Unknown source ${message}.`);
       }
       return;
     }
@@ -469,11 +469,11 @@ class TVAccessory extends BroadlinkRMAccessory {
       .map(x => x.match(/^inputs\/.+\/.+$/)?.[0])
       .filter(x => x)
       .forEach(x => {
-	const source = x.match(/^inputs\/(.+)\/(.+)$/);
-	if (!this.config?.data?.inputs.find(y => source[1] === y.name)) {
+        const source = x.match(/^inputs\/(.+)\/(.+)$/);
+        if (!this.config?.data?.inputs.find(y => source[1] === y.name)) {
           this.logs.debug(`removed ${source[2]} of unknown input source ${source[1]}.`);
-	  delete this.state[x];
-	}
+          delete this.state[x];
+        }
       })
 
     this.serviceManager.setCharacteristic(Characteristic.ConfiguredName, name);
@@ -497,13 +497,13 @@ class TVAccessory extends BroadlinkRMAccessory {
     });
     this.serviceManager.getCharacteristic(Characteristic.Active)
       .on('change', async function (event) {
-	if (event.newValue !== event.oldValue) {
-	  const value = event.newValue;
-	  await this.mqttpublish('Power', value ? "on" : "off");
-	  if (this.state.currentInput > 0 && this.state.currentInput < this.config?.data?.inputs?.length) {
-	    await this.mqttpublish('Source', this.config.data.inputs[this.state.currentInput].name);
-	  }
-	}
+        if (event.newValue !== event.oldValue) {
+          const value = event.newValue;
+          await this.mqttpublish('Power', value ? "on" : "off");
+          if (this.state.currentInput > 0 && this.state.currentInput < this.config?.data?.inputs?.length) {
+            await this.mqttpublish('Source', this.config.data.inputs[this.state.currentInput].name);
+          }
+        }
       }.bind(this))
 
     this.serviceManager.addToggleCharacteristic({
@@ -514,17 +514,17 @@ class TVAccessory extends BroadlinkRMAccessory {
       bind: this,
       props: {
         setValuePromise: this.setInputSource.bind(this),
-	ignorePreviousValue: true
+        ignorePreviousValue: true
       }
     });
     this.serviceManager.getCharacteristic(Characteristic.ActiveIdentifier)
       .on('change', async function (event) {
-	if (event.newValue !== event.oldValue) {
-	  const value = event.newValue;
-	  if (value > 0 && value < this.config?.data?.inputs?.length) {
-	    await this.mqttpublish('Source', this.config.data.inputs[value].name);
-	  }
-	}
+        if (event.newValue !== event.oldValue) {
+          const value = event.newValue;
+          if (value > 0 && value < this.config?.data?.inputs?.length) {
+            await this.mqttpublish('Source', this.config.data.inputs[value].name);
+          }
+        }
       }.bind(this))
 
     this.serviceManager
@@ -628,7 +628,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     // const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
     // const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
-    if (this.constructor.isUnitTest) {	// external control in UnitTest
+    if (this.constructor.isUnitTest) {  // external control in UnitTest
       this.speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
     } else {
       this.speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');
@@ -670,12 +670,12 @@ class TVAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
         callback(null);
       });
-    
+
     this.speakerService.setCharacteristic(Characteristic.Mute, false);
     this.speakerService.getCharacteristic(Characteristic.Mute)
       .on('get', (callback) => {
-	// console.log(`${name} Mute: get ${this.state.Mute}.`);
-	callback(null, this.state.Mute || false);
+        // console.log(`${name} Mute: get ${this.state.Mute}.`);
+        callback(null, this.state.Mute || false);
       })
       .on('set', async (newValue, callback) => {
         if (!data || !data.volume || !data.volume.mute) {
@@ -683,7 +683,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           callback(null);
           return;
         }
-      
+
         const hexData = data.volume.mute;
         if (!hexData) {
           this.logs.error(`VolumeSelector: No IR code found for mute!`);
@@ -691,7 +691,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
-	this.state.Mute = newValue;
+        this.state.Mute = newValue;
         await this.performSend(hexData);
         callback(null);
       });
@@ -705,15 +705,15 @@ class TVAccessory extends BroadlinkRMAccessory {
         // const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
         const inputService = this.serviceManager.accessory?.addService(Service.InputSource, `${name} input${i}`, `${name} input${i}`);
 
-	const visibility = this.state[`inputs/${input.name}/VisibilityState`] ?? Characteristic.CurrentVisibilityState.SHOWN;
-	if (visibility === Characteristic.CurrentVisibilityState.HIDDEN) {
-	  this.logs.debug(`hiding input source '${input.name}'.`);
-	}
-	const configuredName = this.state[`inputs/${input.name}/ConfiguredName`] ?? input.name;
-	if (configuredName !== input.name) {
-	  this.logs.debug(`displaying input source '${input.name}' as '${configuredName}'.`);
-	}
-	
+        const visibility = this.state[`inputs/${input.name}/VisibilityState`] ?? Characteristic.CurrentVisibilityState.SHOWN;
+        if (visibility === Characteristic.CurrentVisibilityState.HIDDEN) {
+          this.logs.debug(`hiding input source '${input.name}'.`);
+        }
+        const configuredName = this.state[`inputs/${input.name}/ConfiguredName`] ?? input.name;
+        if (configuredName !== input.name) {
+          this.logs.debug(`displaying input source '${input.name}' as '${configuredName}'.`);
+        }
+
         inputService?.setCharacteristic(Characteristic.Identifier, i)
           .setCharacteristic(Characteristic.ConfiguredName, configuredName)
           .setCharacteristic(
@@ -721,39 +721,39 @@ class TVAccessory extends BroadlinkRMAccessory {
             Characteristic.IsConfigured.CONFIGURED
           )
           .setCharacteristic(
-	    Characteristic.InputSourceType,
-	    this.getInputType(input.type)
-	  )
-	  .setCharacteristic(Characteristic.TargetVisibilityState, visibility)
-	  .setCharacteristic(Characteristic.CurrentVisibilityState, visibility);
+            Characteristic.InputSourceType,
+            this.getInputType(input.type)
+          )
+          .setCharacteristic(Characteristic.TargetVisibilityState, visibility)
+          .setCharacteristic(Characteristic.CurrentVisibilityState, visibility);
 
         inputService?.getCharacteristic(Characteristic.TargetVisibilityState)
-	  .onSet(state => {
+          .onSet(state => {
             this.logs.debug(`${input.name} setCurrentVisibilityState: ${state}`);
-	    this.state[`inputs/${input.name}/VisibilityState`] = state;
-	    if (state === Characteristic.CurrentVisibilityState.SHOWN) {
-	      delete this.state[`inputs/${input.name}/VisibilityState`];
-	    }
-	    inputService.updateCharacteristic(Characteristic.CurrentVisibilityState, state);
-	  })
+            this.state[`inputs/${input.name}/VisibilityState`] = state;
+            if (state === Characteristic.CurrentVisibilityState.SHOWN) {
+              delete this.state[`inputs/${input.name}/VisibilityState`];
+            }
+            inputService.updateCharacteristic(Characteristic.CurrentVisibilityState, state);
+          })
         inputService?.getCharacteristic(Characteristic.ConfiguredName)
-	  .onSet(update => {
-	    const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
-	    if (update !== current) {
+          .onSet(update => {
+            const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
+            if (update !== current) {
               this.logs.debug(`${input.name} setConfiguredName: ${update}`);
-	      this.state[`inputs/${input.name}/ConfiguredName`] = update;
-	      if (update === input.name || update.toLowerCase() === 'x') {
-		delete this.state[`inputs/${input.name}/ConfiguredName`];
-		inputService.updateCharacteristic(Characteristic.ConfiguredName, input.name);
-	      }
-	    }
-	  })
-	  .onGet(() => {
-	    const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
+              this.state[`inputs/${input.name}/ConfiguredName`] = update;
+              if (update === input.name || update.toLowerCase() === 'x') {
+                delete this.state[`inputs/${input.name}/ConfiguredName`];
+                inputService.updateCharacteristic(Characteristic.ConfiguredName, input.name);
+              }
+            }
+          })
+          .onGet(() => {
+            const current = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
             this.logs.trace(`${input.name} getConfiguredName: ${current}`);
-	    return current;
-	  })
-	
+            return current;
+          })
+
         // this.serviceManagers.push(inputService);
         this.serviceManager.service.addLinkedService?.(inputService);
       }
@@ -772,50 +772,50 @@ class TVAccessory extends BroadlinkRMAccessory {
     let identifiersTLV = Buffer.alloc(0);
     listOfIdentifiers.forEach((identifier, index) => {
       if (index !== 0) {
-	identifiersTLV = Buffer.concat([
+        identifiersTLV = Buffer.concat([
           identifiersTLV,
           this.platform.api.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_END, Buffer.alloc(0)),
-	]);
+        ]);
       }
-      
+
       const element = Buffer.alloc(4);
       element.writeUInt32LE(identifier, 0);
       identifiersTLV = Buffer.concat([
-	identifiersTLV,
-	this.platform.api.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_START, element),
+        identifiersTLV,
+        this.platform.api.hap.encode(DisplayOrderTypes.ARRAY_ELEMENT_START, element),
       ]);
     });
     return identifiersTLV.toString('base64');
   }
-  
+
   getInputType(type) {
     if (!type) {
       return 0;
     }
-    
+
     switch (type.toLowerCase()) {
-    case 'other':
-      return 0;
-    case 'home_screen':
-      return 1;
-    case 'tuner':
-      return 2;
-    case 'hdmi':
-      return 3;
-    case 'composite_video':
-      return 4;
-    case 's_video':
-      return 5;
-    case 'component_video':
-      return 6;
-    case 'dvi':
-      return 7;
-    case 'airplay':
-      return 8;
-    case 'usb':
-      return 9;
-    case 'application':
-      return 10;
+      case 'other':
+        return 0;
+      case 'home_screen':
+        return 1;
+      case 'tuner':
+        return 2;
+      case 'hdmi':
+        return 3;
+      case 'composite_video':
+        return 4;
+      case 's_video':
+        return 5;
+      case 'component_video':
+        return 6;
+      case 'dvi':
+        return 7;
+      case 'airplay':
+        return 8;
+      case 'usb':
+        return 9;
+      case 'application':
+        return 10;
     }
   }
 }

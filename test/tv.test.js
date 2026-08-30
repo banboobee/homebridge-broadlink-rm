@@ -56,7 +56,7 @@ const defaultConfig = {
 describe('TVAccessory', async function() {
 
   const MQTTready = await MQTTtest();
-  
+
   let TVAccessory;
 
   afterEach(function() {
@@ -69,13 +69,13 @@ describe('TVAccessory', async function() {
     const config = JSON.parse(JSON.stringify(defaultConfig));
     config.host = device.host.address
     config.enableAutoOn = true,
-    config.mqttStateOnly = 'true';		// ERROR
+    config.mqttStateOnly = 'true';              // ERROR
     config.data.inputs.push(
       {
-	name: 'Channel X',
-	type: 'unknown',			// ERROR
-	unknown: 10,
-	data: 'Channel-X'
+        name: 'Channel X',
+        type: 'unknown',                        // ERROR
+        unknown: 10,
+        data: 'Channel-X'
       },
     );
     config.mqttTopic = [
@@ -84,27 +84,27 @@ describe('TVAccessory', async function() {
         topic: "homebridge-broadlink-rm/UT/Power"
       },
       {
-        identifier: "off",			// ERROR
+        identifier: "off",                      // ERROR
         topic: "homebridge-broadlink-rm/UT/Power"
       },
-      {						// ERROR
+      {                                         // ERROR
         topic: "homebridge-broadlink-rm/UT/Power"
       },
       {
         identifier: "Power",
         topic: "homebridge-broadlink-rm/UT/Power",
-	characteristic: 'on',			// DEBUG
+        characteristic: 'on',                   // DEBUG
       },
     ]
-    
+
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
-     await delayForDuration(0.1);
+    await delayForDuration(0.1);
   });
 
   it('tun on', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
-    
+
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
@@ -122,7 +122,7 @@ describe('TVAccessory', async function() {
   it('tun off', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
-    
+
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     // Turn off
@@ -138,7 +138,7 @@ describe('TVAccessory', async function() {
   it('Select source', async function() {
     const { log, device, platform } = setup();
     defaultConfig.host = device.host.address
-    
+
     const config = JSON.parse(JSON.stringify(defaultConfig));
 
     // Select channel
@@ -188,11 +188,11 @@ describe('TVAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device, codes:
-	       ['PLAYPAUSE', 'EXIT', 'ARROWUP', 'ARROWDOWN',
-		'ARROWLEFT', 'ARROWRIGHT', 'SELECT', 'BACK',
-		'INFO'
-	       ], count: 9
-	     });
+      ['PLAYPAUSE', 'EXIT', 'ARROWUP', 'ARROWDOWN',
+        'ARROWLEFT', 'ARROWRIGHT', 'SELECT', 'BACK',
+        'INFO'
+      ], count: 9
+    });
   });
 
   it('Volume', async function() {
@@ -200,7 +200,7 @@ describe('TVAccessory', async function() {
     defaultConfig.host = device.host.address
     const config = JSON.parse(JSON.stringify(defaultConfig));
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
-    
+
     // Volume control
     TVAccessory.speakerService.setCharacteristic(Characteristic.Mute, true);
     await delayForDuration(0.1);
@@ -216,9 +216,9 @@ describe('TVAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [ 'MUTE', 'MUTE', 'VOLUMEUP', 'VOLUMEDOWN' ],
-	       count: 4
-	     });
+      codes: [ 'MUTE', 'MUTE', 'VOLUMEUP', 'VOLUMEDOWN' ],
+      count: 4
+    });
   });
 
   it('"persistState": true', async function() {
@@ -293,7 +293,7 @@ describe('TVAccessory', async function() {
     ];
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
     await delayForDuration(0.1);
-    
+
     await MQTTpublish(log, 'Power', 'on');
     await delayForDuration(0.1);
     await MQTTpublish(log, 'Source', '"Channel A"');
@@ -322,7 +322,7 @@ describe('TVAccessory', async function() {
     ];
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
     await delayForDuration(0.1);
-    
+
     MQTTpublish(log, 'Power', 'on');
     await delayForDuration(0.1);
     MQTTpublish(log, 'Source', 'Channel\\ A');
@@ -338,14 +338,14 @@ describe('TVAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON',
-		 'Channel-A',
-		 'Channel-C',
-		 'OFF'
-	       ],
-	       count: 4
-	     });
+      codes: [
+        'ON',
+        'Channel-A',
+        'Channel-C',
+        'OFF'
+      ],
+      count: 4
+    });
 
     TVAccessory.mqttClient.end();
   });

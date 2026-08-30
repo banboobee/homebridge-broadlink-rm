@@ -21,8 +21,8 @@ function delayForDuration(duration) {
       this.isCancelled = true;
 
       callback ?
-	callback(new Error(TIMEOUT_CANCELLATION)):
-	endTimer(new Error(TIMEOUT_CANCELLATION));
+        callback(new Error(TIMEOUT_CANCELLATION)):
+        endTimer(new Error(TIMEOUT_CANCELLATION));
     }
   }
 

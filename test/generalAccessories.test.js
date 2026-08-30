@@ -23,24 +23,24 @@ describe('disableLogs', () => {
         {
           name: 'Test',
           type: 'switch',
-	  persistState: false,
+          persistState: false,
           disableLogs: true
         }
       ]
     };
-  
+
     const {platform, accessories} = await getAccessories(config);
     expect(platform.constructor.isUnitTest).to.equal(true);
     expect(accessories[0].constructor.isUnitTest).to.equal(true);
-    
+
   });
 
   it('check config', async () => {
     let platform, accessories, config;
     config = {
-      unknown: true,			// error
+      unknown: true,                    // error
       isUnitTest: true,
-      hideScanFrequencyButton: 'true',	// error
+      hideScanFrequencyButton: 'true',  // error
       disableLogs: true,
       logLevel: 'debug',
       hideLearnButton: true,
@@ -48,65 +48,65 @@ describe('disableLogs', () => {
         {
           name: 'Test1',
           type: 'switch',
-	  persistState: 'false',	// ignored
-          disableLogs: 'true',		// ignored
-	  isUnitTest: true,		// error
+          persistState: 'false',        // ignored
+          disableLogs: 'true',          // ignored
+          isUnitTest: true,             // error
         },
         {
-          name: 'Test2',		// error
+          name: 'Test2',                // error
           type: 'switch2',
         },
         {
-          name: 'Test3',		// error
+          name: 'Test3',                // error
           type: 'switch3',
         },
-        {				// error
+        {                               // error
           name: 'Test4',
         },
         {
-          name: 'Test5',		// error
+          name: 'Test5',                // error
           type: 'switch-multi',
         },
         {
-          name: 'Test6',		// error
+          name: 'Test6',                // error
           type: 'switch-multi-repeat',
         },
         {
-          name: 'Test7',		// error
+          name: 'Test7',                // error
           type: 'switch-repeat',
         },
         'switch-repeat',
       ]
     };
-  
+
     ({platform, accessories} = await getAccessories(config));
     expect(platform.constructor.isUnitTest).to.equal(true);
     expect(accessories[0].constructor.isUnitTest).to.equal(true);
-    
+
     config = {
       isUnitTest: true,
       disableLogs: true,
-      logLevel: 'DEBUG',		// error
-      hosts: {				// error
-	address: '192.168.0.1',
-	mac: 'xx:xx:xx:xx',
+      logLevel: 'DEBUG',                // error
+      hosts: {                          // error
+        address: '192.168.0.1',
+        mac: 'xx:xx:xx:xx',
       },
       accessories: [
         {
           type: 'switch',
-	  logLevel: 'DEBUG',		// error
+          logLevel: 'DEBUG',            // error
         },
       ]
     };
     ({platform, accessories} = await getAccessories(config));
-    
+
     config = {
       isUnitTest: true,
       disableLogs: true,
-      logLevel: 'DEBUG',		// error
+      logLevel: 'DEBUG',                // error
       hosts: [
-	'192.168.0.1',			// error
-	'xx:xx:xx:xx',			// error
+        '192.168.0.1',                  // error
+        'xx:xx:xx:xx',                  // error
       ],
       accessories: [
         {
@@ -115,26 +115,26 @@ describe('disableLogs', () => {
       ]
     };
     ({platform, accessories} = await getAccessories(config));
-    
+
     config = {
       isUnitTest: true,
       disableLogs: true,
       logLevel: 'debug',
       hosts: [
-	{
-	  address: '192.168.0.1',
-	  mac: 'xx:xx:xx:xx',
-	  isRM4: true,
-	  isRFSupported: true,
-	  unknown: true,		// debug
-	},
-	{
-	  unknown: true,		// debug
-	  // address: '192.168.0.1',	// error
-	  // mac: 'xx:xx:xx:xx',	// error
-	  isRM4: true,
-	  isRFSupported: true
-	}
+        {
+          address: '192.168.0.1',
+          mac: 'xx:xx:xx:xx',
+          isRM4: true,
+          isRFSupported: true,
+          unknown: true,                // debug
+        },
+        {
+          unknown: true,                // debug
+          // address: '192.168.0.1',    // error
+          // mac: 'xx:xx:xx:xx',        // error
+          isRM4: true,
+          isRFSupported: true
+        }
       ],
       accessories: [
         {
@@ -143,7 +143,7 @@ describe('disableLogs', () => {
       ]
     };
     ({platform, accessories} = await getAccessories(config));
-    
+
   });
 
   // it('disableLogs true returns empty function', async () => {
@@ -156,16 +156,16 @@ describe('disableLogs', () => {
   //       {
   //         name: 'Test',
   //         type: 'switch',
-  // 	  persistState: false,
+  //      persistState: false,
   //         disableLogs: true
   //       }
   //     ]
   //   };
-  
+
   //   const {accessories} = await getAccessories(config);
   //   const logFunctionAsString = accessories[0].log.toString();
   //   const isEmptyFunction = logFunctionAsString === '() => {}';
-    
+
   //   expect(isEmptyFunction).to.equal(true);
   // });
 
@@ -178,7 +178,7 @@ describe('disableLogs', () => {
   //       {
   //         name: 'Test',
   //         type: 'switch',
-  // 	  persistState: false,
+  //      persistState: false,
   //       }
   //     ]
   //   };
@@ -200,65 +200,81 @@ describe('disableLogs', () => {
         {
           name: 'Test1',
           type: 'switch',
-	  persistState: false,
-	  logLevel: 'trace',
-	  pingGrace: 0.1,
-	  data: {
-	    on: [
-	      {data: 'ON11',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2},
-	      {data: 'ON12',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ],
-	    off: [
-	      {data: 'OFF11',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2},
-	      {data: 'OFF12',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ]
-	  },
+          persistState: false,
+          logLevel: 'trace',
+          pingGrace: 0.1,
+          data: {
+            on: [
+              {
+                data: 'ON11',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              },
+              {
+                data: 'ON12',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ],
+            off: [
+              {
+                data: 'OFF11',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              },
+              {
+                data: 'OFF12',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ]
+          },
         },
         {
           name: 'Test2',
           type: 'switch',
-	  persistState: false,
+          persistState: false,
           disableLogs: false,
-	  logLevel: 'trace',
-	  pingGrace: 0.1,
-	  data: {
-	    on: [
-	      {data: 'ON21',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2},
-	      {data: 'ON22',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ],
-	    off: [
-	      {data: 'OFF21',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2},
-	      {data: 'OFF22',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ]
-	  },
+          logLevel: 'trace',
+          pingGrace: 0.1,
+          data: {
+            on: [
+              {
+                data: 'ON21',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              },
+              {
+                data: 'ON22',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ],
+            off: [
+              {
+                data: 'OFF21',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              },
+              {
+                data: 'OFF22',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ]
+          },
         }
       ]
     };
-    
+
     const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
@@ -266,23 +282,23 @@ describe('disableLogs', () => {
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, false);
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, false);
 
-    
+
     await delayForDuration(2.4);
-    
+
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON11', 'ON11',
-		 'ON12', 'ON12',
-		 'ON21', 'ON21',
-		 'ON22', 'ON22',
-		 'OFF11', 'OFF11',
-		 'OFF12', 'OFF12',
-		 'OFF21', 'OFF21',
-		 'OFF22', 'OFF22'
-	       ],
-	       count: 16
-	     });
+      codes: [
+        'ON11', 'ON11',
+        'ON12', 'ON12',
+        'ON21', 'ON21',
+        'ON22', 'ON22',
+        'OFF11', 'OFF11',
+        'OFF12', 'OFF12',
+        'OFF21', 'OFF21',
+        'OFF22', 'OFF22'
+      ],
+      count: 16
+    });
   }).timeout(4000);
 
   it('Advanced HEX with timeout', async () => {
@@ -295,37 +311,47 @@ describe('disableLogs', () => {
         {
           name: 'Test1',
           type: 'switch',
-	  persistState: false,
-	  logLevel: 'trace',
-	  pingGrace: 0.1,
-	  data: {
-	    on: [
-	      {timeout: 0.4},
-	      {data: 'ON11',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2},
-	      {data: 'ON12',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ],
-	    off: [
-	      {data: 'OFF11',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2,
-	       timeout: 0.3},
-	      {data: 'OFF12',
-	       sendCount: 2,
-	       interval: 0.1,
-	       pause: 0.2}
-	    ]
-	  },
+          persistState: false,
+          logLevel: 'trace',
+          pingGrace: 0.1,
+          data: {
+            on: [
+              {
+                timeout: 0.4
+              },
+              {
+                data: 'ON11',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              },
+              {
+                data: 'ON12',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ],
+            off: [
+              {
+                data: 'OFF11',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2,
+                timeout: 0.3
+              },
+              {
+                data: 'OFF12',
+                sendCount: 2,
+                interval: 0.1,
+                pause: 0.2
+              }
+            ]
+          },
         },
       ]
     };
-    
+
     const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, false);
@@ -334,15 +360,15 @@ describe('disableLogs', () => {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON11', 'ON11',
-		 'ON12',
-	      // 'ON12',
-		 'OFF11', 'OFF11',
-	      // 'OFF12', 'OFF12',
-	       ],
-	       count: 5
-	     });
+      codes: [
+        'ON11', 'ON11',
+        'ON12',
+        // 'ON12',
+        'OFF11', 'OFF11',
+        // 'OFF12', 'OFF12',
+      ],
+      count: 5
+    });
   }).timeout(4000);
 
   it('Context HEX', async () => {
@@ -351,35 +377,38 @@ describe('disableLogs', () => {
       allowResend: false,
       name: 'AirConditioner',
       data: {
-	on: 'ON',
-	off: [
-	  {pause: 0.1},
-	  {sendCount: 2,
-	   eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : (targetHeatingCoolingState === 2 ? 'COOL_OFF' : 'OFF')",
-	   interval: 0.2,
-	   pause: 0.1
-	  },
-	],
-	temperature16: {
-	  'pseudo-mode': 'cool',
-	  'data': 'TEMPERATURE_16'
-	},
-	temperature18: {
-	  'pseudo-mode': 'cool',
-	  'data': 'TEMPERATURE_18'
-	},
-	temperature23: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_23'
-	},
-	temperature26: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_26'
-	},
-	temperature30: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_30'
-	}
+        on: 'ON',
+        off: [
+          {
+            pause: 0.1
+          },
+          {
+            sendCount: 2,
+            eval: "targetHeatingCoolingState === 1 ? 'HEAT_OFF' : (targetHeatingCoolingState === 2 ? 'COOL_OFF' : 'OFF')",
+            interval: 0.2,
+            pause: 0.1
+          },
+        ],
+        temperature16: {
+          'pseudo-mode': 'cool',
+          'data': 'TEMPERATURE_16'
+        },
+        temperature18: {
+          'pseudo-mode': 'cool',
+          'data': 'TEMPERATURE_18'
+        },
+        temperature23: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_23'
+        },
+        temperature26: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_26'
+        },
+        temperature30: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_30'
+        }
       },
       replaceAutoMode: 'cool',
       logLevel: 'trace',
@@ -415,35 +444,38 @@ describe('disableLogs', () => {
       allowResend: false,
       name: 'AirConditioner',
       data: {
-	on: 'ON',
-	off: [
-	  {pause: 0.1},
-	  {sendCount: 2,
-	   eval: "HeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
-	   interval: 0.2,
-	   pause: 0.1
-	  },
-	],
-	temperature16: {
-	  'pseudo-mode': 'cool',
-	  'data': 'TEMPERATURE_16'
-	},
-	temperature18: {
-	  'pseudo-mode': 'cool',
-	  'data': 'TEMPERATURE_18'
-	},
-	temperature23: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_23'
-	},
-	temperature26: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_26'
-	},
-	temperature30: {
-	  'pseudo-mode': 'heat',
-	  'data': 'TEMPERATURE_30'
-	}
+        on: 'ON',
+        off: [
+          {
+            pause: 0.1
+          },
+          {
+            sendCount: 2,
+            eval: "HeatingCoolingState === 1 ? 'HEAT_OFF' : 'COOL_OFF'",
+            interval: 0.2,
+            pause: 0.1
+          },
+        ],
+        temperature16: {
+          'pseudo-mode': 'cool',
+          'data': 'TEMPERATURE_16'
+        },
+        temperature18: {
+          'pseudo-mode': 'cool',
+          'data': 'TEMPERATURE_18'
+        },
+        temperature23: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_23'
+        },
+        temperature26: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_26'
+        },
+        temperature30: {
+          'pseudo-mode': 'heat',
+          'data': 'TEMPERATURE_30'
+        }
       },
       replaceAutoMode: 'cool',
       logLevel: 'trace',

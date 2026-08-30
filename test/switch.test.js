@@ -18,7 +18,7 @@ const data = {
 describe('switchAccessory', async function() {
 
   const MQTTready = await MQTTtest();
-  
+
   let switchAccessory;
 
   afterEach(function() {
@@ -31,40 +31,40 @@ describe('switchAccessory', async function() {
     const config = {
       name: 'Switch',
       data,
-      logLevel: 'DEBUG',	// ERROR
+      logLevel: 'DEBUG',        // ERROR
       pingGrace: 0.1,
-      persistState: 'false',	// ERROR
+      persistState: 'false',    // ERROR
       enableAutoOn: true,
       enableAutoOff: true,
       onDuration: '1.0',
       offDuration: '1.0',
       disableAutomaticOn: true,
       disableAutomaticOff: true,
-      noHistory: 'false',	// ERROR
+      noHistory: 'false',       // ERROR
       host: device.host.address,
       mqttTopic: [
-	{
+        {
           identifier: "on",
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{
-          identifier: "off",	// ERROR
+        },
+        {
+          identifier: "off",    // ERROR
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{			// ERROR
+        },
+        {                       // ERROR
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{
+        },
+        {
           identifier: "on",
           topic: "homebridge-broadlink-rm/UT/on",
-	  characteristic: 'on',
-	  
-	},
+          characteristic: 'on',
+
+        },
       ]
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
-     await delayForDuration(0.1);
+    await delayForDuration(0.1);
   });
 
   // Switch Turn On
@@ -79,11 +79,11 @@ describe('switchAccessory', async function() {
       persistState: false,
       host: device.host.address
     }
-    
-    
+
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
-    
+
     await delayForDuration(0.1);
 
     expect(switchAccessory.state.switchState).to.equal(true);
@@ -110,7 +110,7 @@ describe('switchAccessory', async function() {
       persistState: false,
       host: device.host.address
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
     // Turn On Switch
@@ -118,7 +118,7 @@ describe('switchAccessory', async function() {
     await delayForDuration(0.1);
 
     expect(switchAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Switch
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     await delayForDuration(0.1);
@@ -149,7 +149,7 @@ describe('switchAccessory', async function() {
       enableAutoOff: true,
       onDuration: 1
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
 
@@ -160,7 +160,7 @@ describe('switchAccessory', async function() {
     await delayForDuration(0.4);
     // Expecting on after 0.4s total
     expect(switchAccessory.state.switchState).to.equal(true);
-    
+
     await delayForDuration(0.7);
     // Expecting off after 1.1s total
     expect(switchAccessory.state.switchState).to.equal(false);
@@ -181,7 +181,7 @@ describe('switchAccessory', async function() {
       enableAutoOn: true,
       offDuration: 1
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
 
     // Turn On Switch
@@ -195,7 +195,7 @@ describe('switchAccessory', async function() {
     await delayForDuration(0.4);
     // Expecting off after 0.4s total
     expect(switchAccessory.state.switchState).to.equal(false);
-    
+
     await delayForDuration(0.7);
     // Expecting on after 1.1s total
     expect(switchAccessory.state.switchState).to.equal(true);
@@ -214,7 +214,7 @@ describe('switchAccessory', async function() {
       pingGrace: 0.1,
       persistState: true
     }
-    
+
     let switchAccessory
 
     // Turn On Switch
@@ -225,7 +225,7 @@ describe('switchAccessory', async function() {
     // Should still be on when loading within a new instance
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Switch
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     expect(switchAccessory.state.switchState).to.equal(false);
@@ -246,7 +246,7 @@ describe('switchAccessory', async function() {
       host: device.host.address,
       name: 'Unit Test Switch'
     }
-    
+
     let switchAccessory
 
     // Turn On Switch
@@ -274,7 +274,7 @@ describe('switchAccessory', async function() {
       pingIPAddress: '192.168.1.1',
       isUnitTest: true
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
@@ -298,10 +298,10 @@ describe('switchAccessory', async function() {
       pingIPAddress: '192.168.1.1',
       isUnitTest: true
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
-    
+
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: false }));
 
     await delayForDuration(0.3);
@@ -325,10 +325,10 @@ describe('switchAccessory', async function() {
       pingIPAddressStateOnly: true,
       isUnitTest: true
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
-    
+
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -353,10 +353,10 @@ describe('switchAccessory', async function() {
       pingIPAddressStateOnly: false,
       isUnitTest: true
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     expect(switchAccessory.state.switchState).to.equal(undefined);
-    
+
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -384,7 +384,7 @@ describe('switchAccessory', async function() {
       resendHexAfterReloadDelay: 0.1,
       isUnitTest: true
     }
-    
+
     let switchAccessory
 
     // Turn On Switch
@@ -456,7 +456,7 @@ describe('switchAccessory', async function() {
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
   });
-  
+
   (MQTTready ? it : it.skip)('"mqttStateOnly": true', async function() {
     const { platform, device, log } = setup();
 
@@ -470,16 +470,16 @@ describe('switchAccessory', async function() {
       mqttStateOnly: true,
       mqttURL: "mqtt://localhost",
       mqttTopic: [
-	{
+        {
           "identifier": "on",
           "topic": "homebridge-broadlink-rm/UT/on"
-	},
+        },
       ]
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     await delayForDuration(0.1);
-    
+
     await MQTTpublish(log, 'on', 'true');
     await delayForDuration(0.1);
     expect(switchAccessory.state.switchState).to.equal(true);
@@ -500,16 +500,16 @@ describe('switchAccessory', async function() {
       mqttStateOnly: false,
       mqttURL: "mqtt://localhost",
       mqttTopic: [
-	{
+        {
           "identifier": "on",
           "topic": "homebridge-broadlink-rm/UT/on"
-	},
+        },
       ]
     }
-    
+
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     await delayForDuration(0.1);
-    
+
     MQTTpublish(log, 'on', true);
     await delayForDuration(0.1);
     expect(switchAccessory.state.switchState).to.equal(true);
@@ -520,12 +520,12 @@ describe('switchAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON',
-		 'OFF'
-	       ],
-	       count: 2
-	     });
+      codes: [
+        'ON',
+        'OFF'
+      ],
+      count: 2
+    });
 
     switchAccessory.mqttClient.end();
   });

@@ -3,14 +3,14 @@ const { expect } = require('chai');
 const { setup, getDevices } = require('./helpers/setup');
 const delayForDuration = require('../helpers/delayForDuration');
 
-describe.skip('Broadlink device', () => {
+describe('Broadlink device', () => {
 
   it('discover', async () => {
     const config = {
       deviceDiscoveryTimeout: 3
     };
     const {broadlink} = await getDevices(config);
-    
+
     await delayForDuration(1.5);
 
     const devices = Object.keys(broadlink.devices);
@@ -23,7 +23,7 @@ describe.skip('Broadlink device', () => {
     });
     await delayForDuration(1);
 
-    broadlink.close();	// No device pollings due to null config.
+    broadlink.close();  // No device pollings due to null config.
   }).timeout(3000);
 
   it('re-discover', async () => {
@@ -48,7 +48,7 @@ describe.skip('Broadlink device', () => {
 
     await delayForDuration(5.1);
     expect(discoveryAccessory.state.switchState).to.equal(false);
-    
+
     broadlink.close();
   }).timeout(11000);
 
@@ -58,17 +58,17 @@ describe.skip('Broadlink device', () => {
     const discoveryAccessory1 = new platform.classTypes['discover-device'](
       log,
       {
-	name: 'discover1',
-	timeout: 0.1,
-	logLevel: 'debug'
+        name: 'discover1',
+        timeout: 0.1,
+        logLevel: 'debug'
       },
       platform);
     const discoveryAccessory2 = new platform.classTypes['discover-device'](
       log,
       {
-	name: 'discover2',
-	timeout: 0.1,
-	logLevel: 'debug'
+        name: 'discover2',
+        timeout: 0.1,
+        logLevel: 'debug'
       },
       platform);
 
@@ -80,7 +80,7 @@ describe.skip('Broadlink device', () => {
     expect(discoveryAccessory2.state.switchState).to.equal(false);
     await delayForDuration(4);
     expect(discoveryAccessory1.state.switchState).to.equal(false);
-    
+
     broadlink.close();
   }).timeout(6000);
 })

@@ -3,7 +3,7 @@ const delayForDuration = require('../../helpers/delayForDuration')
 
 const pingIPAddress = async function (ipAddress, interval, callback) {
   performPing(this.isActive, callback)
-  
+
   for (let i = 0; i < 2; i++) {
     performPing(this.isActive, callback)
     await delayForDuration(1.0);
@@ -12,7 +12,7 @@ const pingIPAddress = async function (ipAddress, interval, callback) {
 
 // const pingIPAddress = function (ipAddress, interval, callback) {
 //   performPing(this.isActive, callback)
-  
+
 //   return setInterval(() => {
 //     performPing(this.isActive, callback)
 //   }, interval * 1000);
@@ -26,4 +26,3 @@ const performPing = (isActive, callback) => {
 }
 
 module.exports = pingIPAddress;
-  

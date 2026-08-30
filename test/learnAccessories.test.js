@@ -9,15 +9,15 @@ describe('learnAccessories', () => {
   it('empty config results in 2 accessories', async () => {
     const config = { disableLogs: true, isUnitTest: true };
     const {accessories} = await getAccessories(config);
-   
+
     expect(accessories.length).to.equal(2);
   });
-  
+
   // hideScanFrequencyButton
   it('hideScanFrequencyButton set to true in config results in 1 accessory', async () => {
     const config = { disableLogs: true, hideScanFrequencyButton: true, isUnitTest: true };
     const {accessories} = await getAccessories(config);
-    
+
     expect(accessories.length).to.equal(1);
   });
 
@@ -25,7 +25,7 @@ describe('learnAccessories', () => {
   it('hideLearnButton set to true in config results in 1 accessory', async () => {
     const config = { disableLogs: true, hideLearnButton: true, isUnitTest: true };
     const {accessories} = await getAccessories(config);
-    
+
     expect(accessories.length).to.equal(1);
   });
 
@@ -33,7 +33,7 @@ describe('learnAccessories', () => {
   it('hideDiscoverButton set to false in config results in 3 accessory', async () => {
     const config = { disableLogs: true, hideDiscoverButton: false, isUnitTest: true };
     const {accessories} = await getAccessories(config);
-    
+
     expect(accessories.length).to.equal(3);
   });
 })

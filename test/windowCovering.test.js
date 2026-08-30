@@ -26,9 +26,9 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
-    
+
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.1);
   })
 
@@ -44,9 +44,9 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
-    
+
     expect(windowCoveringAccessory.config.initialDelay).to.equal(0.5);
   })
 
@@ -61,7 +61,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     };
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const totalDurationOpen = 5;
@@ -96,7 +96,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
@@ -139,7 +139,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const durationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
@@ -194,7 +194,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     const openDurationPerPercent = windowCoveringAccessory.determineOpenCloseDurationPerPercent({
@@ -245,7 +245,7 @@ describe('windowCoveringAccessory', () => {
   // Test initialDelay
   it('"initialDelay": 1', async () => {
     const { platform, device, log } = setup();
-  
+
     const config = {
       name: 'WindowCovering',
       data,
@@ -255,29 +255,29 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
-  
+
     windowCoveringAccessory.determineOpenCloseDurationPerPercent({
       opening: true,
       totalDurationOpen: config.totalDurationOpen,
       totalDurationClose: config.totalDurationClose
     });
-  
+
     // Set Blinds to 10%
     windowCoveringAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 10);
-  
+
     // Wait for initialDelay. Subtract .1 to allow for minor timeout discrepancies.
     await delayForDuration(windowCoveringAccessory.config.initialDelay - .1);
-  
+
     // Ensure `initialDelay` has been taken into account by checking that no hex codes have
     // been sent yet.
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
-    
+
   }).timeout(6000);
 
-  
+
   // Open blinds to 100%
   it('0% -> 100%', async () => {
     const { platform, device, log } = setup();
@@ -292,7 +292,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     windowCoveringAccessory.determineOpenCloseDurationPerPercent({
@@ -334,7 +334,7 @@ describe('windowCoveringAccessory', () => {
       persistState: false,
       host: device.host.address
     }
-    
+
     const windowCoveringAccessory = new platform.classTypes['window-covering'](log, config, platform);
 
     windowCoveringAccessory.determineOpenCloseDurationPerPercent({

@@ -35,11 +35,11 @@ class FakeDevice {
 
   hasSentCodes (hexCodes) {
     let hasSentCodes = true
-    
+
     hexCodes.forEach((hexCode) => {
       if (this.sentHexCodes.indexOf(hexCode) === -1) {hasSentCodes = false}
     })
-  
+
     return hasSentCodes
   }
 
@@ -71,7 +71,7 @@ class FakeDevice {
   }
 
   checkTemperature () {
-    
+
   }
 
   setFailureResponseOnSendData(mode) {

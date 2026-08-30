@@ -36,7 +36,7 @@ const defaultConfig = {
 describe('lightAccessory', async function() {
 
   const MQTTready = await MQTTtest();
-  
+
   let lightAccessory;
 
   afterEach(function() {
@@ -49,36 +49,36 @@ describe('lightAccessory', async function() {
     const config1 = {
       ...defaultConfig,
       host: device.host.address,
-      pingGrace: '0.1',		// ERROR
-      onDelay: '0.1',		// ERROR
+      pingGrace: '0.1',         // ERROR
+      onDelay: '0.1',           // ERROR
       enableAutoOn: true,
       enableAutoOff: true,
       disableAutomaticOn: true,
       disableAutomaticOff: true,
       onDuration: '1.0',
       offDuration: '1.0',
-      noHistory: 'false',	// ERROR
+      noHistory: 'false',       // ERROR
       mqttTopic: [
-	{
+        {
           identifier: "on",
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{
+        },
+        {
           identifier: "off",
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{			// ERROR
+        },
+        {                       // ERROR
           topic: "homebridge-broadlink-rm/UT/on"
-	},
-	{
+        },
+        {
           identifier: "on",
           topic: "homebridge-broadlink-rm/UT/on",
-	  characteristic: 'on',	// ERROR
-	  
-	},
+          characteristic: 'on', // ERROR
+
+        },
       ]
     }
-    
+
     lightAccessory = new platform.classTypes['light'](log, config1, platform);
     await delayForDuration(0.1);
 
@@ -86,13 +86,13 @@ describe('lightAccessory', async function() {
       ...defaultConfig,
       host: device.host.address,
       data: {
-	availableBrightnessSteps:10,
+        availableBrightnessSteps:10,
         // 'brightness+': 'BRIGHTNESS+',
         'brightness-': 'BRIGHTNESS-',
-	availableColorTemperatureSteps:10,
+        availableColorTemperatureSteps:10,
       }
     }
-    
+
     lightAccessory = new platform.classTypes['light'](log, config2, platform);
     await delayForDuration(0.1);
 
@@ -111,7 +111,7 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDelay: 0.1
     }
-    
+
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
@@ -124,7 +124,7 @@ describe('lightAccessory', async function() {
     // Check that defaultBrightness was used (default 100);
     expect(lightAccessory.state.brightness).to.equal(100);
     expect(lightAccessory.state.switchState).to.equal(true);
-    
+
     // Check hex code was sent
     const hasSentCodes = device.hasSentCodes([ 'ON', 'BRIGHTNESS40' ]);
     expect(hasSentCodes).to.equal(true);
@@ -152,7 +152,7 @@ describe('lightAccessory', async function() {
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.2);
     expect(lightAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     await delayForDuration(0.2);
@@ -198,7 +198,7 @@ describe('lightAccessory', async function() {
     // Check that 2 codes have been sent
     let sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-    
+
     // Turn Off Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     await delayForDuration(0.2);
@@ -255,7 +255,7 @@ describe('lightAccessory', async function() {
     // Check that only one code has been sent
     let sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-    
+
     // Turn Off Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     await delayForDuration(0.2);
@@ -297,7 +297,7 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDuration: 1
     }
-    
+
     lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
@@ -309,7 +309,7 @@ describe('lightAccessory', async function() {
 
     // Expecting "on" after 0.4s total
     expect(lightAccessory.state.switchState).to.equal(true);
-    
+
     await delayForDuration(0.9);
 
     // Expecting "off" after 1.3s total
@@ -329,7 +329,7 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       offDuration: 1
     }
-    
+
     lightAccessory = new platform.classTypes['light'](log, config, platform);
 
     // Turn On Light
@@ -345,7 +345,7 @@ describe('lightAccessory', async function() {
     // Expecting off after 0.4s
     await delayForDuration(0.4);
     expect(lightAccessory.state.switchState).to.equal(false);
-    
+
     await delayForDuration(0.7);
 
     // Expecting on after 1.1s total
@@ -422,8 +422,8 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDelay: 0.1
     }
-    
-    
+
+
 
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 36);
@@ -455,8 +455,8 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDelay: 0.1
     }
-    
-    
+
+
 
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Hue, 20);
@@ -596,7 +596,7 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       persistState: true
     }
-    
+
     let lightAccessory
 
     // Turn On Light
@@ -607,7 +607,7 @@ describe('lightAccessory', async function() {
     // Should still be on when loading within a new instance
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     expect(lightAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Light
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     expect(lightAccessory.state.switchState).to.equal(false);
@@ -618,7 +618,7 @@ describe('lightAccessory', async function() {
   });
 
   it('"persistState": false', async function() {
-        const { platform, device, log } = setup();
+    const { platform, device, log } = setup();
 
 
     const config = {
@@ -627,7 +627,7 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       name: 'Unit Test Light'
     }
-    
+
     let lightAccessory
 
     // Turn On Light
@@ -645,7 +645,7 @@ describe('lightAccessory', async function() {
   it('"resendHexAfterReload": true, "persistState": true', async function() {
     const { platform, device, log } = setup();
 
-    
+
     const config = {
       ...defaultConfig,
       host: device.host.address,
@@ -667,7 +667,7 @@ describe('lightAccessory', async function() {
     await delayForDuration(0.3);
 
     device.resetSentHexCodes();
-    
+
     // Check that no code has been sent
     let sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
@@ -690,7 +690,7 @@ describe('lightAccessory', async function() {
 
     // Check that only one code has been sent
     sentHexCodeCount = device.getSentHexCodeCount();
-    // expect(sentHexCodeCount).to.equal(2);	// including brightness?
+    // expect(sentHexCodeCount).to.equal(2);    // including brightness?
     expect(sentHexCodeCount).to.equal(1);
   }).timeout(2000);
 
@@ -708,7 +708,7 @@ describe('lightAccessory', async function() {
       resendHexAfterReload: false,
       resendHexAfterReloadDelay: 0.1
     }
-    
+
     let lightAccessory
 
     // Turn On Light
@@ -754,23 +754,23 @@ describe('lightAccessory', async function() {
         availableBrightnessSteps: 3,
         'brightness+': 'BRIGHTNESS+',
         'brightness-': 'BRIGHTNESS-',
-	availableColorTemperatureSteps: 5,
-	'colorTemperature+': 'COLORTEMPERATURE+',
-	'colorTemperature-': 'COLORTEMPERATURE-',
+        availableColorTemperatureSteps: 5,
+        'colorTemperature+': 'COLORTEMPERATURE+',
+        'colorTemperature-': 'COLORTEMPERATURE-',
         "on": 'ON',
         "off": 'OFF'
       },
       host: device.host.address,
       pingGrace: 0.1
     }
-    
+
     // Turn On Light
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     device.setFailureResponseOnSendData('random');
 
     lightAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.1);
-    
+
     lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 500);
     await delayForDuration(0.1);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.ColorTemperature, 320);
@@ -787,15 +787,15 @@ describe('lightAccessory', async function() {
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 90);
     await delayForDuration(0.1);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 30);
-    
+
     await delayForDuration(0.2);
     // No expected values due to random fails.
     // expect(lightAccessory.state.brightness).to.equal(90);
     // hexCheck({ device,
-    // 	       codes: ['BRIGHTNESS-', 'BRIGHTNESS-',
-    // 		       'BRIGHTNESS+', 'BRIGHTNESS+'
-    // 		      ],
-    // 	       count: 4});
+    //         codes: ['BRIGHTNESS-', 'BRIGHTNESS-',
+    //                 'BRIGHTNESS+', 'BRIGHTNESS+'
+    //                ],
+    //         count: 4});
 
   }).timeout(3000);
 
@@ -821,10 +821,10 @@ describe('lightAccessory', async function() {
       mqttStateOnly: false,
       host: device.host.address
     };
-    
+
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     await delayForDuration(0.3);
-    
+
     MQTTpublish(log, 'On', 'true');
     MQTTpublish(log, 'Brightness', 1);
     await delayForDuration(0.3);
@@ -832,11 +832,11 @@ describe('lightAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON', 'BRIGHTNESS5'
-	       ],
-	       count: 2
-	     });
+      codes: [
+        'ON', 'BRIGHTNESS5'
+      ],
+      count: 2
+    });
 
     lightAccessory.mqttClient.end();
   });
@@ -847,10 +847,10 @@ describe('lightAccessory', async function() {
       name: 'Light',
       type: 'light',
       data: {
-	on: 'ON',
-	off: 'OFF',
-	brightness5: 'BRIGHTNESS5',
-	brightness40: 'BRIGHTNESS40'
+        on: 'ON',
+        off: 'OFF',
+        brightness5: 'BRIGHTNESS5',
+        brightness40: 'BRIGHTNESS40'
       },
       mqttURL: "mqtt://localhost",
       mqttTopic: [
@@ -870,10 +870,10 @@ describe('lightAccessory', async function() {
       mqttStateOnly: true,
       host: device.host.address
     };
-    
+
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     await delayForDuration(0.3);
-    
+
     MQTTpublish(log, 'On', 'true');
     MQTTpublish(log, 'Brightness', 1);
     await delayForDuration(0.3);
@@ -881,14 +881,14 @@ describe('lightAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-	       ],
-	       count: 0
-	     });
+      codes: [
+      ],
+      count: 0
+    });
 
     lightAccessory.mqttClient.end();
   });
-  
+
   it('exclusives', async function() {
     const config = {
       isUnitTest: true,
@@ -899,41 +899,41 @@ describe('lightAccessory', async function() {
         {
           name: 'Light1',
           type: 'light',
-	  persistState: false,
-	  logLevel: 'trace',
-	  pingGrace: 0.1,
-	  data: {
-	      on: 'ON@LIGHT1',
-	      off: 'OFF@LIGHT1',
-	      brightness5: 'BRIGHTNESS5@LIGHT1',
-	      brightness40: 'BRIGHTNESS40@LIGHT1'
-	  }
+          persistState: false,
+          logLevel: 'trace',
+          pingGrace: 0.1,
+          data: {
+            on: 'ON@LIGHT1',
+            off: 'OFF@LIGHT1',
+            brightness5: 'BRIGHTNESS5@LIGHT1',
+            brightness40: 'BRIGHTNESS40@LIGHT1'
+          }
         },
         {
           name: 'Light2',
           type: 'light',
-	  persistState: false,
-	  logLevel: 'trace',
-	  pingGrace: 0.1,
-	  exclusives: [
-	    "Light1"
-	  ],
-	  data: {
-	      on: 'ON@LIGHT2',
-	      off: 'OFF@LIGHT2',
-	      brightness5: 'BRIGHTNESS5@LIGHT2',
-	      brightness40: 'BRIGHTNESS40@LIGHT2'
-	  }
+          persistState: false,
+          logLevel: 'trace',
+          pingGrace: 0.1,
+          exclusives: [
+            "Light1"
+          ],
+          data: {
+            on: 'ON@LIGHT2',
+            off: 'OFF@LIGHT2',
+            brightness5: 'BRIGHTNESS5@LIGHT2',
+            brightness40: 'BRIGHTNESS40@LIGHT2'
+          }
         }
       ]
     };
-    
+
     const {device, accessories} = await getAccessories(config);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
     expect(accessories[0].state.switchState).to.equal(true);
 
-    
+
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
     expect(accessories[0].state.switchState).to.equal(false);
@@ -948,13 +948,13 @@ describe('lightAccessory', async function() {
 
     // Check hex codes were sent
     hexCheck({ device,
-	       codes: [
-		 'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1',
-		 'ON@LIGHT2', 'BRIGHTNESS40@LIGHT2',
-		 'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1'
-	       ],
-	       count: 6
-	     });
+      codes: [
+        'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1',
+        'ON@LIGHT2', 'BRIGHTNESS40@LIGHT2',
+        'ON@LIGHT1', 'BRIGHTNESS40@LIGHT1'
+      ],
+      count: 6
+    });
   });
 
 })

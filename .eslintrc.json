@@ -31,7 +31,7 @@
 
         "global-require": "off",
         "no-unused-vars": ["warn", {"args": "none"}], 
-        "no-mixed-spaces-and-tabs": "off",
+        "no-mixed-spaces-and-tabs": "warn",
         "no-fallthrough": "off",
         "no-unreachable": "off",
         "no-empty": "off",
@@ -46,7 +46,7 @@
         "dot-notation": 0,
         "no-autofix/prefer-const": "warn",
 
-        "indent": 0,
+        "indent": ["error", 2, { "SwitchCase": 1 }],
         "linebreak-style": ["error", "unix"],
 	"curly": 0
     }

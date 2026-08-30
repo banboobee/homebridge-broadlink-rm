@@ -4,10 +4,11 @@ const BroadlinkRMPlatform = require('../../platform');
 const FakeDevice = require('./fakeDevice')
 const { broadlink, addDevice, discoverDevices } = require('../../helpers/getDevice')
 
-const homebridge = {hap: hap,
-		    on: () => {},
-		    user: {storagePath: () => {return './'}}
-		   };
+const homebridge = {
+  hap: hap,
+  on: () => {},
+  user: {storagePath: () => {return './'}}
+};
 // const log = (format, ...args) => {
 //   const now = `[${(new Date()).toLocaleString()}]`;
 //   format = now + ' ' + format;
@@ -72,7 +73,7 @@ const getDevices = (config, auto = true) => {
   const { platform, device, log } = setup(config)
 
   discoverDevices(auto, log, 0, 1);
-  
+
   return { platform, device, log, broadlink };
 }
 

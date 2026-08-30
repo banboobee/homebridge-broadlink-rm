@@ -7,7 +7,7 @@ module.exports = async (homebridge) => {
   global.cachedAccessories = [];
   global.eve = new EveHomeKitTypes( homebridge )
   global.HistoryService = fakegatoHistory( homebridge );
-  
+
   global.Service = homebridge.hap.Service;
   global.Accessory = homebridge.hap.Accessory;
   global.Characteristic = homebridge.hap.Characteristic;

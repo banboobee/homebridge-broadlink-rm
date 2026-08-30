@@ -4,7 +4,7 @@ const mqtt = require('mqtt');
 
 class HomebridgeAccessory {
   static ServiceManagerClass = ServiceManager;
-  
+
   constructor(log, config = {}, platform){
     if (this.constructor.ServiceManagerClass === ServiceManager) {
       HomebridgeAccessory.isUnitTest = false;
@@ -16,7 +16,7 @@ class HomebridgeAccessory {
       this.serviceManagerType = 'FakeServiceManager';
     }
     this.serviceManagerClass = this.constructor.ServiceManagerClass;
-    
+
     const { host, name, data } = config;
 
     // this.log = (!disableLogs && log) ? log : () => { };
@@ -26,7 +26,7 @@ class HomebridgeAccessory {
     this.platform = platform;
     // this.constructor.logs = this.logs;
     HomebridgeAccessory.logs = this.logs;
-    
+
     this.host = host;
     this.name = name;
     this.data = data;
@@ -43,7 +43,7 @@ class HomebridgeAccessory {
     // MQTT Support
     this.mqttValues = {};
     this.mqttValuesTemp = {};
-    
+
     //Set LogLevel
     switch (this.config.logLevel) {
       // case 'none':
@@ -102,7 +102,7 @@ class HomebridgeAccessory {
     const { config } = this;
     config.allowResend ??= !(config.preventResendHex ?? false);
     config.preventResendHex ??= !config.allowResend;
-    
+
     // if (this.config.allowResend === undefined) {
     //   if (this.config.preventResendHex === undefined) {
     //     this.config.allowResend = true;
@@ -168,9 +168,9 @@ class HomebridgeAccessory {
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
       if (this.state['statusActive'] === false) {
-	this.logs.error(`failed to set ${capitalizedPropertyName} to ${value} due to offline the device.`);
-	callback(true);
-	return;
+        this.logs.error(`failed to set ${capitalizedPropertyName} to ${value} due to offline the device.`);
+        callback(true);
+        return;
       }
 
       if (delay) {
@@ -206,7 +206,7 @@ class HomebridgeAccessory {
       }
 
       this.state[propertyName] = value;
-      
+
       callback(null);
 
       // Set toggle data if this is a toggle
@@ -219,7 +219,7 @@ class HomebridgeAccessory {
       }
       this.state0[propertyName] = value;
       // callback(null);
-    } catch (e) {	// revert to original state.
+    } catch (e) {       // revert to original state.
       const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(props.propertyName);
       // this.state[props.propertyName] = previousValue;
       // this.serviceManager.refreshCharacteristicUI(thisCharacteristic);
@@ -238,23 +238,23 @@ class HomebridgeAccessory {
 
     try {
       if (this.state[propertyName] === undefined) {
-	const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
-	if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
+        const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
+        if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
           value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
-	} else {
+        } else {
           value = 0;
-	}
+        }
       } else {
-	value = this.state[propertyName];
+        value = this.state[propertyName];
       }
-      
+
       if (getValuePromise) {
-	value = await getValuePromise(value);
-	this.state[propertyName] = value;
+        value = await getValuePromise(value);
+        this.state[propertyName] = value;
       }
-      
+
       this.logs.trace(`get${capitalizedPropertyName}: ${value}`);
-      
+
       callback(null, value);
     } catch (e){
       this.logs.error(`failed getCharacteristicValue of ${props.propertyName} characteristic.`, e.message ?? '');
@@ -271,7 +271,7 @@ class HomebridgeAccessory {
     // Set defaults
     if (persistState === undefined) {persistState = true;}
     if (!resendHexAfterReloadDelay) {resendHexAfterReloadDelay = 2}
-    this.state0 = {...this.state};	// delayed status of accessory
+    this.state0 = {...this.state};      // delayed status of accessory
     this.serviceManager.state = this.state;
     this.serviceManager.state0 = this.state0;
 
@@ -280,8 +280,8 @@ class HomebridgeAccessory {
     // Load state from file
     /* const restoreStateOrder = */ this.restoreStateOrder();
     const state = !Object.keys(this.serviceManager.accessory?.context ?? {}).length ?
-	  persistentState.load({ host, name }) || {} :
-	  {...this.serviceManager.accessory.context}
+      persistentState.load({ host, name }) || {} :
+      {...this.serviceManager.accessory.context}
 
     // Allow each accessory to correct the state if necessary
     this.correctReloadedState(state);
@@ -294,28 +294,28 @@ class HomebridgeAccessory {
     // });
     if (this.constructor.isUnitTest) {
       this.state = new Proxy(state, {
-	set: async function(target, key, value) {
-	  Reflect.set(target, key, value);
-	  persistentState.save({ host, name, state });
-	  // this.serviceManager.accessory.context[key] = value;
-	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-	  
-	  return true
-	}.bind(this)
+        set: async function(target, key, value) {
+          Reflect.set(target, key, value);
+          persistentState.save({ host, name, state });
+          // this.serviceManager.accessory.context[key] = value;
+          // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+          // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+
+          return true
+        }.bind(this)
       })
     } else {
       this.serviceManager.accessory.context = {...state};
       this.state = new Proxy(state, {
-	set: async function(target, key, value) {
-	  Reflect.set(target, key, value);
-	  // persistentState.save({ host, name, state });
-	  this.serviceManager.accessory.context[key] = value;
-	  // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
-	  // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
-	  
-	  return true
-	}.bind(this)
+        set: async function(target, key, value) {
+          Reflect.set(target, key, value);
+          // persistentState.save({ host, name, state });
+          this.serviceManager.accessory.context[key] = value;
+          // console.log(`${host}-${name} persist: ${JSON.stringify(state)}`);
+          // console.log(`${host}-${name} context: ${JSON.stringify(this.serviceManager.accessory.context)}`);
+
+          return true
+        }.bind(this)
       })
     }
     this.serviceManager.state = this.state;
@@ -350,11 +350,11 @@ class HomebridgeAccessory {
 
       setTimeout(() => {
         this.isReloadingState = false;
-	
+
         this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
       }, (resendHexAfterReloadDelay * 1000) + 300);
     } else {
-	this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
+      this.log(`Initializing ${this.config.type} accessory ${this.name}.`);
     }
   }
 
@@ -471,13 +471,13 @@ class HomebridgeAccessory {
       this.isMQTTConnecting = false;
 
       if (process.uptime() < 600) { // Only use console during startup
-	this.logs.info(`connected to MQTT broker ${mqttURL}.`);
-	this.logs.trace(`packet: ${JSON.stringify(packet, null, 2)}`);
+        this.logs.info(`connected to MQTT broker ${mqttURL}.`);
+        this.logs.trace(`packet: ${JSON.stringify(packet, null, 2)}`);
 
-	[... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
-	  this.logs.info(`subscribes MQTT topic ${x}.`);
+        [... new Set(mqttTopic?.map(x => x.topic))].forEach(x => {
+          this.logs.info(`subscribes MQTT topic ${x}.`);
           mqttClient.subscribe(x);
-	});
+        });
       }
 
     })
@@ -509,7 +509,7 @@ class HomebridgeAccessory {
       // const identifier = mqttTopicIdentifiersByTopic[topic];
 
       mqttTopic.filter(x => x.topic === topic).forEach(x => {
-	this.onMQTTMessage(x.identifier, message.toString());
+        this.onMQTTMessage(x.identifier, message.toString());
       })
     })
   }
@@ -517,14 +517,14 @@ class HomebridgeAccessory {
   async mqttpublish (topic, message) {
     if (this.mqttClient) {
       try {
-	await this.mqttClient.publish(`homebridge-broadlink-rm/${this.config.type}/${this.name}/${topic}`, `${message}`, {"retain": true})
-	// this.logs.debug(`MQTT publish(topic: ${topic}, message: ${message})`)
+        await this.mqttClient.publish(`homebridge-broadlink-rm/${this.config.type}/${this.name}/${topic}`, `${message}`, {"retain": true})
+        // this.logs.debug(`MQTT publish(topic: ${topic}, message: ${message})`)
       } catch (e) {
-	this.logs.error(`Failed to publish MQTT message. ${e}`)
+        this.logs.error(`Failed to publish MQTT message. ${e}`)
       }
     }
   }
-  
+
   onMQTTMessage(identifier, message) {
     // this.mqttValuesTemp[identifier] = message.toString();
     this.mqttValuesTemp[identifier] = message;
@@ -538,7 +538,7 @@ class HomebridgeAccessory {
 
     if (!this.mqttClient.connected) {
       if (!this.isMQTTConnecting) {
-	this.logs.error(`MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);
+        this.logs.error(`MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);
       }
 
       return;
@@ -560,44 +560,44 @@ class HomebridgeAccessory {
     },
     trace: (format, ...args) => {
       if (!this.config.disableLogs && this.logLevel < 1) {
-	format = "%s " + format;
-	this.log(format, `\x1b[90m[TRACE] ${this.name}`, ...args, '\x1b[0m');
+        format = "%s " + format;
+        this.log(format, `\x1b[90m[TRACE] ${this.name}`, ...args, '\x1b[0m');
       }
     },
     debug: (format, ...args) => {
       if (!this.config.disableLogs && this.logLevel < 2) {
-	format = "%s " + format;
-	this.log(format, `\x1b[90m[DEBUG] ${this.name}`, ...args, '\x1b[0m');
+        format = "%s " + format;
+        this.log(format, `\x1b[90m[DEBUG] ${this.name}`, ...args, '\x1b[0m');
       }
     },
     info: (format, ...args) => {
       if (this.logLevel < 3) {
-	format = "%s " + format;
-	this.log(format, `\x1b[35m[INFO]\x1b[0m ${this.name}`, ...args);
+        format = "%s " + format;
+        this.log(format, `\x1b[35m[INFO]\x1b[0m ${this.name}`, ...args);
       }
     },
     warn: (format, ...args) => {
       if (this.logLevel < 4) {
-	format = "%s " + format;
-	this.log(format, `\x1b[33m[WARN]\x1b[0m ${this.name}`, ...args);
+        format = "%s " + format;
+        this.log(format, `\x1b[33m[WARN]\x1b[0m ${this.name}`, ...args);
       }
     },
     error: (format, ...args) => {
       // if (this.logLevel < 5) {
-        format = "%s " + format;
-        this.log(format, `\x1b[31m[ERROR]\x1b[0m ${this.name}`, ...args);
+      format = "%s " + format;
+      this.log(format, `\x1b[31m[ERROR]\x1b[0m ${this.name}`, ...args);
       // }
     },
     config: {
       error: (format, ...args) => {
-	format = "%s " + format;
-	this.log(format, `\x1b[31m[CONFIG ERROR]\x1b[0m ${this.name}`, ...args);
+        format = "%s " + format;
+        this.log(format, `\x1b[31m[CONFIG ERROR]\x1b[0m ${this.name}`, ...args);
       },
       debug: (format, ...args) => {
-	if (!this.config.disableLogs && this.logLevel < 2) {
-	  format = "%s " + format;
-	  this.log(format, `\x1b[90m[CONFIG DEBUG] ${this.name}`, ...args, '\x1b[0m');
-	}
+        if (!this.config.disableLogs && this.logLevel < 2) {
+          format = "%s " + format;
+          this.log(format, `\x1b[90m[CONFIG DEBUG] ${this.name}`, ...args, '\x1b[0m');
+        }
       }
     }
   }

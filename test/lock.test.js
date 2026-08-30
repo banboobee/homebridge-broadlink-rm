@@ -21,7 +21,7 @@ describe('lockAccessory', () => {
         unlock: 'UNLOCK_HEX'
       }
     }
-    
+
     const lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
 
@@ -36,7 +36,7 @@ describe('lockAccessory', () => {
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
   });
 
-  
+
   // Locking -> Locked -> Unlocking -> Unlocked
   it('"unlockDuration": 0.2, locking -> locked -> unlocking -> unlocked', async () => {
     const { platform, device, log } = setup();
@@ -52,12 +52,12 @@ describe('lockAccessory', () => {
         unlock: 'UNLOCK_HEX'
       }
     }
-    
+
     const lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
     await delayForDuration(.1);
 
-    
+
     let sentHexCodeCount
 
     // Check hex code was sent
@@ -67,7 +67,7 @@ describe('lockAccessory', () => {
     // Check that only one code has been sent
     sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(1);
-    
+
     // Locking
     expect(lockAccessory.state.lockCurrentState).to.equal(undefined);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
@@ -93,10 +93,10 @@ describe('lockAccessory', () => {
     // Check that only one code has been sent
     sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-    
+
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
-    
+
     // Delay to allow for `unlockDuration`
     await delayForDuration(0.3);
 
@@ -105,7 +105,7 @@ describe('lockAccessory', () => {
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
   });
 
-  
+
   // Locking -> Locked -> Unlocking -> Unlocked -> Auto-locking -> Locked
   it('"autoLockDelay" : true, locking -> locked -> unlocking -> unlocked -> auto-locking -> locked', async () => {
     const { platform, device, log } = setup();
@@ -122,7 +122,7 @@ describe('lockAccessory', () => {
         unlock: 'UNLOCK_HEX'
       }
     }
-    
+
     const lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
 
@@ -142,17 +142,17 @@ describe('lockAccessory', () => {
 
     // Unlocking
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.UNSECURED);
-    
+
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
-    
+
     // Delay to allow for `unlockDuration`
     await delayForDuration(0.3);
 
     // Unlocked
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.UNSECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
-    
+
     // Delay to allow for `autoLockDelay`
     await delayForDuration(0.3);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
@@ -181,7 +181,7 @@ describe('lockAccessory', () => {
         unlock: 'UNLOCK_HEX'
       }
     }
-    
+
     let lockAccessory
 
     // Lock
@@ -199,7 +199,7 @@ describe('lockAccessory', () => {
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
-    
+
     // Unlock
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.UNSECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
@@ -229,7 +229,7 @@ describe('lockAccessory', () => {
         unlock: 'UNLOCK_HEX'
       }
     }
-    
+
     let lockAccessory
 
     // Lock
@@ -265,8 +265,8 @@ describe('lockAccessory', () => {
       isUnitTest: true
     }
 
-    
-    
+
+
     let lockAccessory
 
     // Lock
@@ -279,7 +279,7 @@ describe('lockAccessory', () => {
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
 
     device.resetSentHexCodes();
-    
+
     // Should be locked with a new instance
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
@@ -288,7 +288,7 @@ describe('lockAccessory', () => {
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3)
     expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
-    
+
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('LOCK_HEX');
     expect(hasSentOnCode).to.equal(true);
@@ -318,8 +318,8 @@ describe('lockAccessory', () => {
       isUnitTest: true
     }
 
-    
-    
+
+
     let lockAccessory
 
     // Lock
@@ -332,7 +332,7 @@ describe('lockAccessory', () => {
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
 
     device.resetSentHexCodes();
-    
+
     // Should be locked with a new instance
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
@@ -355,7 +355,7 @@ describe('lockAccessory', () => {
   // Ensure correctReloadedState is working correctly
   it('correctReloadedState for interupted unlock - "persistState": true', async () => {
     const { platform, device, log } = setup();
-  
+
     const config = {
       name: 'Lock',
       data: {
@@ -367,23 +367,23 @@ describe('lockAccessory', () => {
       resendHexAfterReload: false,
       isUnitTest: true
     }
-  
-    
-    
+
+
+
     let lockAccessory
-  
+
     // Lock
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.UNSECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
-    
+
     // Cancel all timers
     lockAccessory.reset();
-  
+
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
-    
+
     // Should be locked with a new instance
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
@@ -397,7 +397,7 @@ describe('lockAccessory', () => {
   // Ensure correctReloadedState is working correctly
   it('correctReloadedState for interupted lock - "persistState": true', async () => {
     const { platform, device, log } = setup();
-  
+
     const config = {
       name: 'Lock',
       data: {
@@ -409,23 +409,23 @@ describe('lockAccessory', () => {
       resendHexAfterReload: false,
       isUnitTest: true
     }
-  
-    
-    
+
+
+
     let lockAccessory
-  
+
     // Lock
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.UNSECURED);
     lockAccessory.serviceManager.setCharacteristic(Characteristic.LockTargetState, Characteristic.LockTargetState.SECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
-    
+
     // Cancel all timers
     lockAccessory.reset();
-  
+
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.UNSECURED);
-    
+
     // Should be locked with a new instance
     lockAccessory = new platform.classTypes['lock'](log, config, platform);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.UNSECURED);

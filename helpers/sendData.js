@@ -15,7 +15,7 @@ module.exports = async ({ host, hexData, log, name, logLevel }) => {
     broadlink.logs.debug(`${name} sendHex (Converting Pronto code "${hexData}" to Broadlink code)`);
     hexData = convertProntoCode(hexData, log);
     broadlink.logs.debug(`${name} sendHex (Pronto code successfuly converted: "${hexData}")`);
-    
+
     if (!hexData) {
       broadlink.logs.error(`${name} sendData (A Pronto code was detected however its conversion to a Broadlink code failed.)`);
       return -1;
@@ -33,7 +33,7 @@ module.exports = async ({ host, hexData, log, name, logLevel }) => {
     }
     return -1;
   }
-  
+
   if (!device.sendData) {
     device.logs.error(logLevel, `The device at ${device.host.address} (${device.host.macAddress}) doesn't support the sending of IR or RF codes.`);
     return -1;
@@ -42,7 +42,7 @@ module.exports = async ({ host, hexData, log, name, logLevel }) => {
     device.logs.error(logLevel, `This type of hex code (5aa5aa555...) is no longer valid. Use the included "Learn Code" accessory to find new (decrypted) codes.`);
     return -1;
   }
-  
+
   device.logs.debug(logLevel, `sendHex(${device.host.address}) ${hexData}`);
 
   const hexDataBuffer = new Buffer.from(hexData, 'hex');

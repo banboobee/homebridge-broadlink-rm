@@ -23,12 +23,12 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false
     }
-    
-    
+
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(.1);
-    
+
     expect(outletAccessory.state.switchState).to.equal(true);
 
     // Check hex code was sent
@@ -55,15 +55,15 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false
     }
-    
-    
+
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
-    
+
     // Turn On Outlet
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(.1);
     expect(outletAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Outlet
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     await delayForDuration(.1);
@@ -95,8 +95,8 @@ describe('outletAccessory', () => {
       enableAutoOff: true,
       onDuration: 1
     }
-    
-    
+
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
 
     // Turn On Outlet
@@ -106,7 +106,7 @@ describe('outletAccessory', () => {
     await delayForDuration(0.4);
     // Expecting on after 0.4s total
     expect(outletAccessory.state.switchState).to.equal(true);
-    
+
     await delayForDuration(0.7);
     // Expecting off after 1.1s total
     expect(outletAccessory.state.switchState).to.equal(false);
@@ -141,8 +141,8 @@ describe('outletAccessory', () => {
       enableAutoOn: true,
       offDuration: 1
     }
-    
-    
+
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
 
     // Turn On Outlet
@@ -156,7 +156,7 @@ describe('outletAccessory', () => {
     await delayForDuration(0.4);
     // Expecting off after 0.4s total
     expect(outletAccessory.state.switchState).to.equal(false);
-    
+
     await delayForDuration(0.7);
     // Expecting on after 1.1s total
     expect(outletAccessory.state.switchState).to.equal(true);
@@ -185,7 +185,7 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: true
     }
-    
+
     let outletAccessory
 
     // Turn On Outlet
@@ -196,7 +196,7 @@ describe('outletAccessory', () => {
     // Should still be on when loading within a new instance
     outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.switchState).to.equal(true);
-    
+
     // Turn Off Outlet
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, false);
     expect(outletAccessory.state.switchState).to.equal(false);
@@ -214,7 +214,7 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false
     }
-    
+
     let outletAccessory
 
     // Turn On Outlet
@@ -240,7 +240,7 @@ describe('outletAccessory', () => {
       persistState: false,
       isUnitTest: true
     }
-    
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
@@ -261,10 +261,10 @@ describe('outletAccessory', () => {
       persistState: false,
       isUnitTest: true
     }
-    
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
-    
+
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: false }));
 
     await delayForDuration(0.3);
@@ -286,10 +286,10 @@ describe('outletAccessory', () => {
       pingIPAddressStateOnly: true,
       isUnitTest: true
     }
-    
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
-    
+
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -312,10 +312,10 @@ describe('outletAccessory', () => {
       pingIPAddressStateOnly: false,
       isUnitTest: true
     }
-    
+
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
-    
+
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
@@ -345,8 +345,8 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
 
-    
-    
+
+
     let outletAccessory
 
     // Turn On Outlet

@@ -87,8 +87,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   async setHumidifierThreshold (hexData, previousValue) {
     const { config, name, log, state, logLevel } = this;
     if (state.HumidifierThreshold === previousValue && config.preventResendHex && !this.previouslyOff) {return;}
-    let desiredState = this.getDesiredState ();
-    let previousState = state.currentState;
+    const desiredState = this.getDesiredState ();
+    const previousState = state.currentState;
     
     if (state.currentState === desiredState) {return;}
     
@@ -100,8 +100,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   async setDehumidifierThreshold (hexData, previousValue) {
     const { config, name, log, state, logLevel } = this;
     if (state.DehumidifierThreshold === previousValue && config.preventResendHex && !this.previouslyOff) {return;}
-    let desiredState = this.getDesiredState ();
-    let previousState = state.currentState;
+    const desiredState = this.getDesiredState ();
+    const previousState = state.currentState;
     
     if (state.currentState === desiredState) {return;}
     
@@ -156,7 +156,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     }
     
     //Update "switchState to match device state
-	  if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.OFF){
+    if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.OFF){
       state.currentState = Characteristic.CurrentHumidifierDehumidifierState.INACTIVE;
       state.switchState = false;
       this.previouslyOff = true;
@@ -172,11 +172,11 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       state.DehumidifierThreshold = 0
     }
     
-    let desiredState = this.getDesiredState ();
+    const desiredState = this.getDesiredState ();
     
     if (state.currentState === desiredState && !this.previouslyOff) {return;}
     
-    let previousState = state.currentState;
+    const previousState = state.currentState;
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateDeviceState: currently ${state.currentState}, changing to ${desiredState}`);}
 
     state.currentState = desiredState;
@@ -315,7 +315,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       } else {
         lines.forEach((line) => {
           if(-1 < line.indexOf(':')){
-            let value = line.split(':');
+            const value = line.split(':');
             if(value[0] == 'temperature') {temperature = parseFloat(value[1]);}
             if(value[0] == 'humidity') {humidity = parseFloat(value[1]);}
             if(value[0] == 'battery' && batteryAlerts) {state.batteryLevel = parseFloat(value[1]);}

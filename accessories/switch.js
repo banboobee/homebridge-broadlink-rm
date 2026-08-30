@@ -12,7 +12,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configMQTTTopicKeys
+    mqttTopic: [        // override to use own configMQTTTopicKeys
       (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
@@ -29,26 +29,26 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     // boolean
     enableAutoOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     pingIPAddressStateOnly: [
@@ -62,8 +62,8 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
+        return true;
       },
       '`Unsupported config key.`'],
     history: [
@@ -112,17 +112,17 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     //   // this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
     //   this.historyService = new HistoryService('custom', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
     //   this.historyService.addEntry(
-    // 	{time: Math.round(new Date().valueOf()/1000),
-    // 	 status: this.state.switchState ? 1 : 0})
+    //  {time: Math.round(new Date().valueOf()/1000),
+    //   status: this.state.switchState ? 1 : 0})
     // }
-    
+
     if (!this.constructor.isUnitTest) {this.checkPing(ping)}
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
-  
+
   setDefaults () {
     const { config } = this;
     config.pingFrequency ??= 1;
@@ -150,7 +150,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     super.reset();
 
     this.stateChangeInProgress = true;
-    
+
     // Clear Timeouts
     if (this.delayTimeoutPromise) {
       this.delayTimeoutPromise.cancel();
@@ -166,12 +166,12 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       this.autoOnTimeoutPromise.cancel();
       this.autoOnTimeoutPromise = null
     }
-    
+
     if (this.pingGraceTimeout) {
       this.pingGraceTimeout.cancel();
       this.pingGraceTimeout = null;
     }
-    
+
     if (this.serviceManager.getCharacteristic(Characteristic.On) === undefined) {
       this.state.switchState = false;
       this.serviceManager.refreshCharacteristicUI(Characteristic.On);
@@ -183,15 +183,15 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     this.checkPingGrace();
     this.checkAutoOn();
     this.checkAutoOff();
-    
+
   }
-  
+
   checkPing (ping) {
     const { config } = this
     const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return}
-    
+
     // Setup Ping/Arp-based State
     if(!pingUseArp) {
       ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this));
@@ -207,14 +207,14 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     if (this.stateChangeInProgress){
       return;
     }
-    
+
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
       serviceManager.refreshCharacteristicUI(Characteristic.On);
 
       return;
     }
-    
+
     const value = active ? true : false;
     serviceManager.setCharacteristic(Characteristic.On, value);
   }
@@ -227,7 +227,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     if (hexData) {await this.performSend(hexData);}
     await this.mqttpublish('On', state.switchState ? 'true' : 'false')
-    
+
     if (config.stateless === true) {
       state.switchState = false;
       serviceManager.refreshCharacteristicUI(Characteristic.On);
@@ -240,7 +240,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
       const { config } = this;
-      
+
       const { pingGrace } = config;
 
       if (pingGrace) {
@@ -251,7 +251,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       }
     });
   }
-  
+
   async checkAutoOff () {
     const { Characteristic } = this;
     await catchDelayCancelError(async () => {
@@ -300,11 +300,11 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       const on = this.mqttValuesTemp[identifier] === 'true' ? true : false;
       this.reset();
       if (mqttStateOnly) {
-	// this.state.switchState = on;
-	// this.serviceManager.refreshCharacteristicUI(Characteristic.On);
-	this.serviceManager.updateCharacteristic(Characteristic.On, on);
+        // this.state.switchState = on;
+        // this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+        this.serviceManager.updateCharacteristic(Characteristic.On, on);
       } else {
-	this.serviceManager.setCharacteristic(Characteristic.On, on)
+        this.serviceManager.setCharacteristic(Characteristic.On, on)
       }
       this.logs.debug(`onMQTTMessage: set switchState to ${this.state.switchState}.`);
     }
@@ -313,59 +313,61 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   setupServiceManager (service = undefined) {
     const { Service, Characteristic } = this;
     const { data, name, config } = this;
-    const { on, off } = data || { };	// toggle? verifyConfig to support.
+    const { on, off } = data || { };    // toggle? verifyConfig to support.
     const history = config.history === true;
-    
+
     this.serviceManager = new this.serviceManagerClass(name, service ?? history ? Service.Outlet : Service.Switch, this.log);
 
     if (history) {
       // Fakegato setup
       this.historyService = new HistoryService('custom', this.serviceManager.accessory, {
-	storage: 'fs',
-	// filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'
+        storage: 'fs',
+        // filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'
       });
       this.historyService.addEntry(
-	{time: Math.round(new Date().valueOf()/1000),
-	 status: this.state.switchState ? 1 : 0}
+        {
+          time: Math.round(new Date().valueOf()/1000),
+          status: this.state.switchState ? 1 : 0
+        }
       )
 
       this.serviceManager.service.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
       this.serviceManager.service.updateCharacteristic(Characteristic.LockPhysicalControls, 1);
       this.serviceManager.addGetCharacteristic({
-	name: 'LockPhysicalControls',
-	type: Characteristic.LockPhysicalControls,
-	method: (callback) => {
-	  callback(null, 1);
-	},
-	bind: this
+        name: 'LockPhysicalControls',
+        type: Characteristic.LockPhysicalControls,
+        method: (callback) => {
+          callback(null, 1);
+        },
+        bind: this
       });
 
       const dummy =
-	    this.serviceManager.accessory.getService(`${name} Consumption`) ||
-	    this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
+            this.serviceManager.accessory.getService(`${name} Consumption`) ||
+            this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
       dummy.setHiddenService(true);
       dummy.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
-	perms: [
-	  this.platform.api.hap.Perms.PAIRED_READ,
-	  this.platform.api.hap.Perms.NOTIFY,
-	  this.platform.api.hap.Perms.HIDDEN
-	]
+        perms: [
+          this.platform.api.hap.Perms.PAIRED_READ,
+          this.platform.api.hap.Perms.NOTIFY,
+          this.platform.api.hap.Perms.HIDDEN
+        ]
       });
       dummy.updateCharacteristic(eve.Characteristics.TotalConsumption, 0);
 
       this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       this.serviceManager.addGetCharacteristic({
-	name: 'LastActivation',
-	type: eve.Characteristics.LastActivation,
-	method: (callback) => {
-	  const lastActivation = this.state.lastActivation ?
-		Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
-	  callback(null, lastActivation);
-	},
-	bind: this
+        name: 'LastActivation',
+        type: eve.Characteristics.LastActivation,
+        method: (callback) => {
+          const lastActivation = this.state.lastActivation ?
+            Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
+          callback(null, lastActivation);
+        },
+        bind: this
       });
     }
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.On,
@@ -381,19 +383,19 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager.getCharacteristic(Characteristic.On)
       .on('change', async function(event) {
-	if (event.newValue !== event.oldValue) {
-	  if (this.historyService) {
-	    const value = event.newValue;
-	    // this.logs.trace(`adding history of switchState.`, value);
-	    const time = Math.round(new Date().valueOf()/1000);
-	    // if (value) {
-	    this.state.lastActivation = time;
-	    // }
-	    this.historyService.addEntry(
-	      {time: time, status: value ? 1 : 0})
-	    // await this.mqttpublish('On', value ? 'true' : 'false')
-	  }
-	}
+        if (event.newValue !== event.oldValue) {
+          if (this.historyService) {
+            const value = event.newValue;
+            // this.logs.trace(`adding history of switchState.`, value);
+            const time = Math.round(new Date().valueOf()/1000);
+            // if (value) {
+            this.state.lastActivation = time;
+            // }
+            this.historyService.addEntry(
+              {time: time, status: value ? 1 : 0})
+            // await this.mqttpublish('On', value ? 'true' : 'false')
+          }
+        }
       }.bind(this))
   }
 }

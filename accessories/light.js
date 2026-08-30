@@ -13,7 +13,7 @@ class LightAccessory extends SwitchAccessory {
 
     //MQTT
     ...this.configMqttKeys,
-    mqttTopic: [	// override to use own configMQTTTopicKeys
+    mqttTopic: [        // override to use own configMQTTTopicKeys
       (key, values) => this.configIsMQTTTopic(key, values, this.configMqttTopicKeys),
       '`value ${JSON.stringify(value)} is not a valid mqttTopic`'],
 
@@ -24,7 +24,7 @@ class LightAccessory extends SwitchAccessory {
     exclusives: [
       (key, values) => this.configIsArray(values[0]) && this.configIsExclusives(key, values),
       '`value ${JSON.stringify(value)} is not a valid accessory name array.`'],
-    
+
     // string
     'pingIPAddress$': [
       (key, values) => this.configIsString(values[0]),
@@ -36,26 +36,26 @@ class LightAccessory extends SwitchAccessory {
       '`value ${JSON.stringify(value)} is not a boolean`'],
     enableAutoOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'onDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     enableAutoOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'offDuration' property sololy.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOn: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     disableAutomaticOff: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'.`);
+        return true;
       },
       '`Unsupported config key.`'],
     pingIPAddressStateOnly: [
@@ -66,8 +66,8 @@ class LightAccessory extends SwitchAccessory {
       '`value ${JSON.stringify(value)} is not a boolean`'],
     noHistory: [
       (key, values) => {
-	this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
-	return true;
+        this.logs.config.error(`contains \x1b[33munsupported\x1b[0m property '${key}'. Use 'history' property instead.`);
+        return true;
       },
       '`Unsupported config key.`'],
     history: [
@@ -131,28 +131,28 @@ class LightAccessory extends SwitchAccessory {
       '`hue suffix is not a number`'],
     availableBrightnessSteps: [
       (key, values) => {
-	if (this.configIsNumber(values[0])) {
-	  const i = values[1]['brightness+'];
-	  const d = values[1]['brightness-'];
-	  if (!i || !d) {
-	    this.logs.config.error(`failed to verify '${key}' property. brightness+ and brightness-\x1b[0m need to be set.`);
-	  }
-	  return true;
-	}
-	return false;
+        if (this.configIsNumber(values[0])) {
+          const i = values[1]['brightness+'];
+          const d = values[1]['brightness-'];
+          if (!i || !d) {
+            this.logs.config.error(`failed to verify '${key}' property. brightness+ and brightness-\x1b[0m need to be set.`);
+          }
+          return true;
+        }
+        return false;
       },
       '`value ${JSON.stringify(value)} is not a number`'],
     availableColorTemperatureSteps: [
       (key, values) => {
-	if (this.configIsNumber(values[0])) {
-	  const i = values[1]['colorTemperature+'];
-	  const d = values[1]['colorTemperature-'];
-	  if (!i || !d) {
-	    this.logs.config.error(`failed to verify '${key}' property. colorTemperature+ and colorTemperature-\x1b[0m need to be set.`);
-	  }
-	  return true;
-	}
-	return false;
+        if (this.configIsNumber(values[0])) {
+          const i = values[1]['colorTemperature+'];
+          const d = values[1]['colorTemperature-'];
+          if (!i || !d) {
+            this.logs.config.error(`failed to verify '${key}' property. colorTemperature+ and colorTemperature-\x1b[0m need to be set.`);
+          }
+          return true;
+        }
+        return false;
       },
       '`value ${JSON.stringify(value)} is not a number`'],
     'colorTemperature+': [
@@ -166,17 +166,17 @@ class LightAccessory extends SwitchAccessory {
     // console.log(property, values);
     values[0].forEach(element => {
       if (!this.configIsString(element)) {
-	this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid accessory name.`);
+        this.logs.config.error(`failed to verify '${property}' property. value '${JSON.stringify(element)}' is not a valid accessory name.`);
       }
     });
     return true;
   }
-  
+
   constructor (log, config = {}, platform) {
     super(log, config, platform);
     this.mutex = new Mutex();
   }
-  
+
   checkConfig(config) {
     // const {on, off} = config?.data || {};
     // const d = config?.data?.['brightness+'] && config?.data?.['brightness-'];
@@ -185,12 +185,12 @@ class LightAccessory extends SwitchAccessory {
     if (!s && !b) {
       this.logs.config.error(`failed to verify '.data' property. missing brightness properties.`);
     }
-    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
 
   setDefaults () {
     super.setDefaults();
-    
+
     const { config } = this;
 
     config.onDelay ??= 0.1;
@@ -219,16 +219,16 @@ class LightAccessory extends SwitchAccessory {
         const exAccessory = accessories.find(x => x.name === exname);
         //console.log(exAccessory.name);
         if (exAccessory && exAccessory.config.type === 'light') {
-	  if (!this.exclusives) {this.exclusives = [];}
-	  if (!this.exclusives.find(x => x === exAccessory)) {
-	    this.exclusives.push(exAccessory);
-	  }
-	  if (!exAccessory.exclusives) {exAccessory.exclusives = [];}
-	  if (!exAccessory.exclusives.find(x => x === this)) {
-	    exAccessory.exclusives.push(this);
-	  }
+          if (!this.exclusives) {this.exclusives = [];}
+          if (!this.exclusives.find(x => x === exAccessory)) {
+            this.exclusives.push(exAccessory);
+          }
+          if (!exAccessory.exclusives) {exAccessory.exclusives = [];}
+          if (!exAccessory.exclusives.find(x => x === this)) {
+            exAccessory.exclusives.push(this);
+          }
         } else {
-	  this.logs.error(`No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
+          this.logs.error(`No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
         }
       });
     }
@@ -238,14 +238,14 @@ class LightAccessory extends SwitchAccessory {
     const { Characteristic } = this;
     if (this.exclusives) {
       this.exclusives.forEach(async (x) => {
-	if (x.state.switchState) {
-	  this.logs.info(`setSwitchState: ${x.name} is configured to be turned off`);
-	  x.reset();
-	  x.state.switchState = false;
-	  x.lastBrightness = undefined;
+        if (x.state.switchState) {
+          this.logs.info(`setSwitchState: ${x.name} is configured to be turned off`);
+          x.reset();
+          x.state.switchState = false;
+          x.lastBrightness = undefined;
           x.serviceManager.refreshCharacteristicUI(Characteristic.On);
-	  await x.mqttpublish('On', 'false');
-	}
+          await x.mqttpublish('On', 'false');
+        }
       });
     }
   }
@@ -264,18 +264,18 @@ class LightAccessory extends SwitchAccessory {
       if (brightness !== state.brightness || previousValue !== state.switchState || colorTemperature !== state.colorTemperature) {
         this.logs.debug(`setSwitchState: (brightness: ${brightness})`);
 
-        state.switchState = false;	// ???
-        state.brightness = brightness;	// ???
+        state.switchState = false;      // ???
+        state.brightness = brightness;  // ???
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
-	serviceManager.refreshCharacteristicUI(Characteristic.Brightness);	// ???
-	if (this.dataKeys('colorTemperature').length > 0) {
+        serviceManager.refreshCharacteristicUI(Characteristic.Brightness);      // ???
+        if (this.dataKeys('colorTemperature').length > 0) {
           state.colorTemperature = colorTemperature;
           serviceManager.setCharacteristic(Characteristic.ColorTemperature, colorTemperature);
-	  serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);	// ???
-	}
+          serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);      // ???
+        }
       } else {
         if (hexData) {await this.performSend(hexData);}
-	await this.mqttpublish('On', 'true');
+        await this.mqttpublish('On', 'true');
 
         this.checkAutoOnOff();
       }
@@ -290,7 +290,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setSaturation () {
-    
+
   }
 
   async setHue () {
@@ -315,7 +315,7 @@ class LightAccessory extends SwitchAccessory {
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
         }
-	await this.mqttpublish('On', 'true');
+        await this.mqttpublish('On', 'true');
       }
 
       // Find hue closest to the one requested
@@ -345,7 +345,7 @@ class LightAccessory extends SwitchAccessory {
 
         if (state.brightness > 0) {
           state.switchState = true;
-	  // await this.mqttpublish('On', 'true');
+          // await this.mqttpublish('On', 'true');
         }
 
         await this.checkAutoOnOff();
@@ -361,72 +361,74 @@ class LightAccessory extends SwitchAccessory {
         if (!state.switchState) {
           state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
-	  this.setExclusivesOFF();
-    
+          this.setExclusivesOFF();
+
           if (on) {
             this.logs.debug(`setBrightness: (turn on, wait ${onDelay}s)`);
             await this.performSend(on);
-    
+
             this.onDelayTimeoutPromise = delayForDuration(onDelay);
             await this.onDelayTimeoutPromise;
           }
-    	  await this.mqttpublish('On', 'true');
+          await this.mqttpublish('On', 'true');
         }
 
-	if (data['brightness+'] || data['brightness-'] || data['availableBrightnessSteps']) {
+        if (data['brightness+'] || data['brightness-'] || data['availableBrightnessSteps']) {
           assert(data['brightness+'] && data['brightness-'] && data['availableBrightnessSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and availableBrightnessSteps\x1b[0m need to be set.`);
-	  
-	  const targetBrightness = state.brightness;
-	  await this.mutex.use(async () => {
-	    let previous = previousValue ?? config.defaultBrightness;
-	    if (targetBrightness !== state.brightness) {
-	      previous = state.brightness;	// queued attemps.
-	    }
-	    const n = data['availableBrightnessSteps'] + 1;
-	    const r = 1000 % n;
-	    const delta = (1000 - r)/n;
-	    const increment = data['brightness+'];
-	    const decrement = data['brightness-'];
-	    const current = previous > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
-	    const target = targetBrightness > 0 ? Math.floor(Math.min(targetBrightness*10, delta*n - 1)/delta) + 1 : 0;
-	    
-	    this.logs.debug(`setBrightness: current:${String(previous).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(targetBrightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
-	    if (current != target) {	// need incremental operation
-	      const d = target - current;
-	      try {
-		await this.performSend([
-		  {'data': d > 0 ? increment : decrement,
-		   'interval': onDelay,
-		   'sendCount': Math.abs(d),
-		  }]);
-	      } catch (e) {
-		const {attempt, fail, timeout} = e;
-		const c = d > 0 ? d - attempt - fail : d + attempt + fail;
-		const u = Math.floor((Math.min(targetBrightness*10, delta*n - 1) - c*delta)/10);
-		this.logs.debug(`setBrightness: current:${targetBrightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
-		state.brightness = u;
-		serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
-	      }
-	    }
-	    await this.mqttpublish('Brightness', state.brightness);
-	  })
-	} else {
+
+          const targetBrightness = state.brightness;
+          await this.mutex.use(async () => {
+            let previous = previousValue ?? config.defaultBrightness;
+            if (targetBrightness !== state.brightness) {
+              previous = state.brightness;      // queued attemps.
+            }
+            const n = data['availableBrightnessSteps'] + 1;
+            const r = 1000 % n;
+            const delta = (1000 - r)/n;
+            const increment = data['brightness+'];
+            const decrement = data['brightness-'];
+            const current = previous > 0 ? Math.floor(Math.min(previousValue*10, delta*n - 1)/delta) + 1 : 0;
+            const target = targetBrightness > 0 ? Math.floor(Math.min(targetBrightness*10, delta*n - 1)/delta) + 1 : 0;
+
+            this.logs.debug(`setBrightness: current:${String(previous).padStart(3, ' ')}%(${String(current).padStart(2, ' ')}), target:${String(targetBrightness).padStart(3, ' ')}%(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
+            if (current != target) {    // need incremental operation
+              const d = target - current;
+              try {
+                await this.performSend([
+                  {
+                    'data': d > 0 ? increment : decrement,
+                    'interval': onDelay,
+                    'sendCount': Math.abs(d),
+                  }
+                ]);
+              } catch (e) {
+                const {attempt, fail, timeout} = e;
+                const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+                const u = Math.floor((Math.min(targetBrightness*10, delta*n - 1) - c*delta)/10);
+                this.logs.debug(`setBrightness: current:${targetBrightness}%, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}%.`);
+                state.brightness = u;
+                serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+              }
+            }
+            await this.mqttpublish('Brightness', state.brightness);
+          })
+        } else {
           // Find brightness closest to the one requested
           const foundValues = this.dataKeys('brightness')
-	  
+
           assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness\x1b[0m keys need to be set. See the config-sample.json file for an example.`);
-	  
+
           const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
           const hexData = data[`brightness${closest}`];
-	  
+
           this.logs.debug(`setBrightness: (closest: ${closest})`);
           await this.performSend(hexData);
-	  await this.mqttpublish('Brightness', state.brightness);
-	}
+          await this.mqttpublish('Brightness', state.brightness);
+        }
       } else {
         this.logs.debug(`setBrightness: (off)`);
         await this.performSend(off);
-    	await this.mqttpublish('On', 'false');
+        await this.mqttpublish('On', 'false');
       }
 
       await this.checkAutoOnOff();
@@ -439,13 +441,13 @@ class LightAccessory extends SwitchAccessory {
       const { config, data, state, serviceManager} = this;
       const { onDelay } = config;
       const { on } = data;
-      
+
       this.reset();
-      
+
       if (!state.switchState) {
         state.switchState = true;
         serviceManager.refreshCharacteristicUI(Characteristic.On);
-	this.setExclusivesOFF();
+        this.setExclusivesOFF();
 
         if (on) {
           this.logs.debug(`setColorTemperature: (turn on, wait ${onDelay}s)`);
@@ -453,57 +455,59 @@ class LightAccessory extends SwitchAccessory {
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
         }
-	await this.mqttpublish('On', 'true');
+        await this.mqttpublish('On', 'true');
       }
       if (data['colorTemperature+'] || data['colorTemperature-'] || data['availableColorTemperatureSteps']) {
         assert(data['colorTemperature+'] && data['colorTemperature-'] && data['availableColorTemperatureSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature+, colorTemperature- and availableColorTemperatureSteps\x1b[0m need to be set.`);
-	const targetColorTemperature = state.colorTemperature;
-	await this.mutex.use(async () => {
-	  let previous = previousValue ?? config.defaultColorTemperature;
-	  if (targetColorTemperature !== state.colorTemperature) {
-	    previous = state.colorTemperature;	// queued attemps.
-	  }
-	  const min = 140, max = 500;
-	  const n = data['availableColorTemperatureSteps'] + 1;
-	  const r = 1000 % n;
-	  const delta = (1000 - r)/n;
-	  const increment = data['colorTemperature+'];
-	  const decrement = data['colorTemperature-'];
-	  const current = Math.floor(Math.min((previous - min)/(max - min)*1000, delta*n - 1)/delta);
-	  const target = Math.floor(Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
-	  
-	  this.logs.debug(`setColorTemperature: current:${String(previous).padStart(3, ' ')}(${String(current).padStart(2, ' ')}), target:${String(targetColorTemperature).padStart(3, ' ')}(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
-	  if (current != target) {	// need incremental operation
-	    const d = target - current;
-	    try {
+        const targetColorTemperature = state.colorTemperature;
+        await this.mutex.use(async () => {
+          let previous = previousValue ?? config.defaultColorTemperature;
+          if (targetColorTemperature !== state.colorTemperature) {
+            previous = state.colorTemperature;  // queued attemps.
+          }
+          const min = 140, max = 500;
+          const n = data['availableColorTemperatureSteps'] + 1;
+          const r = 1000 % n;
+          const delta = (1000 - r)/n;
+          const increment = data['colorTemperature+'];
+          const decrement = data['colorTemperature-'];
+          const current = Math.floor(Math.min((previous - min)/(max - min)*1000, delta*n - 1)/delta);
+          const target = Math.floor(Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1)/delta);
+
+          this.logs.debug(`setColorTemperature: current:${String(previous).padStart(3, ' ')}(${String(current).padStart(2, ' ')}), target:${String(targetColorTemperature).padStart(3, ' ')}(${String(target).padStart(2, ' ')}), increment:${target - current} interval:${onDelay}s`);
+          if (current != target) {      // need incremental operation
+            const d = target - current;
+            try {
               await this.performSend([
-		{'data': target > current ? increment : decrement,
-		 'interval': onDelay,
-		 'sendCount': Math.abs(target - current),
-		}]);
-	    } catch (e) {
+                {
+                  'data': target > current ? increment : decrement,
+                  'interval': onDelay,
+                  'sendCount': Math.abs(target - current),
+                }
+              ]);
+            } catch (e) {
               const {attempt, fail, timeout} = e;
-	      const c = d > 0 ? d - attempt - fail : d + attempt + fail;
-	      const u = Math.floor((Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1) - c*delta)*(max - min)/1000) + min;
-	      this.logs.debug(`setColorTemperature: current:${targetColorTemperature}, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}.`);
-	      state.colorTemperature = u;
-	      serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
-	    }
-	  }
-	})
+              const c = d > 0 ? d - attempt - fail : d + attempt + fail;
+              const u = Math.floor((Math.min((targetColorTemperature - min)/(max - min)*1000, delta*n - 1) - c*delta)*(max - min)/1000) + min;
+              this.logs.debug(`setColorTemperature: current:${targetColorTemperature}, request:${d}, attempt:${attempt}, fail:${fail}, timeout:${timeout}, adjust:${c}, update:${u}.`);
+              state.colorTemperature = u;
+              serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+            }
+          }
+        })
       } else {
         // Find closest to the one requested
         const foundValues = this.dataKeys('colorTemperature')
-	
+
         assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature\x1b[0m keys need to be set.`);
-	
+
         const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.colorTemperature) < Math.abs(prev - state.colorTemperature) ? curr : prev);
         const hexData = data[`colorTemperature${closest}`];
-	
+
         this.logs.debug(`setColorTemperature: (closest: ${closest})`);
         await this.performSend(hexData);
       }
-      
+
       await this.checkAutoOnOff();
     });
   }
@@ -540,11 +544,11 @@ class LightAccessory extends SwitchAccessory {
       const brightness = Number(this.mqttValuesTemp[identifier]);
       // this.reset();
       if (mqttStateOnly) {
-	// this.state.brightness = brightness;
-	// this.serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
-	this.serviceManager.updateCharacteristic(Characteristic.Brightness, brightness);
+        // this.state.brightness = brightness;
+        // this.serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+        this.serviceManager.updateCharacteristic(Characteristic.Brightness, brightness);
       } else {
-	this.serviceManager.setCharacteristic(Characteristic.Brightness, brightness)
+        this.serviceManager.setCharacteristic(Characteristic.Brightness, brightness)
       }
       this.logs.debug(`onMQTTMessage: set brightness to ${this.state.brightness}.`);
     }
@@ -561,72 +565,72 @@ class LightAccessory extends SwitchAccessory {
       // this.serviceManager.service.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
       // this.serviceManager.service.updateCharacteristic(Characteristic.LockPhysicalControls, 1);
       // this.serviceManager.addGetCharacteristic({
-      // 	name: 'LockPhysicalControls',
-      // 	type: Characteristic.LockPhysicalControls,
-      // 	method: (callback) => {
-      // 	  callback(null, 1);
-      // 	},
-      // 	bind: this
+      //        name: 'LockPhysicalControls',
+      //        type: Characteristic.LockPhysicalControls,
+      //        method: (callback) => {
+      //          callback(null, 1);
+      //        },
+      //        bind: this
       // });
 
       // const dummy =
-      // 	    this.serviceManager.accessory.getService(`${name} Consumption`) ||
-      // 	    this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
+      //            this.serviceManager.accessory.getService(`${name} Consumption`) ||
+      //            this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
       // dummy.setHiddenService(true);
       // dummy.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
-      // 	perms: [
-      // 	  this.platform.api.hap.Perms.PAIRED_READ,
-      // 	  this.platform.api.hap.Perms.NOTIFY,
-      // 	  this.platform.api.hap.Perms.HIDDEN
-      // 	]
+      //        perms: [
+      //          this.platform.api.hap.Perms.PAIRED_READ,
+      //          this.platform.api.hap.Perms.NOTIFY,
+      //          this.platform.api.hap.Perms.HIDDEN
+      //        ]
       // });
       // dummy.updateCharacteristic(eve.Characteristics.TotalConsumption, 0);
 
       // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.TotalConsumption);
       // this.serviceManager.addGetCharacteristic({
-      // 	name: 'TotalConsumption',
-      // 	type: eve.Characteristics.TotalConsumption,
-      // 	method: (callback) => {
-      // 	  callback(null, 0);
-      // 	},
-      // 	bind: this
+      //        name: 'TotalConsumption',
+      //        type: eve.Characteristics.TotalConsumption,
+      //        method: (callback) => {
+      //          callback(null, 0);
+      //        },
+      //        bind: this
       // });
       // this.serviceManager.service.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
-      // 	perms: [
-      // 	  this.platform.api.hap.Perms.PAIRED_READ,
-      // 	  this.platform.api.hap.Perms.NOTIFY,
-      // 	  this.platform.api.hap.Perms.HIDDEN
-      // 	]
+      //        perms: [
+      //          this.platform.api.hap.Perms.PAIRED_READ,
+      //          this.platform.api.hap.Perms.NOTIFY,
+      //          this.platform.api.hap.Perms.HIDDEN
+      //        ]
       // });
 
       // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.CurrentConsumption);
       // this.serviceManager.addGetCharacteristic({
-      // 	name: 'CurrentConsumption',
-      // 	type: eve.Characteristics.CurrentConsumption,
-      // 	method: (callback) => {
-      // 	  this.historyService?.addEntry(
-      // 	    {time: Math.round(new Date().valueOf()/1000), power: 0}
-      // 	  )
-      // 	  callback(null, 0);
-      // 	},
-      // 	bind: this
+      //        name: 'CurrentConsumption',
+      //        type: eve.Characteristics.CurrentConsumption,
+      //        method: (callback) => {
+      //          this.historyService?.addEntry(
+      //            {time: Math.round(new Date().valueOf()/1000), power: 0}
+      //          )
+      //          callback(null, 0);
+      //        },
+      //        bind: this
       // });
 
       // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
       // this.serviceManager.addGetCharacteristic({
-      // 	name: 'LastActivation',
-      // 	type: eve.Characteristics.LastActivation,
-      // 	method: (callback) => {
-      // 	  const lastActivation = this.state.lastActivation ?
-      // 		Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
-      // 	  callback(null, lastActivation);
-      // 	},
-      // 	bind: this
+      //        name: 'LastActivation',
+      //        type: eve.Characteristics.LastActivation,
+      //        method: (callback) => {
+      //          const lastActivation = this.state.lastActivation ?
+      //                Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
+      //          callback(null, lastActivation);
+      //        },
+      //        bind: this
       // });
 
       this.serviceManager.service.addOptionalCharacteristic(Characteristic.Brightness);
     }
-  
+
     // this.serviceManager.addToggleCharacteristic({
     //   name: 'switchState',
     //   type: Characteristic.On,
@@ -642,21 +646,21 @@ class LightAccessory extends SwitchAccessory {
 
     // this.serviceManager.getCharacteristic(Characteristic.On)
     //   .on('change', async function(event) {
-    // 	if (event.newValue !== event.oldValue) {
-    // 	  if (this.historyService) {
-    // 	    const value = event.newValue;
-    // 	    // this.logs.debug(`adding history of switchState.`, value);
-    // 	    const time = Math.round(new Date().valueOf()/1000);
-    // 	    // if (value) {
-    // 	    this.state.lastActivation = time;
-    // 	    // }
-    // 	    this.historyService.addEntry(
-    // 	      {time: time, status: value ? 1 : 0})
-    // 	    // await this.mqttpublish('On', value ? 'true' : 'false')
-    // 	  }
-    // 	}
+    //  if (event.newValue !== event.oldValue) {
+    //    if (this.historyService) {
+    //      const value = event.newValue;
+    //      // this.logs.debug(`adding history of switchState.`, value);
+    //      const time = Math.round(new Date().valueOf()/1000);
+    //      // if (value) {
+    //      this.state.lastActivation = time;
+    //      // }
+    //      this.historyService.addEntry(
+    //        {time: time, status: value ? 1 : 0})
+    //      // await this.mqttpublish('On', value ? 'true' : 'false')
+    //    }
+    //  }
     //   }.bind(this))
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'brightness',
       type: Characteristic.Brightness,

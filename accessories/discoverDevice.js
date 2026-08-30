@@ -23,7 +23,7 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
 
   setDefaults() {
@@ -41,18 +41,18 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
       throw new hap.HapStatusError(hap.HAPStatus.NOT_ALLOWED_IN_CURRENT_STATE);
     } else if (state.switchState) {
       if (!this.constructor.discoverTimeout) {
-	this.logs.info(`re-discovering Broadlink RM devices for ${config.timeout} secs.`);
-	this.constructor.discoverTimeout = setTimeout(() => {
-	  this.constructor.discoverTimeout = undefined;
-	  state.switchState = false;
-	  serviceManager.refreshCharacteristicUI(Characteristic.On);
-	}, (config.timeout + 5) * 1000);	// with library timeout
+        this.logs.info(`re-discovering Broadlink RM devices for ${config.timeout} secs.`);
+        this.constructor.discoverTimeout = setTimeout(() => {
+          this.constructor.discoverTimeout = undefined;
+          state.switchState = false;
+          serviceManager.refreshCharacteristicUI(Characteristic.On);
+        }, (config.timeout + 5) * 1000);        // with library timeout
       }
       Object.keys(broadlink.devices).forEach(device => {
-	clearInterval(broadlink.devices[device].keepAliveInterval);
-	clearInterval(broadlink.devices[device].pingInterval);
-	discoveredDevices[broadlink.devices[device].host.address] = undefined;
-	discoveredDevices[broadlink.devices[device].host.macAddress] = undefined;
+        clearInterval(broadlink.devices[device].keepAliveInterval);
+        clearInterval(broadlink.devices[device].pingInterval);
+        discoveredDevices[broadlink.devices[device].host.address] = undefined;
+        discoveredDevices[broadlink.devices[device].host.macAddress] = undefined;
       })
       broadlink.close();
       discoverDevices(true, this.log, this.logLevel, config.timeout, this.platform);
@@ -61,7 +61,7 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
       // this.serviceManager.refreshCharacteristicUI(Characteristic.On);
     }
   }
-  
+
   setupServiceManager() {
     const { Service, Characteristic } = this;
     const { name } = this;

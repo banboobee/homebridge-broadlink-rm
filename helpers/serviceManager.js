@@ -6,19 +6,19 @@ class ServiceManager {
     assert(name, 'ServiceManager requires a "name" to be provided.')
     assert(serviceType, 'ServiceManager requires the "type" to be provided.')
     assert(log, 'ServiceManager requires "log" to be provided.')
-    
+
     this.log = log
     this.names = {};
-    
+
     if (this.constructor.isUnitTest) {
       this.service = new serviceType(name);
     } else {
       const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
       this.accessory = cachedAccessories.find((cache) => cache.UUID === uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
       this.accessory.getService(Service.AccessoryInformation)
-	.setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
-	.setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
-	.setCharacteristic(Characteristic.SerialNumber, uuid);
+        .setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
+        .setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
+        .setCharacteristic(Characteristic.SerialNumber, uuid);
       this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
     }
     this.characteristics = {}
@@ -26,7 +26,7 @@ class ServiceManager {
     this.addNameCharacteristic(name);
   }
 
-  setCharacteristic (characteristic, value) {    
+  setCharacteristic (characteristic, value) {
     this.service.setCharacteristic(characteristic, value);
   }
 
@@ -61,7 +61,7 @@ class ServiceManager {
   addCharacteristic ({ name, type, getSet, method, bind, props }) {
     this.characteristics[name] = type
     this.names[type.UUID] = name;
-    
+
     if (props) {
       props.propertyName = name
 
@@ -82,8 +82,8 @@ class ServiceManager {
   }
 
   addToggleCharacteristic ({ name, type, getMethod, setMethod, bind, props }) {
-    this.addGetCharacteristic({ name, type, method: getMethod, bind, props }) 
-    this.addSetCharacteristic({ name, type, method: setMethod, bind, props }) 
+    this.addGetCharacteristic({ name, type, method: getMethod, bind, props })
+    this.addSetCharacteristic({ name, type, method: setMethod, bind, props })
   }
 
   getCharacteristicTypeForName (name) {
@@ -95,7 +95,7 @@ class ServiceManager {
   addNameCharacteristic (name) {
     // console.log(`addNameCharacteristic: ${name}`);
     this.addCharacteristic({ name: 'name', type: Characteristic.Name, method: this.getName });
-    this.setCharacteristic(Characteristic.Name, name);    
+    this.setCharacteristic(Characteristic.Name, name);
   }
 
   getName (callback = undefined) {

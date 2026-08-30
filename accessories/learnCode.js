@@ -30,7 +30,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   }
 
   checkConfig(config) {
-    this.constructor.verifyConfig([config], '', this.constructor.configKeys); 
+    this.constructor.verifyConfig([config], '', this.constructor.configKeys);
   }
 
   setDefaults() {
@@ -71,7 +71,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
   timeout = null;
   currentDevice = null;
   initialDebug = undefined;
-  
+
   IRstop = async () => {
     if (this.initialDebug !== undefined && this.currentDevice) this.currentDevice.debug = this.initialDebug;
     if (this.timeout) {
@@ -80,23 +80,23 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     }
     this.timeout = null;
   }
-  
+
   IRstart = async (host, callback) => {
     callback();
     this.IRstop()
-    
+
     // Get the Broadlink device
     const device = getDevice({ host, log: this.log, learnOnly: true });
     if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found).`);
-      if (!device.enterLearning) return device.logs.error(this.logLevel, `learn Code (IR learning) not supported for device 0x${device.type.toString(16)}.`);
-    
+    if (!device.enterLearning) return device.logs.error(this.logLevel, `learn Code (IR learning) not supported for device 0x${device.type.toString(16)}.`);
+
     this.currentDevice = device
     this.initialDebug = device.debug;
     device.debug = this.logLevel;
-    
+
     await device.enterLearning(this.logLevel);
     this.logs.log(`Learning...`);
-    
+
     this.timeout = setTimeout(async () => {
       this.timeout = null;
     }, 10 * 1000); // 10s
@@ -104,10 +104,10 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
       await new Promise(resolve => setTimeout(resolve, 1 * 1000));
       const data = await device.checkData(this.logLevel);
       if (data) {
-	const hex = data.toString('hex');
-	this.logs.log(`Packet found!`);
-	this.logs.log(`Hex Code: ${hex}`);
-	break;
+        const hex = data.toString('hex');
+        this.logs.log(`Packet found!`);
+        this.logs.log(`Hex Code: ${hex}`);
+        break;
       }
     }
     if (this.timeout) {
@@ -131,53 +131,53 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     this.currentDevice = null;
     this.timeout = null;
   }
-  
+
   RFstart = async (host, frequency, callback) => {
     callback();
     this.RFstop()
-    
+
     // Get the Broadlink device
     const device = getDevice({ host, log: this.log, learnOnly: true })
     if (!device) return this.logs.error(`Learn Code (Couldn't learn code, device not found).`);
     if (!device.enterLearning) return device.logs.error(this.logLevel, `learn Code (IR/RF learning) not supported for device 0x${device.type.toString(16)}.`);
     if (!device.enterRFSweep) return device.logs.error(this.logLevel, `scan RF (RF learning) not supported for device 0x${device.type.toString(16)}.`);
-    
+
     this.currentDevice = device
     this.initalDebug = device.debug;
     if (this.logLevel) device.debug = true;
-    
+
     if (!frequency) {
       await device.sweepFrequency(this.logLevel);
       this.logs.log(`Detecting radiofrequency, press and hold the button to learn...`);
-      
+
       this.timeout = setTimeout(async () => {
-	this.timeout = null;
+        this.timeout = null;
       }, 30 * 1000); // 30s
-      while (this.timeout) { 
-	await new Promise(resolve => setTimeout(resolve, 1 * 1000));
-	const data = await device.checkFrequency(this.logLevel);
-	if (data) {
-	  const {locked, frequency} = data;
-	  if (locked) {
-	    this.logs.log(`Radiofrequency detected: ${frequency.toFixed(2)}MHz`);
-	    // this.logs.log(`You can now let go of the button`);
-	    this.logs.log(`Pausing 3 seconds.`);
-	    await new Promise(resolve => setTimeout(resolve, 3 * 1000));
-	    this.logs.log(`Press the button again, now a short press.`);
-	    break;
-	  } else {
-	    this.logs.log(`scanning ${frequency.toFixed(2)}MHz ...`);
-	  }
-	}
+      while (this.timeout) {
+        await new Promise(resolve => setTimeout(resolve, 1 * 1000));
+        const data = await device.checkFrequency(this.logLevel);
+        if (data) {
+          const {locked, frequency} = data;
+          if (locked) {
+            this.logs.log(`Radiofrequency detected: ${frequency.toFixed(2)}MHz`);
+            // this.logs.log(`You can now let go of the button`);
+            this.logs.log(`Pausing 3 seconds.`);
+            await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+            this.logs.log(`Press the button again, now a short press.`);
+            break;
+          } else {
+            this.logs.log(`scanning ${frequency.toFixed(2)}MHz ...`);
+          }
+        }
       }
       if (this.timeout) {
-	clearTimeout(this.timeout);
-	this.timeout = null;
+        clearTimeout(this.timeout);
+        this.timeout = null;
       } else {
-	this.logs.log('Radiofrequency not found');
-	await device.cancelSweepFrequency(this.logLevel);
-	this.turnOffCallback();
-	return;
+        this.logs.log('Radiofrequency not found');
+        await device.cancelSweepFrequency(this.logLevel);
+        this.turnOffCallback();
+        return;
       }
     } else {
       this.logs.log('Press the button you want to learn, a short press...');
@@ -186,14 +186,14 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     this.timeout = setTimeout(async () => {
       this.timeout = null;
     }, 30 * 1000); // 30s
-    while (this.timeout) { 
+    while (this.timeout) {
       await new Promise(resolve => setTimeout(resolve, 1 * 1000));
       const data = await device.checkData(this.logLevel);
       if (data) {
-	const hex = data.toString('hex');
-	this.logs.log(`Packet found!`);
-	this.logs.log(`Hex Code: ${hex}`);
-	break;
+        const hex = data.toString('hex');
+        this.logs.log(`Packet found!`);
+        this.logs.log(`Hex Code: ${hex}`);
+        break;
       }
     }
     if (this.timeout) {
@@ -204,7 +204,7 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     }
     this.turnOffCallback();
   }
-  
+
   setupServiceManager() {
     const { Service, Characteristic } = this;
     const { name } = this;

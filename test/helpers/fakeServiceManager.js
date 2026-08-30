@@ -16,7 +16,7 @@ class FakeServiceManager extends ServiceManager {
 
   setCharacteristic (characteristic, value) {
     this.hasRecordedSetCharacteristic = true
-    
+
     super.setCharacteristic(characteristic, value)
   }
 }
@@ -45,7 +45,7 @@ class FakeService {
 
     return characteristic
   }
-  
+
   addOptionalCharacteristic() {
   }
 }
@@ -71,7 +71,7 @@ class FakeCharacteristic {
 
     return this.setMethod(value, (err, value) => {
       if (err) {
-	return this.log(`FakeServiceManager: set${this.type.name} received failed callback ${err}.`)
+        return this.log(`FakeServiceManager: set${this.type.name} received failed callback ${err}.`)
       }
 
       // this.log('Fake Set Callback Received: ', value)
@@ -99,7 +99,7 @@ class FakeCharacteristic {
   }
 
   value;
-  
+
   setProps () {
     return {on: () => {}};
   }
