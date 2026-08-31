@@ -6,8 +6,8 @@
   "license": "ISC",
   "scripts": {
     "release": "release-it",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js .",
-    "lint-fix": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js --fix .",
+    "lint": "eslint -c eslint.config.mjs --ext js .",
+    "lint-fix": "eslint -c eslint.config.mjs --ext js --fix .",
     "test": "mocha"
   },
   "keywords": [
