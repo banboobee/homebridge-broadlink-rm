@@ -51,6 +51,9 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     deviceDiscoveryTimeout:  [
       (key, values) => {return typeof values[0] !== 'string' && !Number.isNaN(Number(values[0]))},
       '`value ${JSON.stringify(values[0])} is not a number`'],
+    rediscoveryInterval:  [
+      (key, values) => {return typeof values[0] !== 'string' && !Number.isNaN(Number(values[0]))},
+      '`value ${JSON.stringify(values[0])} is not a number`'],
 
     // selection
     logLevel: [
@@ -276,14 +279,32 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     const { hosts } = config;
     config.deviceDiscoveryTimeout ??= 60;
 
+    // How often (minutes) broadcast discovery is re-run to refresh the
+    // MAC -> IP mapping. 0 disables the scheduled sweep.
+    config.rediscoveryInterval ??= 60;
+    const { rediscoveryInterval } = config;
+
+    const logRediscovery = () => {
+      if (rediscoveryInterval > 0) {
+        broadlink.logs.info(`Devices are tracked by MAC address and re-discovered every ${rediscoveryInterval} minutes.`);
+      } else {
+        broadlink.logs.warn(`Scheduled re-discovery is disabled ("rediscoveryInterval": 0). A device that is given a different IP address will stay unreachable until Homebridge is restarted.`);
+      }
+    }
+
     if (!hosts) {
       log(`\x1b[32mAutomatically discovering Broadlink RM devices.\x1b[0m`);
-      discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this);
+      logRediscovery();
+      discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, this, rediscoveryInterval);
       return;
     }
 
-    log(`\x1b[33mAutomatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.\x1b[0m`);
-    discoverDevices(false, log, logLevel, undefined, this);
+    // The configured addresses are a starting point only. Broadcast discovery
+    // still runs, so a device that is given a new DHCP lease is followed to its
+    // new address instead of going silently unreachable.
+    log(`\x1b[32mUsing the "hosts" option for the initial Broadlink RM device addresses.\x1b[0m`);
+    logRediscovery();
+    discoverDevices(false, log, logLevel, config.deviceDiscoveryTimeout, this, rediscoveryInterval);
 
     // assert.isArray(hosts, `\x1b[31m[CONFIG ERROR] \x1b[33mhosts\x1b[0m should be an array of objects.`)
 
