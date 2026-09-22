@@ -61,11 +61,12 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 40. &#x2610; ignored invalid temperature reporting of bradlink device ([home-assistant/core#50098](https://github.com/home-assistant/core/pull/50098)).
 41. &#x2610; prevented ___'illegal value: null'___ for 'Current Relative Humidity' characteristic (e.g. [base#680](https://github.com/kiwi-cam/homebridge-broadlink-rm/issues/680)) without noHumidity property.
 42. &#x2610; added discover device accessory to discover devices without restarting the plugin. 
+43. &#x2610; ___configuration UI___ so the plugin can be set up from a form instead of by hand-editing config.json: a `config.schema.json` for the platform options, a device scan that reports whether each broadlink device is reachable, locked to the cloud or stuck on a link-local address, an accessory editor that only shows the options applying to the selected type, and a ___Learn___ button per HEX slot that writes the captured IR/RF code straight into the accessory ([base#787](https://github.com/kiwi-cam/homebridge-broadlink-rm/pull/787)).
 
 #### Summary
 | code                    | improvements | Unit<br>test | EVE<br>history<br>views | MQTT<br>subscribe/<br>publish | fixing<br>lint | tidy-up<br>config | verify<br>config | config<br>scheme |
 |:-----------------------:|:------------:|:------------:|:-----------------------:|:-----------------------------:|:--------------:|:-----------------:|:----------------:|:----------------:|
-| platform                | &#x2714;     | &#x2714;     | -                       | -                             | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
+| platform                | &#x2714;     | &#x2714;     | -                       | -                             | &#x2714;       | &#x2714;          | &#x2714;         | &#x2714;         |
 | air-conditioner         | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
 | switch                  | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
 | light                   | &#x2714;     | &#x2714;     | &#x2714;                | &#x2714;                      | &#x2714;       | &#x2714;          | &#x2714;         | &#x2610;         |
@@ -92,7 +93,15 @@ The [original](https://github.com/lprhodes/homebridge-broadlink-rm) is designed 
 - [x] collect available config properties
 - [x] unifiy config properties
 - [x] verify config properties
-- [ ] config.schema.json
+- [x] config.schema.json
+
+## Configuration
+
+In the Homebridge web interface, open __Plugins__, find this plugin and choose __Settings__. The form covers the platform options, and the __Devices__ tab scans the network and reports each broadlink device as ready, locked to the broadlink cloud, or holding a link-local `169.254.x.x` address — the last two look identical in the log, where the device is simply absent. A device found by the scan can be pinned into `hosts` with one click.
+
+Accessories are edited from a list, with an editor that only shows the options that apply to the selected accessory type. HEX codes get a labelled slot each, with __Learn__ (and __Learn RF__ on RM Pro / RM4 Pro) to capture a code straight into the accessory, __Test__ to send it back out, and a guided pass that walks through every missing code of a remote in one go.
+
+Editing `config.json` by hand keeps working exactly as before. The `accessories` array is deliberately left free-form in `config.schema.json`, so form validation can never reshape or drop HEX data that took a long time to learn.
 
 ## Known issues
 - [ ] broadlink device disconnect/connect periodically ([python-broadlink#641](https://github.com/mjg59/python-broadlink/issues/641))
