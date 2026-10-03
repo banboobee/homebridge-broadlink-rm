@@ -124,7 +124,7 @@ class HomebridgePlatform {
     //                                       .filter(x => x.config.type === 'tv')
     //                                       .map(x => x.serviceManager.accessory));
     accessories.forEach(x => {
-      if (x.config.type === 'tv') {
+      if (x.config.type === 'tv' || x.config.type === 'speaker') {
         // Register external accessories
         this.api.publishExternalAccessories('homebridge-broadlink-rm', [x.serviceManager.accessory]);
         this.log(`Registered ${x.config.type} accessory ${x.config.name} with type ${x.config.subType}.`);

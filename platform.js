@@ -188,7 +188,8 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     'temperatureSensor': require('./accessories/temperatureSensor.js'),
     'humiditySensor': require('./accessories/humiditySensor.js'),
     'heater-cooler': require('./accessories/heater-cooler'),
-    'discover-device': require('./accessories/discoverDevice')
+    'discover-device': require('./accessories/discoverDevice'),
+    'speaker': require('./accessories/speaker')
   }
   classTypes = this.constructor.classTypes;
 

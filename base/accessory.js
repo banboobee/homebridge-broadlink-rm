@@ -158,7 +158,7 @@ class HomebridgeAccessory {
   }
 
   async setCharacteristicValue(props, value, callback) {
-    const { config, host, log, name } = this;
+    const { config, host, log, name, logLevel } = this;
     let previousValue = this.state[props.propertyName];
 
     try {
@@ -215,7 +215,7 @@ class HomebridgeAccessory {
       if (setValuePromise) {
         await setValuePromise(data, previousValue);
       } else if (data) {
-        await this.performSetValueAction({ host, data, log, name });
+        await this.performSetValueAction({ host, data, log, name, logLevel });
       }
       this.state0[propertyName] = value;
       // callback(null);
