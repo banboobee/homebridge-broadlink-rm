@@ -209,9 +209,11 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   setDefaults() {
-    const { config } = this;
-    config.pingFrequency = config.pingFrequency || 1;
-    config.pingGrace = config.pingGrace || 10;
+    const { config, state } = this;
+    config.pingFrequency ??= 1;
+    config.pingGrace ??= 10;
+    state.mute ??= false;
+    state.volume ??= 50;
 
     // config.offDuration = config.offDuration || 60;
     // config.onDuration = config.onDuration || 60;
@@ -634,66 +636,100 @@ class TVAccessory extends BroadlinkRMAccessory {
       this.speakerService = this.serviceManager.accessory.addService(Service.TelevisionSpeaker, `${name} Speaker`, '${name} Speaker');
     }
 
-    this.speakerService.setCharacteristic(
-      Characteristic.Active,
-      Characteristic.Active.ACTIVE
-    );
+    // this.speakerService.setCharacteristic(
+    //   Characteristic.Active,
+    //   Characteristic.Active.ACTIVE
+    // );
     this.speakerService.setCharacteristic(
       Characteristic.VolumeControlType,
       Characteristic.VolumeControlType.ABSOLUTE
     );
 
     this.speakerService.getCharacteristic(Characteristic.VolumeSelector)
-      .on('set', async (newValue, callback) => {
-        if (!data || !data.volume) {
-          this.logs.error(`VolumeSelector: No settings data found. Ignoring request.`);
-          callback(null);
-          return;
-        }
+      .onSet(async (value) => {
+        const delta = 100 / 20; // 20 steps maximal
+        let hex = undefined, update;
 
-        let hexData = null;
-        switch (newValue) {
+        switch (value) {
           case Characteristic.VolumeSelector.INCREMENT:
-            hexData = data.volume.up;
+            hex = data?.volume?.up;
+            update = delta;
             break;
           case Characteristic.VolumeSelector.DECREMENT:
-            hexData = data.volume.down;
+            hex = data?.volume?.down;
+            update = -delta;
             break;
         }
-
-        if (!hexData) {
-          this.logs.error(`VolumeSelector: No IR code found for received remote input!`);
-          callback(null);
+        if (!hex) {
+          this.logs.error(`volumeSelector: No IR code for volume ${update > 0 ? 'up': 'down'}.`);
           return;
         }
-
-        await this.performSend(hexData);
-        callback(null);
+        try {
+          await this.performSend(hex);
+          this.state.volume += update;
+          this.speakerService.updateCharacteristic(Characteristic.Volume, this.state.volume);
+        } catch (e) {
+          const hap = this.platform.api.hap;
+          this.logs.error(e);
+          throw new hap.HapStatusError(hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
       });
 
-    this.speakerService.setCharacteristic(Characteristic.Mute, false);
-    this.speakerService.getCharacteristic(Characteristic.Mute)
-      .on('get', (callback) => {
-        // console.log(`${name} Mute: get ${this.state.Mute}.`);
-        callback(null, this.state.Mute || false);
+    this.speakerService.getCharacteristic(Characteristic.Volume)
+      .onGet(async () => {
+        return this.state.volume;
       })
-      .on('set', async (newValue, callback) => {
-        if (!data || !data.volume || !data.volume.mute) {
-          this.logs.error(`VolumeSelector: No mute data found. Ignoring request.`);
-          callback(null);
+      .onSet(async (value) => {
+        const { data, state } = this;
+        const delta = 100 / 20; // 20 steps maximal
+        const update = Math.floor(value / delta);
+        const current = Math.floor(state.volume / delta);
+
+        let hex = undefined;
+        if (update - current > 0) {
+          hex = data?.volume?.up;
+        } else if (update - current < 0) {
+          hex = data?.volume?.down;
+        } else {
+          return; // nothing to do
+        }
+        if (!hex) {
+          this.logs.error(`volume: No IR code for ${update - current > 0 ? 'up': 'down'}.`);
+        }
+        try {
+          await this.performSend([{
+            data: hex,
+            // interval: 1,
+            sendCount: Math.abs(update - current),
+          }]);
+          state.volume = value;
+        } catch (e) {
+          const hap = this.platform.api.hap;
+          this.logs.error(e);
+          throw new hap.HapStatusError(hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+      });
+
+    // this.speakerService.setCharacteristic(Characteristic.Mute, false);
+    this.speakerService.getCharacteristic(Characteristic.Mute)
+      .onGet(() => {
+        // console.log(`${name} mute: get ${this.state.mute}.`);
+        return this.state.mute;
+      })
+      .onSet(async (value) => {
+        const hex = data?.volume?.mute;
+        if (!hex) {
+          this.logs.error(`volumeSelector: No IR code found for mute!`);
           return;
         }
-
-        const hexData = data.volume.mute;
-        if (!hexData) {
-          this.logs.error(`VolumeSelector: No IR code found for mute!`);
-          callback(null);
-          return;
+        try {
+          await this.performSend(hex);
+          this.state.mute = value;
+        } catch (e) {
+          const hap = this.platform.api.hap;
+          this.logs.error(e);
+          throw new hap.HapStatusError(hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         }
-
-        this.state.Mute = newValue;
-        await this.performSend(hexData);
-        callback(null);
       });
 
     // this.serviceManagers.push(this.speakerService);
