@@ -146,7 +146,7 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
       return; // nothing to do
     }
     if (!hexData) {
-      throw new Error(`volume: No IR code for ${update > 0 ? 'up': 'down'}.`);
+      throw new Error(`volume: No IR code for ${update - current > 0 ? 'up': 'down'}.`);
     }
     await this.performSend([{
       data: hexData,
