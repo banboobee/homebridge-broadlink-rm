@@ -204,10 +204,10 @@ describe('TVAccessory', async function() {
     // Volume control
     TVAccessory.speakerService.setCharacteristic(Characteristic.Mute, true);
     await delayForDuration(0.1);
-    expect(TVAccessory.state.Mute).to.equal(true);
+    expect(TVAccessory.state.mute).to.equal(true);
     TVAccessory.speakerService.setCharacteristic(Characteristic.Mute, false);
     await delayForDuration(0.1);
-    expect(TVAccessory.state.Mute).to.equal(false);
+    expect(TVAccessory.state.mute).to.equal(false);
 
     TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
     await delayForDuration(0.1);
@@ -239,7 +239,7 @@ describe('TVAccessory', async function() {
     await delayForDuration(0.1);
     expect(TVAccessory.state.switchState).to.equal(true);
     expect(TVAccessory.state.currentInput).to.equal(2);
-    expect(TVAccessory.state.Mute).to.equal(true);
+    expect(TVAccessory.state.mute).to.equal(true);
 
     // Check hex codes were sent
     hexCheck({ device, codes: [ 'ON', 'Channel-B', 'MUTE' ], count: 3 });
@@ -251,7 +251,7 @@ describe('TVAccessory', async function() {
     config.persistState = true;
     TVAccessory = new platform.classTypes['tv'](log, config, platform);
     expect(TVAccessory.state.switchState).to.equal(true);
-    expect(TVAccessory.state.Mute).to.equal(true);
+    expect(TVAccessory.state.mute).to.equal(true);
     expect(TVAccessory.state.currentInput).to.equal(2);
   });
 
