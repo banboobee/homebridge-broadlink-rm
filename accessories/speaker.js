@@ -138,7 +138,9 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
     const update = Math.floor(state.volume / delta);
     const current = Math.floor(previousValue / delta);
 
-    if (update - current > 0) {
+    if (state.volume > 100 || state.volume < 0) {
+      throw new Error(`volume: unexpected volume level ${state.volume}`);
+    } else if (update - current > 0) {
       hexData = data?.volume?.up;
     } else if (update - current < 0) {
       hexData = data?.volume?.down;
@@ -317,10 +319,16 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
           let hex, update;
           switch (value) {
             case Characteristic.VolumeSelector.INCREMENT:
+              if (state.volume >= 100) {
+                throw new Error(`volume level is already maxmal.`);
+              }
               hex = data?.volume?.up;
               update = (state.volume / delta + 1) * delta;
               break;
             case Characteristic.VolumeSelector.DECREMENT:
+              if (state.volume <= 0) {
+                throw new Error(`volume level is already minimum.`);
+              }
               hex = data?.volume?.down;
               update = (state.volume / delta - 1) * delta;
               break;
@@ -335,8 +343,9 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
           // this.state.volume = update;
           this.serviceManager.updateCharacteristic(Characteristic.Volume, update);
         } catch(e) {
-          this.logs.error(`${e}`);
-          // throw(e);
+          const hap = this.platform.api.hap;
+          this.logs.error(e);
+          throw new hap.HapStatusError(hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         }
       });
   }

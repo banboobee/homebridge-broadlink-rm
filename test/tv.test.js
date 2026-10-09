@@ -211,14 +211,52 @@ describe('TVAccessory', async function() {
 
     TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
     await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(55);
     TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
     await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(50);
 
     // Check hex codes were sent
     hexCheck({ device,
       codes: [ 'MUTE', 'MUTE', 'VOLUMEUP', 'VOLUMEDOWN' ],
       count: 4
     });
+
+    TVAccessory.state.volume = 99;
+    TVAccessory.speakerService.setCharacteristic(Characteristic.Volume, 120);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(100);
+
+    TVAccessory.state.volume = 90;
+    TVAccessory.speakerService.setCharacteristic(Characteristic.Volume, 99);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(99);
+
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(100);
+
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(100);
+
+    TVAccessory.state.volume = 1;
+    TVAccessory.speakerService.setCharacteristic(Characteristic.Volume, -10);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(0);
+
+    TVAccessory.state.volume = 6;
+    TVAccessory.speakerService.setCharacteristic(Characteristic.Volume, 1);
+    await delayForDuration(.1);
+    expect(TVAccessory.state.volume).to.equal(1);
+
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(0);
+
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(0);
   });
 
   it('"persistState": true', async function() {

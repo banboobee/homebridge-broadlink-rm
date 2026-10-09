@@ -648,26 +648,34 @@ class TVAccessory extends BroadlinkRMAccessory {
     this.speakerService.getCharacteristic(Characteristic.VolumeSelector)
       .onSet(async (value) => {
         const delta = 100 / 20; // 20 steps maximal
-        let hex = undefined, update;
 
-        switch (value) {
-          case Characteristic.VolumeSelector.INCREMENT:
-            hex = data?.volume?.up;
-            update = delta;
-            break;
-          case Characteristic.VolumeSelector.DECREMENT:
-            hex = data?.volume?.down;
-            update = -delta;
-            break;
-        }
-        if (!hex) {
-          this.logs.error(`volumeSelector: No IR code for volume ${update > 0 ? 'up': 'down'}.`);
-          return;
-        }
         try {
+          let hex = undefined, update;
+          switch (value) {
+            case Characteristic.VolumeSelector.INCREMENT:
+              if (this.state.volume >= 100) {
+                throw new Error(`volume level is already reached maximum.`);
+              }
+              hex = data?.volume?.up;
+              update = Math.min(this.state.volume + delta, 100);
+              break;
+            case Characteristic.VolumeSelector.DECREMENT:
+              if (this.state.volume <= 0) {
+                throw new Error(`volume level is already reached minimal.`);
+              }
+              hex = data?.volume?.down;
+              update = Math.max(this.state.volume - delta, 0);
+              break;
+            default: {
+              throw new Error(`unexpected volume selector control ${value}.`);
+            }
+          }
+          if (!hex) {
+            throw new Error(`volumeSelector: No IR code for volume ${update > 0 ? 'up': 'down'}.`);
+          }
           await this.performSend(hex);
-          this.state.volume += update;
-          this.speakerService.updateCharacteristic(Characteristic.Volume, this.state.volume);
+          this.speakerService.updateCharacteristic(Characteristic.Volume, update);
+          this.state.volume = update;
         } catch (e) {
           const hap = this.platform.api.hap;
           this.logs.error(e);
@@ -685,18 +693,21 @@ class TVAccessory extends BroadlinkRMAccessory {
         const update = Math.floor(value / delta);
         const current = Math.floor(state.volume / delta);
 
-        let hex = undefined;
-        if (update - current > 0) {
-          hex = data?.volume?.up;
-        } else if (update - current < 0) {
-          hex = data?.volume?.down;
-        } else {
-          return; // nothing to do
-        }
-        if (!hex) {
-          this.logs.error(`volume: No IR code for ${update - current > 0 ? 'up': 'down'}.`);
-        }
         try {
+          let hex = undefined;
+          if (value > 100 || value < 0) {
+            throw new Error(`volume: unexpected volume level ${value}.`);
+          } else if (update - current > 0) {
+            hex = data?.volume?.up;
+          } else if (update - current < 0) {
+            hex = data?.volume?.down;
+          } else {
+            state.volume = value;
+            return; // nothing to do
+          }
+          if (!hex) {
+            throw new Error(`volume: No IR code for ${update - current > 0 ? 'up': 'down'}.`);
+          }
           await this.performSend([{
             data: hex,
             // interval: 1,
@@ -717,12 +728,12 @@ class TVAccessory extends BroadlinkRMAccessory {
         return this.state.mute;
       })
       .onSet(async (value) => {
-        const hex = data?.volume?.mute;
-        if (!hex) {
-          this.logs.error(`volumeSelector: No IR code found for mute!`);
-          return;
-        }
         try {
+          const hex = data?.volume?.mute;
+          if (!hex) {
+            throw new Error(`volumeSelector: No IR code for mute!`);
+            return;
+          }
           await this.performSend(hex);
           this.state.mute = value;
         } catch (e) {
