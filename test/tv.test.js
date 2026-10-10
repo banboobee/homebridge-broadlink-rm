@@ -240,6 +240,11 @@ describe('TVAccessory', async function() {
     await delayForDuration(0.1);
     expect(TVAccessory.state.volume).to.equal(100);
 
+    TVAccessory.state.volume = 93;
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(95);
+
     TVAccessory.state.volume = 1;
     TVAccessory.speakerService.setCharacteristic(Characteristic.Volume, -10);
     await delayForDuration(0.1);
@@ -254,6 +259,11 @@ describe('TVAccessory', async function() {
     await delayForDuration(0.1);
     expect(TVAccessory.state.volume).to.equal(0);
 
+    TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
+    await delayForDuration(0.1);
+    expect(TVAccessory.state.volume).to.equal(0);
+
+    TVAccessory.state.volume = 6;
     TVAccessory.speakerService.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
     await delayForDuration(0.1);
     expect(TVAccessory.state.volume).to.equal(0);

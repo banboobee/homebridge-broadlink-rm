@@ -84,6 +84,26 @@ class FakeCharacteristic {
     if (getSet === 'set') {this.setMethod = method}
   }
 
+  onSet (method) {
+    this.setMethod = (value) => {return new Promise((resolve, reject) => {
+      method(value).then(() => {
+        resolve(true);
+      }).catch((e) => {
+        reject(e);
+      });
+    })};
+  }
+
+  onGet (method) {
+    this.getMethod = () => {return new Promise((resolve, reject) => {
+      method().then(() => {
+        resolve(true);
+      }).catch((e) => {
+        reject(e);
+      });
+    })};
+  }
+
   // getValue () {
   //   return new Promise((resolve, reject) => {
   //     this.getMethod((error, value) => {

@@ -316,6 +316,7 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
         const { data, state } = this;
         try {
           const delta = 100 / 20; // 20 steps maximal
+          const current = Math.floor(this.state.volume / delta) * delta;
           let hex, update;
           switch (value) {
             case Characteristic.VolumeSelector.INCREMENT:
@@ -323,14 +324,14 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
                 throw new Error(`volume level is already maxmal.`);
               }
               hex = data?.volume?.up;
-              update = (state.volume / delta + 1) * delta;
+              update = Math.min(current + delta, 100);
               break;
             case Characteristic.VolumeSelector.DECREMENT:
               if (state.volume <= 0) {
                 throw new Error(`volume level is already minimum.`);
               }
               hex = data?.volume?.down;
-              update = (state.volume / delta - 1) * delta;
+              update = Math.max(current - delta, 0);
               break;
             default: {
               throw new Error(`Unexpected volume selector control ${value}.`);

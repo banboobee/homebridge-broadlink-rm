@@ -648,6 +648,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     this.speakerService.getCharacteristic(Characteristic.VolumeSelector)
       .onSet(async (value) => {
         const delta = 100 / 20; // 20 steps maximal
+        const current = Math.floor(this.state.volume / delta) * delta;
 
         try {
           let hex = undefined, update;
@@ -657,14 +658,14 @@ class TVAccessory extends BroadlinkRMAccessory {
                 throw new Error(`volume level is already reached maximum.`);
               }
               hex = data?.volume?.up;
-              update = Math.min(this.state.volume + delta, 100);
+              update = Math.min(current + delta, 100);
               break;
             case Characteristic.VolumeSelector.DECREMENT:
               if (this.state.volume <= 0) {
                 throw new Error(`volume level is already reached minimal.`);
               }
               hex = data?.volume?.down;
-              update = Math.max(this.state.volume - delta, 0);
+              update = Math.max(current - delta, 0);
               break;
             default: {
               throw new Error(`unexpected volume selector control ${value}.`);
