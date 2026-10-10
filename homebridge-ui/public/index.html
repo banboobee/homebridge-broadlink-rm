@@ -123,6 +123,8 @@
         help: 'How much detail the platform writes to the Homebridge log.' },
       { key: 'deviceDiscoveryTimeout', label: 'Discovery timeout', type: 'number', unit: 'seconds', default: 60,
         help: 'How long the network is scanned for devices at start-up.' },
+      { key: 'rediscoveryInterval', label: 'Re-discovery interval', type: 'number', unit: 'minutes', default: 60,
+        help: 'How often the network is re-scanned so a device that is given a different IP address is followed to it. 0 disables the scheduled scan.' },
       { key: 'hideLearnButton', label: 'Hide the Learn accessory', type: 'boolean', default: false,
         help: 'Stops the Learn switch, used to learn IR codes, being added to HomeKit.' },
       { key: 'hideScanFrequencyButton', label: 'Hide the Scan Frequency accessory', type: 'boolean', default: false,
