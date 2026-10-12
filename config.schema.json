@@ -73,6 +73,14 @@
         "maximum": 600,
         "description": "How long the network is scanned for devices at start-up when automatic discovery is used."
       },
+      "rediscoveryInterval": {
+        "title": "Re-discovery interval (minutes)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "How often the network is re-scanned so a device that is given a different IP address is followed to it. 0 disables the scheduled scan."
+      },
       "hideLearnButton": {
         "title": "Hide the Learn accessory",
         "type": "boolean",
