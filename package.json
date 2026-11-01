@@ -1,7 +1,7 @@
 {
   "name": "@banboobee/homebridge-broadlink-rm-PoC",
   "displayName": "Homebridge Broadlink RM PoC",
-  "version": "4.4.16",
+  "version": "4.4.17",
   "description": "Dynamic platform version of Broadlink RM plugin based on the original https://github.com/lprhodes/homebridge-broadlink-rm.git",
   "license": "ISC",
   "scripts": {
