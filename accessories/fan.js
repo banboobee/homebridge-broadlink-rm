@@ -105,17 +105,6 @@ class FanAccessory extends BroadlinkRMAccessory {
     serviceManager.setCharacteristic(Characteristic.Active, value);
   }
 
-  //async setSwitchState(hexData) {
-  //  const { data, host, log, name, logLevel } = this;
-
-  //  this.stateChangeInProgress = true;
-  //  this.reset();
-
-  //  if (hexData) {await this.performSend(hexData);}
-
-  //  this.checkAutoOnOff();
-  //}
-
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
