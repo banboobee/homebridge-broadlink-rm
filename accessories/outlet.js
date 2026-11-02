@@ -1,7 +1,5 @@
-const ping = require('ping');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 
-const delayForDuration = require('../helpers/delayForDuration')
 const SwitchAccessory = require('./switch');
 
 class OutletAccessory extends SwitchAccessory {
@@ -15,21 +13,21 @@ class OutletAccessory extends SwitchAccessory {
 
       return
     }
-    
+
     const value = active ? true : false;
     serviceManager.setCharacteristic(Characteristic.OutletInUse, value);
   }
 
   setOutletInUse (value, callback) {
     this.state.outletInUse = value
-  
+
     callback(null, value)
   }
 
   setupServiceManager () {
-    const { data, name, config, serviceManagerType } = this;
+    const { data, name, serviceManagerType } = this;
     const { on, off } = data || { };
-    
+
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Outlet, this.log);
 
     this.serviceManager.addToggleCharacteristic({

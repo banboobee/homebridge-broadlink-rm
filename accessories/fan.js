@@ -107,7 +107,7 @@ class FanAccessory extends BroadlinkRMAccessory {
 
   async checkPingGrace () {
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
+      const { config } = this;
 
       const { pingGrace } = config;
 
@@ -124,7 +124,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
       const { config, log, logLevel, name, state, serviceManager } = this;
-      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);}
@@ -140,7 +140,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
       const { config, log, logLevel, name, state, serviceManager } = this;
-      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);}
@@ -175,7 +175,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   async setFanSpeed(hexData) {
-    const { config, data, host, log, state, name, logLevel } = this;
+    const { config, data, log, state, name, logLevel } = this;
 
     this.reset();
 
@@ -301,7 +301,7 @@ class FanAccessory extends BroadlinkRMAccessory {
       minValue: 0,
       maxValue: 100
     });
-    
+
     if (config.showRotationDirection) {
       this.serviceManager.addToggleCharacteristic({
         name: 'rotationDirection',

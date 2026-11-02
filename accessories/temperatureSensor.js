@@ -1,12 +1,4 @@
-const { assert } = require('chai');
-const uuid = require('uuid');
-const fs = require('fs');
-const findKey = require('find-key');
-
-const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const { getDevice } = require('../helpers/getDevice');
 const AirconAccessory = require('./aircon');
 
 class TemperatureSensorAccessory extends AirconAccessory {
@@ -42,20 +34,20 @@ class TemperatureSensorAccessory extends AirconAccessory {
   }
 
   getBatteryAlert (callback) {
-    const { config, name, state, log, logLevel } = this;
+    const { name, state, log, logLevel } = this;
 
     const batteryAlert = state.batteryLevel <= 20? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Alert:`,batteryAlert);}
 
     callback(null, batteryAlert);
   }
-  
+
   getBatteryLevel (callback) {
-    const { config, name, state, log, logLevel } = this;
+    const { name, state, log, logLevel } = this;
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel);}
     callback(null, parseFloat(state.batteryLevel));
   }
-  
+
   // Service Manager Setup
 
   setupServiceManager () {
@@ -78,7 +70,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
         bind: this
       })
     }
-    
+
     if (config.batteryAlerts){
       this.serviceManager.addGetCharacteristic({
         name: 'batteryAlert',
@@ -86,7 +78,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
         method: this.getBatteryAlert,
         bind: this
       })
-      
+
       this.serviceManager.addGetCharacteristic({
         name: 'batteryLevel',
         type: Characteristic.BatteryLevel,
@@ -94,14 +86,14 @@ class TemperatureSensorAccessory extends AirconAccessory {
         bind: this
       })
     }
-    
+
     this.serviceManager.addGetCharacteristic({
       name: 'temperatureDisplayUnits',
       type: Characteristic.TemperatureDisplayUnits,
       method: this.getTemperatureDisplayUnits,
       bind: this
     })
-    
+
     this.serviceManager
       .getCharacteristic(Characteristic.CurrentTemperature)
       .setProps({

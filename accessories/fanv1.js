@@ -7,11 +7,11 @@ class Fanv1Accessory extends FanAccessory {
   setDefaults () {
     super.setDefaults();
     const { config, state } = this;
-    
+
     // Defaults
     config.showRotationDirection = config.hideRotationDirection === true || config.showRotationDirection === false ? false : true;
     config.stepSize = isNaN(config.stepSize) || config.stepSize > 100 || config.stepSize < 1 ? 1 : config.stepSize
-    
+
     if (config.alwaysResetToDefaults) {
       state.fanSpeed = (config.defaultFanSpeed !== undefined) ? config.defaultFanSpeed : 100;
     }
@@ -20,7 +20,7 @@ class Fanv1Accessory extends FanAccessory {
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         log(
@@ -38,7 +38,7 @@ class Fanv1Accessory extends FanAccessory {
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         log(
@@ -73,7 +73,7 @@ class Fanv1Accessory extends FanAccessory {
         setValuePromise: this.setSwitchState.bind(this)
       }
     });
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'fanSpeed',
       type: Characteristic.RotationSpeed,
@@ -82,9 +82,9 @@ class Fanv1Accessory extends FanAccessory {
       bind: this,
       props: {
         setValuePromise: this.setFanSpeed.bind(this),
-		    minStep: config.stepSize,
-		    minValue: 0,
-		    maxVlue: 100
+        minStep: config.stepSize,
+        minValue: 0,
+        maxVlue: 100
       }
     });
 

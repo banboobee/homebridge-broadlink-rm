@@ -32,12 +32,12 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       this.initialDelayPromise.cancel();
       this.initialDelayPromise = null;
     }
-    
+
     if (this.updateCurrentPositionPromise) {
       this.updateCurrentPositionPromise.cancel();
       this.updateCurrentPositionPromise = null;
     }
-    
+
     if (this.autoStopPromise) {
       this.autoStopPromise.cancel();
       this.autoStopPromise = null;
@@ -47,10 +47,10 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   // User requested a specific position or asked the window-covering to be open or closed
   async setTargetPosition (hexData, previousValue) {
     await catchDelayCancelError(async () => {
-      const { config, host, logLevel, data, log, name, state, serviceManager } = this;
+      const { config, logLevel, data, log, name, state } = this;
       const { initialDelay } = config;
       const { open, close, stop } = data;
-      
+
       this.reset();
 
       // Ignore if no change to the targetPosition
@@ -79,32 +79,31 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
         state.positionState = Characteristic.PositionState.STOPPED
         hexData = stop
       }
-      
+
       // Perform the actual open/close asynchronously i.e. without await so that HomeKit status can be updated
       this.openOrClose({ hexData, previousValue });
     });
   }
 
-  getUpToDatePosition (state) {  
+  getUpToDatePosition (state) {
     let currentValue = state.currentPosition || 0;
-  
+
     if (state.positionState == Characteristic.PositionState.INCREASING) {currentValue++;}
     if (state.positionState == Characteristic.PositionState.DECREASING) {currentValue--;}
-  
+
     if (currentValue < 0) {
       currentValue = 0
     } else if (currentValue > 100) {
       currentValue = 100
     }
-  
+
     return currentValue;
   }
 
   async openOrClose ({ hexData, previousValue }) {
     await catchDelayCancelError(async () => {
-      const { config, data, host, name, log, state, logLevel, serviceManager } = this;
+      const { config, name, log, state, logLevel, serviceManager } = this;
       const { totalDurationOpen, totalDurationClose } = config;
-      const { stop } = data;
 
       serviceManager.setCharacteristic(Characteristic.PositionState, state.positionState);
 
@@ -123,26 +122,26 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
         positionStateDescription = 'stopped';
         fullOpenCloseTime = 0;
       }
-      
+
       const totalTime = Math.abs(difference / 100 * fullOpenCloseTime);
 
       if (logLevel <= 1) {log(`${name} setTargetPosition: position change ${state.currentPosition}% -> ${state.targetPosition}% (${positionStateDescription})`)}
       if (logLevel <= 1) {log(`${name} setTargetPosition: ${+totalTime.toFixed(2)}s ((${Math.abs(difference)} / 100) * ${fullOpenCloseTime}) until auto-stop`)}
 
       await this.performSend(hexData);
-      
+
       if (state.positionState != Characteristic.PositionState.STOPPED) {
         // immediately update position to reflect that there's already some change in the position (even though its fractional,
         // we have to add 1 whole %), we then skip incrementing the position within startUpdatingCurrentPositionAtIntervals
         // if this is a first iteration, this way at time 0 the position delta is already 1, and so is the position at time 1
         // and we do not overshoot the actual position.
-                
+
         // NOTE: ideally send+position update should be an "atomic" operation and the position should change by some
         //       fractional value (e.g. 0.00001) but that requires significant changes to the code base.
 
         const currentValue = this.getUpToDatePosition(state)
         serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
-        
+
         this.startUpdatingCurrentPositionAtIntervals(true, name, log);
       } else {
         this.startUpdatingCurrentPositionAtIntervals(false, name, log);
@@ -158,10 +157,10 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   async stopWindowCovering () {
-    const { config, data, host, log, name, state, logLevel, serviceManager } = this;
+    const { config, data, log, name, state, logLevel, serviceManager } = this;
     const { sendStopAt0, sendStopAt100 } = config;
     const { stop } = data;
-  
+
     if (logLevel <= 2) {log(`${name} setTargetPosition: (stop window covering)`)}
 
     // Reset the state and timers
@@ -175,7 +174,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   async checkOpenOrCloseCompletely () {
-    const { data, logLevel, host, log, name, serviceManager, state } = this;
+    const { data, serviceManager, state } = this;
     const { openCompletely, closeCompletely } = data;
 
     // Completely Close
@@ -202,7 +201,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
     return false;
   }
-  
+
   // Determine how long it should take to increase/decrease a single %
   determineOpenCloseDurationPerPercent ({ positionState, totalDurationOpen, totalDurationClose  }) {
     assert.isNumber(totalDurationOpen);
@@ -228,7 +227,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     catchDelayCancelError(async () => {
       const { log, logLevel, config, serviceManager, state } = this;
       const { totalDurationOpen, totalDurationClose } = config;
-      
+
       const durationPerPercentage = this.determineOpenCloseDurationPerPercent({ positionState: state.positionState, totalDurationOpen, totalDurationClose });
 
       // Wait for a single % to increase/decrease
@@ -237,7 +236,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
       // Set the new currentPosition
       let positionStateDescription = null;
-      
+
       if (state.positionState == Characteristic.PositionState.INCREASING) {
         positionStateDescription = 'opening';
       } else if (state.positionState == Characteristic.PositionState.DECREASING) {
@@ -246,7 +245,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
         positionStateDescription = 'stopped';
       }
 
-      if (!isFirst) {               
+      if (!isFirst) {
         const currentValue = this.getUpToDatePosition(state)
         serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
 
@@ -261,7 +260,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager () {
-    const { data, log, name, serviceManagerType } = this;
+    const { log, name, serviceManagerType } = this;
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.WindowCovering, log);
 

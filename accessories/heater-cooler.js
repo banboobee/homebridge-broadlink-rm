@@ -5,8 +5,7 @@ const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const { getDevice, discoverDevices } = require('../helpers/getDevice');
+const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
 // Initializing predefined constants based on homekit API
@@ -38,7 +37,7 @@ const CharacteristicName = {
 /**
  * This accessory implements the HAP Service and Characteristics as documented under
  * https://developers.homebridge.io/#/service/HeaterCooler.
- * 
+ *
  * Implemented Characteristics
  *  1. Active
  *  2. Current Heater Cooler State
@@ -51,9 +50,9 @@ const CharacteristicName = {
  */
 class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   /**
-   * 
+   *
    * @param {func} log - function used for logging
-   * @param {object} config - object with config data for accessory 
+   * @param {object} config - object with config data for accessory
    * @param {classType} serviceManagerType - represents object type of service manager
    */
   constructor(log, config = {}, serviceManagerType) {
@@ -63,8 +62,8 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     if (config.noHistory !== true) {
       this.displayName = config.name;
       this.lastUpdatedAt = undefined;
-      // this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' }); 
-      this.historyService = new HistoryService("room", this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' }); 
+      // this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' });
+      this.historyService = new HistoryService("room", this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' });
       this.historyService.log = this.log;
     }
 
@@ -163,7 +162,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * Homekit automatically requests Characteristic.Active and Characteristics.TargetHeaterCoolerState
    * when the device is turned on. However it doesn't specify a temperature. We use a default temperature
    * from the config file to determine which hex codes to send if temperature control is supported.
-   * 
+   *
    * setTargetHeaterCoolerState() is called by the main handler after updating the state.targetHeaterCoolerState
    * to the latest requested value. Method is only invoked by Homekit when going from 'off' -> 'any mode' or
    * 'heat/cool/auto' -> 'heat/cool/auto'. Method is not called when turning off device.
@@ -173,30 +172,27 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    *
    * Prerequisites: this.state is updated with the latest requested value for Target Heater Cooler State
    * @param {any} hexData The decoded data that is passed in by handler
-   * @param {int} previousValue Previous value for targetHeaterCoolerState  
+   * @param {int} previousValue Previous value for targetHeaterCoolerState
    */
   async setTargetHeaterCoolerState(hexData, previousValue) {
-    const { config, data, state, log, logLevel } = this
-    const { internalConfig } = config
-    const { available } = internalConfig
+    const { state, log, logLevel } = this
     const { targetHeaterCoolerState } = state
-    let { heatingThresholdTemperature, coolingThresholdTemperature } = state
 
     if (logLevel <= 2) {log(`Changing target state from ${previousValue} to ${targetHeaterCoolerState}`)}
     switch (targetHeaterCoolerState) {
       case Characteristic.TargetHeaterCoolerState.COOL:
-        if (available.cool.temperatureCodes) {
-          // update internal state to be consistent with what Home app & homebridge see
-          coolingThresholdTemperature = this.serviceManager.getCharacteristic(Characteristic.CoolingThresholdTemperature).value
-        }
+        // if (available.cool.temperatureCodes) {
+        //   // update internal state to be consistent with what Home app & homebridge see
+        //   coolingThresholdTemperature = this.serviceManager.getCharacteristic(Characteristic.CoolingThresholdTemperature).value
+        // }
 
         hexData = this.decodeHexFromConfig(CharacteristicName.TARGET_HEATER_COOLER_STATE)
         break
       case Characteristic.TargetHeaterCoolerState.HEAT:
-        if (available.heat.temperatureCodes) {
-          // update internal state to be consistent with what Home app & homebridge see
-          heatingThresholdTemperature = this.serviceManager.getCharacteristic(Characteristic.HeatingThresholdTemperature).value
-        }
+        // if (available.heat.temperatureCodes) {
+        //   // update internal state to be consistent with what Home app & homebridge see
+        //   heatingThresholdTemperature = this.serviceManager.getCharacteristic(Characteristic.HeatingThresholdTemperature).value
+        // }
 
         hexData = this.decodeHexFromConfig(CharacteristicName.TARGET_HEATER_COOLER_STATE)
         break
@@ -345,10 +341,9 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @returns {any} hexData - object, array or string values to be sent to IR device
    */
   decodeTemperatureHex(temperature, hexDataObject, toUpdateCharacteristic) {
-    const { config, state, log, logLevel } = this
+    const { config, log, logLevel } = this
     const { temperatureCodes } = hexDataObject
-    const { temperatureUnits, internalConfig } = config
-    const { available } = internalConfig
+    const { temperatureUnits } = config
 
     if (temperatureUnits === "f") {
       temperature = this.temperatureCtoF(temperature)
@@ -381,7 +376,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {number} previousValue - previous temperature value
    */
   async setTemperature(hexData, previousValue) {
-    const { name, log, logLevel, state, config } = this
+    const { name, log, logLevel, state } = this
     const { targetHeaterCoolerState, coolingThresholdTemperature, heatingThresholdTemperature } = state
 
     const targetTemperature = targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? coolingThresholdTemperature : heatingThresholdTemperature;
@@ -394,17 +389,16 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
 
   /**
    * Send IR codes to toggle the device on/off. By the time this function is invoked cached state is already updated
-   * to reflect the requested value. 
+   * to reflect the requested value.
    * If requested value is to turn on the device then we will send hex codes based on the last saved cached state
-   * @param {string} hexData 
-   * @param {int} previousValue 
+   * @param {string} hexData
+   * @param {int} previousValue
    */
   async setActive(hexData, previousValue) {
     const { state, config, data, logLevel } = this
-    const { resetPropertiesOnRestart, turnOnWhenOff } = config
+    const { turnOnWhenOff } = config
     const { available } = config.internalConfig
     const { targetHeaterCoolerState } = state
-    const requestedValue = state.active // state is already set by main handler before this subhandler is called
 
     hexData = this.decodeHexFromConfig(CharacteristicName.ACTIVE)
 
@@ -447,11 +441,11 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
 
   /**
    * Send IR codes to enable/disable swing mode (oscillation)
-   * @param {string} hexData 
-   * @param {int} previousValue 
+   * @param {string} hexData
+   * @param {int} previousValue
    */
   async setSwingMode(hexData, previousValue) {
-    const { state, data, config, log, logLevel, name } = this
+    const { state, data, log, logLevel, name } = this
     const { swingMode } = state
 
     if (logLevel <= 2) {log(`${name} setSwingMode: Changing swing from ${previousValue} to ${Characteristic.SwingMode.SWING_ENABLED}`)}
@@ -477,11 +471,11 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
 
   /**
    * Send IR codes to change fan speed of device.
-   * @param {string} hexData 
+   * @param {string} hexData
    * @param {int} previousValue - previous rotation speed of device
    */
   async setRotationSpeed(hexData, previousValue) {
-    const { state, config, log, logLevel, name } = this
+    const { state, log, logLevel, name } = this
     const { rotationSpeed } = state
 
     if (logLevel <= 2) {log(`${name} setRotationSpeed: Changing RotationSpeed from ${previousValue} to ${state.rotationSpeed}`)}
@@ -518,7 +512,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {func} callback - callback function passed in by homebridge API to be called at the end of the method
    */
   async monitorTemperature() {
-    const { config, host, log, logLevel, name, state } = this;
+    const { config, host, log, logLevel, name } = this;
     const { temperatureFilePath, defaultNowTemperature, w1DeviceID } = config;
 
     if (defaultNowTemperature !== undefined) {return;}
@@ -547,8 +541,8 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   onTemperature(temperature, humidity) {
-    const { config, host, log, logLevel, name, state } = this;
-    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
+    const { config, log, logLevel, name, state } = this;
+    const { temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
     // onTemperature is getting called twice. No known cause currently.
     // This helps prevent the same temperature from being processed twice
@@ -642,7 +636,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperatureFromFile() {
-    const { config, host, log, logLevel, name, state } = this;
+    const { config, log, logLevel, name, state } = this;
     const { temperatureFilePath, noHumidity, batteryAlerts } = config;
     let humidity = null;
     let temperature = null;
@@ -681,7 +675,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperatureFromW1() {
-    const { config, logLevel, host, log, name, state } = this;
+    const { config, logLevel, log, name, state } = this;
     const { w1DeviceID } = config;
 
     var W1PATH = "/sys/bus/w1/devices";
@@ -730,7 +724,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   getCurrentTemperature(callback) {
-    const { config, host, logLevel, log, name, state } = this;
+    const { config, logLevel, log, name } = this;
     const { defaultNowTemperature } = config;
 
     // Some devices don't include a thermometer and so we can use `defaultNowTemperature` instead
@@ -743,8 +737,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   getCurrentHumidity(callback) {
-    const { config, host, logLevel, log, name, state } = this;
-    const { defaultNowTemperature } = config;
+    const { state } = this;
 
     return callback(null, state.currentHumidity);
   }
@@ -821,7 +814,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
           value = undefined;
         }
       }
-    } catch (err) { } //Result couldn't be parsed as JSON
+    } catch { } //Result couldn't be parsed as JSON
 
     if (objectFound) {
       if (temperatureValue !== undefined && temperatureValue.length > 0) {
@@ -977,7 +970,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     if (!["C", "c", "F", "f"].includes(config.temperatureUnits)) { config.temperatureUnits = "c" }
     config.temperatureUnits = config.temperatureUnits.toLowerCase()
 
-    const { coolingThresholdTemperature, heatingThresholdTemperature, temperatureUnits, defaultNowTemperature } = config
+    const { coolingThresholdTemperature, heatingThresholdTemperature, temperatureUnits } = config
 
     if (coolingThresholdTemperature === undefined) {
       config.coolingThresholdTemperature = 30
@@ -1084,7 +1077,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
   setupServiceManager() {
     this.configDefaultsHelper()
-    const { config, name, data, serviceManagerType } = this;
+    const { config, name, serviceManagerType } = this;
     const { minTemperature, maxTemperature } = config
     const { internalConfig } = config
     const { available } = internalConfig
@@ -1144,16 +1137,16 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     /**
      * There seems to be bug in Apple's Homekit documentation and/or implementation for the properties of
      * TargetHeaterCoolerState
-     * 
+     *
      * If we want to support only heat or only cool then the configuration of
      * (minValue: 1, maxValue:2, validValues: [<1 or 2>]) accomplishes this
      *
      * When we want to support heat or cool without the auto mode, we have to provide
      * (minValue: 1, maxValue:2, validValues as [0, 1, 2])
-     * 
+     *
      * In addition, in order to support auto mode along with this, heat and cool, we need to update the
      * configuration as (minValue: 0, maxValue:2, validValues: [0, 1, 2]).
-     * 
+     *
      * As per Apple guidelines, if an accessory supports heat or cool mode then it also needs to support
      * auto functionality.
      */

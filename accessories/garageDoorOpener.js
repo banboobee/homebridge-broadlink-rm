@@ -31,18 +31,18 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   }
 
   async setDoorTargetState (hexData, previousValue) {
-    const { host, log, name, logLevel, state, serviceManager } = this;
+    const { state, serviceManager } = this;
 
     this.reset();
 
     // If you open the garage door and then close it before it's fully open the accessory shall now
     // update to "Closing" instead of immediately showing as "Closed".
-    
-    // TODO: We could determine how much time has passed while opening and show closing for that amount of time. 
+
+    // TODO: We could determine how much time has passed while opening and show closing for that amount of time.
     if (previousValue !== state.doorTargetState && state.doorCurrentState === state.doorTargetState) {
       serviceManager.setCharacteristic(Characteristic.CurrentDoorState, !state.doorTargetState);
     }
-    
+
     // Send pre-determined hex data
     await this.performSend(hexData);
 
@@ -56,7 +56,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   }
 
   async open (hexData) {
-    const { config, data, host, log, name, state, logLevel, serviceManager } = this;
+    const { config, log, name, serviceManager } = this;
     const { autoCloseDelay, openCloseDuration } = config;
     let { openDuration } = config;
 
@@ -81,7 +81,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   }
 
   async close () {
-    const { config, data, host, log, name, state, logLevel, serviceManager } = this;
+    const { config, log, name, serviceManager } = this;
     const { openCloseDuration } = config;
     let { closeDuration } = config;
 
@@ -98,7 +98,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   }
 
   async setLockTargetState (hexData) {
-    const { config, log, name, state, serviceManager } = this;
+    const { log, name, state, serviceManager } = this;
 
     await this.performSend(hexData);
 
@@ -110,7 +110,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
       serviceManager.setCharacteristic(Characteristic.LockCurrentState, Characteristic.LockCurrentState.SECURED);
     }
   }
-  
+
   // Service Manager Setup
 
   setupServiceManager () {

@@ -5,13 +5,13 @@ class AirPurifierAccessory extends FanAccessory {
 
   async setSwitchState (hexData, previousValue) {
     super.setSwitchState(hexData, previousValue);
-    
+
     this.updateCurrentState()
   }
 
   // User requested a the target state be set
   async setTargetState (hexData, previousValue) {
-    const { log, name, state, serviceManager } = this;
+    const { log, name, state } = this;
 
     // Ignore if no change to the targetPosition
     if (state.targetState === previousValue) {return;}
@@ -32,7 +32,7 @@ class AirPurifierAccessory extends FanAccessory {
       log(`${name} updateCurrentState: changing to idle`);
       state.currentState = Characteristic.CurrentAirPurifierState.INACTIVE
     }
-    
+
     serviceManager.refreshCharacteristicUI(Characteristic.CurrentAirPurifierState);
   }
 

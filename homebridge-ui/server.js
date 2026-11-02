@@ -61,7 +61,7 @@ class UiServer extends HomebridgePluginUiServer {
     (broadlink.sockets || []).forEach((socket) => {
       try {
         socket.close();
-      } catch (err) {
+      } catch {
         // Already closed.
       }
     });
@@ -71,7 +71,7 @@ class UiServer extends HomebridgePluginUiServer {
       if (device && typeof device === 'object' && device.socket) {
         try {
           device.socket.close();
-        } catch (err) {
+        } catch {
           // Already closed.
         }
       }
@@ -142,7 +142,7 @@ class UiServer extends HomebridgePluginUiServer {
             linkLocal: typeof host.address === 'string' && host.address.indexOf('169.254.') === 0,
             authenticated: existing.authenticated === true
           }));
-        } catch (err) {
+        } catch {
           // A malformed reply should not stop the scan.
         }
 
@@ -163,7 +163,7 @@ class UiServer extends HomebridgePluginUiServer {
             record.supportsRF = false;
             record.supportsLearning = false;
           }
-        } catch (err) {
+        } catch {
           // Ignore - the scan result is still useful without the model name.
         }
       };
@@ -179,7 +179,7 @@ class UiServer extends HomebridgePluginUiServer {
       const interval = setInterval(() => {
         try {
           broadlink.discover();
-        } catch (err) {
+        } catch {
           // Interface came and went mid-scan; the next tick will retry.
         }
       }, 2000);
@@ -200,7 +200,7 @@ class UiServer extends HomebridgePluginUiServer {
         (broadlink.sockets || []).forEach((socket) => {
           try {
             socket.close();
-          } catch (err) {
+          } catch {
             // Already closed.
           }
         });
@@ -264,14 +264,14 @@ class UiServer extends HomebridgePluginUiServer {
     Object.keys(learning.listeners).forEach((event) => {
       try {
         learning.device.removeListener(event, learning.listeners[event]);
-      } catch (err) {
+      } catch {
         // The device may already be gone.
       }
     });
 
     try {
       learning.device.cancelLearn();
-    } catch (err) {
+    } catch {
       // Nothing to cancel.
     }
 
@@ -320,7 +320,7 @@ class UiServer extends HomebridgePluginUiServer {
           if (learning.stopped) { return; }
           try {
             fn();
-          } catch (err) {
+          } catch {
             // A dropped packet is retried on the next tick.
           }
         }, POLL_MS);
@@ -352,7 +352,7 @@ class UiServer extends HomebridgePluginUiServer {
 
         try {
           device.cancelLearn();
-        } catch (err) {
+        } catch {
           // Nothing to cancel.
         }
 
@@ -360,7 +360,7 @@ class UiServer extends HomebridgePluginUiServer {
           if (learning.stopped) { return; }
           try {
             device.enterLearning();
-          } catch (err) {
+          } catch {
             // The next poll will surface the failure as a timeout.
           }
           this.status('waiting', 'Ready for the next button.');
