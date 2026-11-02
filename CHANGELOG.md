@@ -6,46 +6,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.21 - 2026-05-10]
 ### Fixed
- - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)
- - Fixed RM4 Pro auth via hosts config (#779 Thanks @GlitchVector)
+ - ~~Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)~~
+ - ~~Fixed RM4 Pro auth via hosts config (#779 Thanks @GlitchVector)~~
 ### Changed
- - Improved Battery level monitoring in Temperataure Sensors
+ - ~~Improved Battery level monitoring in Temperataure Sensors~~
 
 ## [4.4.20 - 2025-08-28]
 ### Fixed
- - Fixed ESLint support and applied some code fixes
+ - ~~Fixed ESLint support and applied some code fixes~~
 ### Changed
- - Stopped device temperature checks when they're not applicable (MQTT, File, W1)
- - Updated dependancies
+ - ~~Stopped device temperature checks when they're not applicable (MQTT, File, W1)~~
+ - ~~Updated dependancies~~
 
 ## [4.4.19 - 2024-09-30]
 ### Fixed
- - refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733 and #725)
+ - ~~refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733 and #725)~~
 ### Added
- - updated package to show Homebridge 2.0 support (#730)
+ - ~~updated package to show Homebridge 2.0 support (#730)~~
 
 ## [4.4.18 - 2024-08-08]
 ### Added
- - Added ping state change logging for troubleshooting
+ - ~~Added ping state change logging for troubleshooting~~
 ### Changed
- - Removed use of Characteristic.getValue() in preparation of homebridge 2.0 (#722)
- - The removal of getValue() has stopped the regular getCurrentTemperature and getCurrentHumidity calls. Changed the regualar updates to make these calls instead of just using refreshCharacteristic. (#722)
+ - ~~Removed use of Characteristic.getValue() in preparation of homebridge 2.0 (#722)~~
+ - ~~The removal of getValue() has stopped the regular getCurrentTemperature and getCurrentHumidity calls. Changed the regualar updates to make these calls instead of just using refreshCharacteristic. (#722)~~
 
 ## [4.4.17 - 2024-07-17]
 ### Added
- - Adds support for RM3 Mini 0x27d0 (#691)
+ - ~~Adds support for RM3 Mini 0x27d0 (#691)~~
 ### Fixed
  - Reduced default logging of blind positions #702
- - Updated versions of mqtt, mocha, release-it, and hap-nodejs to resolve known vulnerabilities
+ - ~~Updated versions of mqtt, mocha, release-it, and hap-nodejs to resolve known vulnerabilities~~
 ### Changed
- - Reduced log level for onTemperature events (now debug events)
+ - ~~Reduced log level for onTemperature events (now debug events)~~
 
 ## [4.4.16 - 2024-07-10]
 ### Fixed
  - Fix for wrong command being sent or no command sent in certain circumstances #669 (Thanks @seidnerj)
- - Added 0xd7 command for RF 315Mhz
- - Incorporates fixes from broadlinkjs-rm (https://github.com/kiwi-cam/broadlinkjs-rm/releases/tag/v0.9.20)
- - Fixed dependancy issue in package.json
+ - ~~Added 0xd7 command for RF 315Mhz~~
+ - ~~Incorporates fixes from broadlinkjs-rm (https://github.com/kiwi-cam/broadlinkjs-rm/releases/tag/v0.9.20)~~
+ - ~~Fixed dependancy issue in package.json~~
 
 ## [4.4.15] - 2023-07-27
 ### Fixed
