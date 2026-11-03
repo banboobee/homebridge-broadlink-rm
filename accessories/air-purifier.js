@@ -1,4 +1,3 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const FanAccessory = require('./fan');
 
 class AirPurifierAccessory extends FanAccessory {
@@ -37,7 +36,7 @@ class AirPurifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { config, data, name, serviceManagerType } = this;
+    const { config, data, name } = this;
     const {
       on,
       off,
@@ -53,7 +52,7 @@ class AirPurifierAccessory extends FanAccessory {
     if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.AirPurifier, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.AirPurifier, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

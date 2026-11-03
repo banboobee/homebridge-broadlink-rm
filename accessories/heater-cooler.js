@@ -4,7 +4,6 @@ const fs = require('fs');
 const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
@@ -55,8 +54,8 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {object} config - object with config data for accessory
    * @param {classType} serviceManagerType - represents object type of service manager
    */
-  constructor(log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor(log, config = {}, platform) {
+    super(log, config, platform);
 
     // Fakegato setup
     if (config.noHistory !== true) {
@@ -1077,12 +1076,12 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
   setupServiceManager() {
     this.configDefaultsHelper()
-    const { config, name, serviceManagerType } = this;
+    const { config, name } = this;
     const { minTemperature, maxTemperature } = config
     const { internalConfig } = config
     const { available } = internalConfig
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.HeaterCooler, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.HeaterCooler, this.log);
 
     // Setting up all Required Characteristic handlers
     this.serviceManager.addToggleCharacteristic({

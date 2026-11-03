@@ -1,5 +1,3 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
-
 const SwitchAccessory = require('./switch');
 
 class OutletAccessory extends SwitchAccessory {
@@ -25,10 +23,10 @@ class OutletAccessory extends SwitchAccessory {
   }
 
   setupServiceManager () {
-    const { data, name, serviceManagerType } = this;
+    const { data, name } = this;
     const { on, off } = data || { };
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Outlet, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Outlet, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

@@ -1,4 +1,3 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const FanAccessory = require('./fan');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const delayForDuration = require('../helpers/delayForDuration');
@@ -54,12 +53,12 @@ class Fanv1Accessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { config, data, name, serviceManagerType } = this;
+    const { config, data, name } = this;
     const { on, off, counterClockwise, clockwise } = data || {};
 
     this.setDefaults();
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Fan, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Fan, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

@@ -1,12 +1,11 @@
 const delayForDuration = require('../helpers/delayForDuration');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const { getDevice } = require('../helpers/getDevice');
 const HumidifierAccessory = require('./humidifier-dehumidifier');
 
 class HumiditySensorAccessory extends HumidifierAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor (log, config = {}, platform) {
+    super(log, config, platform);
   }
 
   setDefaults () {
@@ -66,9 +65,9 @@ class HumiditySensorAccessory extends HumidifierAccessory {
 
   // Service Manager Setup
   setupServiceManager () {
-    const { config, name, serviceManagerType } = this;
+    const { config, name } = this;
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.HumiditySensor, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.HumiditySensor, this.log);
 
     this.serviceManager.addGetCharacteristic({
       name: 'currentHumidity',

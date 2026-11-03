@@ -1,10 +1,9 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const AirconAccessory = require('./aircon');
 
 class TemperatureSensorAccessory extends AirconAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor (log, config = {}, platform) {
+    super(log, config, platform);
 
     this.temperatureCallbackQueue = {};
   }
@@ -51,9 +50,9 @@ class TemperatureSensorAccessory extends AirconAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
-    const { config, name, serviceManagerType } = this;
+    const { config, name } = this;
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.TemperatureSensor, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.TemperatureSensor, this.log);
 
     this.serviceManager.addGetCharacteristic({
       name: 'currentTemperature',

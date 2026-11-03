@@ -1,6 +1,5 @@
 const delayForDuration = require('../helpers/delayForDuration');
 const BroadlinkRMAccessory = require('./accessory');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 
 class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
@@ -114,10 +113,10 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
-    const { data, name, serviceManagerType } = this;
+    const { data, name } = this;
     const { close, open, lock, unlock } = data || {};
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.GarageDoorOpener, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.GarageDoorOpener, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'doorCurrentState',

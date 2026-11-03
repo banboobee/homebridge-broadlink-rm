@@ -1,4 +1,3 @@
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const BroadlinkRMAccessory = require('./accessory');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const delayForDuration = require('../helpers/delayForDuration');
@@ -6,8 +5,8 @@ const ping = require('../helpers/ping');
 const arp = require('../helpers/arp')
 
 class FanAccessory extends BroadlinkRMAccessory {
-  constructor(log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor(log, config = {}, platform) {
+    super(log, config, platform);
 
     if (!config.isUnitTest) {this.checkPing(ping);}
   }
@@ -246,10 +245,10 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager() {
-    const { config, data, name, serviceManagerType } = this;
+    const { config, data, name } = this;
     const { on, off, clockwise, counterClockwise, swingToggle } = data || {};
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Fanv2, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.Fanv2, this.log);
 
     this.setDefaults();
 

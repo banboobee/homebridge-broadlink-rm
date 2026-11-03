@@ -3,15 +3,14 @@ const fs = require('fs');
 const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const { getDevice } = require('../helpers/getDevice');
 
 const FanAccessory = require('./fan');
 
 class HumidifierDehumidifierAccessory extends FanAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
-    super(log, config, serviceManagerType);
+  constructor (log, config = {}, platform) {
+    super(log, config, platform);
 
     //Fakegato setup
     if(config.noHistory !== true) {
@@ -432,7 +431,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { config, data, name, serviceManagerType } = this;
+    const { config, data, name } = this;
     const { on, off, lockControls, unlockControls, swingToggle } = data || {};
 
     // Defaults
@@ -440,7 +439,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.HumidifierDehumidifier, this.log);
+    this.serviceManager = new this.serviceManagerClass(name, Service.HumidifierDehumidifier, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
