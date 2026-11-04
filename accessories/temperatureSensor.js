@@ -33,6 +33,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
   }
 
   getBatteryAlert (callback) {
+    const { Characteristic } = this;
     const { name, state, log, logLevel } = this;
 
     const batteryAlert = state.batteryLevel <= 20? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
@@ -50,6 +51,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { config, name } = this;
 
     this.serviceManager = new this.serviceManagerClass(name, Service.TemperatureSensor, this.log);

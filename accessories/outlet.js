@@ -3,6 +3,7 @@ const SwitchAccessory = require('./switch');
 class OutletAccessory extends SwitchAccessory {
 
   pingCallback (active) {
+    const { Characteristic } = this;
     const { config, state, serviceManager } = this;
 
     if (config.pingIPAddressStateOnly) {
@@ -23,6 +24,7 @@ class OutletAccessory extends SwitchAccessory {
   }
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { data, name } = this;
     const { on, off } = data || { };
 

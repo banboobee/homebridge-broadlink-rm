@@ -33,6 +33,7 @@ describe('fanAccessory', () => {
   // Fan Turn On
   it('turns on', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -60,6 +61,7 @@ describe('fanAccessory', () => {
   // Fan Turn On then Off
   it('turns off', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -91,6 +93,7 @@ describe('fanAccessory', () => {
   // Fan Speed
   it('fan speed set to 20', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -116,6 +119,7 @@ describe('fanAccessory', () => {
   // Fan Speed Closed
   it('fan speed set to 32 (closest 30)', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -143,6 +147,7 @@ describe('fanAccessory', () => {
   // Fan Speed Closed
   it('fan speed set to 36 (closest 40)', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -168,6 +173,7 @@ describe('fanAccessory', () => {
   // Fan Turn Swing Mode On
   it('swing mode on', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -195,6 +201,7 @@ describe('fanAccessory', () => {
   // Fan Turn Swing Mode On then Off
   it('swing mode off', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -226,6 +233,7 @@ describe('fanAccessory', () => {
   // Hide Swing Mode
   it('"hideSwingMode": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -249,6 +257,7 @@ describe('fanAccessory', () => {
   // Fan Turn Swing Mode On
   it('rotation direction clockwise', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -274,6 +283,7 @@ describe('fanAccessory', () => {
   // Set Rotation Direction To Clockwise Then Anti-clockwise
   it('rotation direction anti-clockwise', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -309,6 +319,7 @@ describe('fanAccessory', () => {
   // Hide Rotation Direction
   it('"hideRotationDirection": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -331,6 +342,7 @@ describe('fanAccessory', () => {
   // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -363,6 +375,7 @@ describe('fanAccessory', () => {
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       host: device.host.address,
@@ -386,6 +399,7 @@ describe('fanAccessory', () => {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -428,6 +442,7 @@ describe('fanAccessory', () => {
   // Ensure the hex is not resent after reload
   it('"resendHexAfterReload": false, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,

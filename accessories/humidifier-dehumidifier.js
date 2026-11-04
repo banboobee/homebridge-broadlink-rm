@@ -54,6 +54,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   async setCurrentState (hexData, previousValue) {
+    const { Characteristic } = this;
     const { data, log, logLevel, name, state, serviceManager } = this;
 
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} setCurrentState: requested update from ${previousValue} to ${state.currentState}`);}
@@ -107,6 +108,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   getDesiredState () {
+    const { Characteristic } = this;
     const { config, state } = this;
 
     let desiredState = Characteristic.CurrentHumidifierDehumidifierState.IDLE;
@@ -141,6 +143,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   async updateDeviceState () {
+    const { Characteristic } = this;
     const { serviceManager, logLevel, config, name, log, state } = this;
 
     //Do nothing if turned off
@@ -227,6 +230,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   addHumidityCallbackToQueue (callback) {
+    const { Characteristic } = this;
     const { config, host, logLevel, log, name, state } = this;
 
     // Clear the previous callback
@@ -421,6 +425,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   updateHumidityUI () {
+    const { Characteristic } = this;
     const { serviceManager } = this;
 
     serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
@@ -431,6 +436,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { config, data, name } = this;
     const { on, off, lockControls, unlockControls, swingToggle } = data || {};
 

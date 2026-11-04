@@ -117,6 +117,7 @@ describe('airConAccessory', async function() {
 
   it('missing data', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -135,6 +136,7 @@ describe('airConAccessory', async function() {
 
   it('missing HEX', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -317,6 +319,7 @@ describe('airConAccessory', async function() {
 
   it('turn on', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -339,6 +342,7 @@ describe('airConAccessory', async function() {
 
   it('turn off', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -369,6 +373,7 @@ describe('airConAccessory', async function() {
 
   it('set heat', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -388,6 +393,7 @@ describe('airConAccessory', async function() {
 
   it('set cool', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -408,6 +414,7 @@ describe('airConAccessory', async function() {
 
   it('set heat temperature', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -429,6 +436,7 @@ describe('airConAccessory', async function() {
   it('set cool temperature', async function() {
 
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -451,6 +459,7 @@ describe('airConAccessory', async function() {
   it('set missing heat temperature', async function() {
 
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -472,6 +481,7 @@ describe('airConAccessory', async function() {
 
   it('set missing cool temperature 20', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -493,6 +503,7 @@ describe('airConAccessory', async function() {
 
   it('set missing cool temperature 17', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -513,6 +524,7 @@ describe('airConAccessory', async function() {
 
   it('"turnOnWhenOff": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -534,6 +546,7 @@ describe('airConAccessory', async function() {
 
   it('"allowResend": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -591,6 +604,7 @@ describe('airConAccessory', async function() {
 
   it('"allowResend": false', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -742,6 +756,7 @@ describe('airConAccessory', async function() {
 
   it ('"pseudoDeviceTemperature": 2', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -765,6 +780,7 @@ describe('airConAccessory', async function() {
 
   it ('"temperatureAdjustment": 10', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -785,6 +801,7 @@ describe('airConAccessory', async function() {
 
   it('"temperatureAdjustment": -10', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -805,6 +822,7 @@ describe('airConAccessory', async function() {
 
   it('"replaceAutoMode": "heat"', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -850,6 +868,7 @@ describe('airConAccessory', async function() {
 
   it('fail to set heat temperature', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -891,7 +910,8 @@ describe('airConAccessory', async function() {
         }
       ]
     };
-    const {device, accessories} = await getAccessories(config);
+    const {device, accessories, platform} = await getAccessories(config);
+    const { Characteristic } = platform.api.hap;
     airConAccessory = accessories[0];
     const switchAccessory = accessories[1];
 
@@ -920,6 +940,7 @@ describe('airConAccessory', async function() {
 
   it('set auto', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     const config = {
       name: 'AirConditioner',
       data: {
@@ -987,6 +1008,7 @@ describe('airConAccessory', async function() {
 
   it('"enableAutoOff": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     const config = {
       name: 'AirConditioner',
       data: {
@@ -1338,6 +1360,7 @@ describe('airConAccessory', async function() {
 
   it('set StatusActive false/true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = {
@@ -1364,6 +1387,7 @@ describe('airConAccessory', async function() {
 
   it('scene off', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
     const config = {
       name: 'AirConditioner',
       type: 'air-conditioner',

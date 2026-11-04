@@ -35,6 +35,7 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
 
   static discoverTimeout = undefined;
   discover(hexData, previousValue) {
+    const { Characteristic } = this;
     const { state, config, serviceManager } = this;
     if (this.constructor.discoverTimeout) {
       const hap = this.platform.api.hap;

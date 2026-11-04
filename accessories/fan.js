@@ -38,6 +38,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   reset() {
+    const { Characteristic } = this;
     super.reset();
 
     this.stateChangeInProgress = true;
@@ -87,6 +88,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   pingCallback(active) {
+    const { Characteristic } = this;
     const { config, state, serviceManager } = this;
 
     if (this.stateChangeInProgress){
@@ -122,6 +124,7 @@ class FanAccessory extends BroadlinkRMAccessory {
 
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, log, logLevel, name, state, serviceManager } = this;
       const { enableAutoOff, onDuration } = config;
 
@@ -138,6 +141,7 @@ class FanAccessory extends BroadlinkRMAccessory {
 
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, log, logLevel, name, state, serviceManager } = this;
       const { enableAutoOn, offDuration } = config;
 
@@ -153,6 +157,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   async setSwitchState(hexData, previousValue) {
+    const { Characteristic } = this;
     const { config, state, serviceManager } = this;
     if (!state.switchState) {
       this.lastFanSpeed = undefined;
@@ -245,6 +250,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager() {
+    const { Service, Characteristic } = this;
     const { config, data, name } = this;
     const { on, off, clockwise, counterClockwise, swingToggle } = data || {};
 

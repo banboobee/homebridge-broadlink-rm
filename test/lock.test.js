@@ -10,6 +10,7 @@ describe('lockAccessory', () => {
   // Locking -> Locked
   it('"lockDuration": 0.2, locking -> locked', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -40,6 +41,7 @@ describe('lockAccessory', () => {
   // Locking -> Locked -> Unlocking -> Unlocked
   it('"unlockDuration": 0.2, locking -> locked -> unlocking -> unlocked', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -109,6 +111,7 @@ describe('lockAccessory', () => {
   // Locking -> Locked -> Unlocking -> Unlocked -> Auto-locking -> Locked
   it('"autoLockDelay" : true, locking -> locked -> unlocking -> unlocked -> auto-locking -> locked', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -169,6 +172,7 @@ describe('lockAccessory', () => {
   // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Unit Test Lock',
@@ -217,6 +221,7 @@ describe('lockAccessory', () => {
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Unit Test Lock',
@@ -249,6 +254,7 @@ describe('lockAccessory', () => {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -264,8 +270,6 @@ describe('lockAccessory', () => {
       },
       isUnitTest: true
     }
-
-
 
     let lockAccessory
 
@@ -302,6 +306,7 @@ describe('lockAccessory', () => {
   // Ensure the hex is not resent after reload
   it('"resendHexAfterReload": false, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -317,8 +322,6 @@ describe('lockAccessory', () => {
       },
       isUnitTest: true
     }
-
-
 
     let lockAccessory
 
@@ -355,6 +358,7 @@ describe('lockAccessory', () => {
   // Ensure correctReloadedState is working correctly
   it('correctReloadedState for interupted unlock - "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -367,8 +371,6 @@ describe('lockAccessory', () => {
       resendHexAfterReload: false,
       isUnitTest: true
     }
-
-
 
     let lockAccessory
 
@@ -397,6 +399,7 @@ describe('lockAccessory', () => {
   // Ensure correctReloadedState is working correctly
   it('correctReloadedState for interupted lock - "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Lock',
@@ -409,8 +412,6 @@ describe('lockAccessory', () => {
       resendHexAfterReload: false,
       isUnitTest: true
     }
-
-
 
     let lockAccessory
 

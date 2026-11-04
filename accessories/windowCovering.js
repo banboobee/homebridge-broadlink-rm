@@ -7,6 +7,7 @@ const BroadlinkRMAccessory = require('./accessory');
 class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   setDefaults () {
+    const { Characteristic } = this;
     const { config, state } = this;
     const { currentPosition, positionState } = state;
     const { initialDelay, totalDurationOpen, totalDurationClose } = config;
@@ -46,6 +47,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   // User requested a specific position or asked the window-covering to be open or closed
   async setTargetPosition (hexData, previousValue) {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, logLevel, data, log, name, state } = this;
       const { initialDelay } = config;
       const { open, close, stop } = data;
@@ -85,6 +87,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   getUpToDatePosition (state) {
+    const { Characteristic } = this;
     let currentValue = state.currentPosition || 0;
 
     if (state.positionState == Characteristic.PositionState.INCREASING) {currentValue++;}
@@ -101,6 +104,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   async openOrClose ({ hexData, previousValue }) {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, name, log, state, logLevel, serviceManager } = this;
       const { totalDurationOpen, totalDurationClose } = config;
 
@@ -156,6 +160,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   async stopWindowCovering () {
+    const { Characteristic } = this;
     const { config, data, log, name, state, logLevel, serviceManager } = this;
     const { sendStopAt0, sendStopAt100 } = config;
     const { stop } = data;
@@ -173,6 +178,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   async checkOpenOrCloseCompletely () {
+    const { Characteristic } = this;
     const { data, serviceManager, state } = this;
     const { openCompletely, closeCompletely } = data;
 
@@ -203,6 +209,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   // Determine how long it should take to increase/decrease a single %
   determineOpenCloseDurationPerPercent ({ positionState, totalDurationOpen, totalDurationClose  }) {
+    const { Characteristic } = this;
     assert.isNumber(totalDurationOpen);
     assert.isNumber(totalDurationClose);
     assert.isAbove(totalDurationOpen, 0);
@@ -224,6 +231,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   async startUpdatingCurrentPositionAtIntervals (isFirst, name, log) {
     catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { log, logLevel, config, serviceManager, state } = this;
       const { totalDurationOpen, totalDurationClose } = config;
 
@@ -259,6 +267,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { log, name } = this;
 
     this.serviceManager = new this.serviceManagerClass(name, Service.WindowCovering, log);

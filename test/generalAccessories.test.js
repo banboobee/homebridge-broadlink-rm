@@ -275,7 +275,8 @@ describe('disableLogs', () => {
       ]
     };
 
-    const {device, accessories} = await getAccessories(config);
+    const {device, accessories, platform} = await getAccessories(config);
+    const { Characteristic } = platform.api.hap;
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[1].serviceManager.setCharacteristic(Characteristic.On, true);
 
@@ -352,7 +353,8 @@ describe('disableLogs', () => {
       ]
     };
 
-    const {device, accessories} = await getAccessories(config);
+    const {device, accessories, platform} = await getAccessories(config);
+    const { Characteristic } = platform.api.hap;
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, false);
 
@@ -420,6 +422,7 @@ describe('disableLogs', () => {
     };
 
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    const { Characteristic } = platform.api.hap;
 
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetTemperature, 23);
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
@@ -487,6 +490,7 @@ describe('disableLogs', () => {
     };
 
     const airConAccessory = new platform.classTypes['air-conditioner'](log, config, platform);
+    const { Characteristic } = platform.api.hap;
 
     airConAccessory.serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, Characteristic.TargetHeatingCoolingState.HEAT);
     await delayForDuration(0.1);

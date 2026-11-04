@@ -104,6 +104,7 @@ describe('lightAccessory', async function() {
   // Light Turn On
   it('turns on', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -138,6 +139,7 @@ describe('lightAccessory', async function() {
   // Light Turn On then Off
   it('turns off', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
 
     const config = {
@@ -171,7 +173,7 @@ describe('lightAccessory', async function() {
   // Last Known Brightness
   it('"useLastKnownBrightness" : true', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -229,7 +231,7 @@ describe('lightAccessory', async function() {
   // Default Brightness
   it('"useLastKnownBrightness": false', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -288,7 +290,7 @@ describe('lightAccessory', async function() {
   // Auto Off
   it('"enableAutoOff": true, "onDuration": 1', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -320,7 +322,7 @@ describe('lightAccessory', async function() {
   // Auto On
   it('"enableAutoOn": true, "offDuration": 1', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -356,7 +358,7 @@ describe('lightAccessory', async function() {
   // Set Brightness
   it('brightness set to 20', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -385,7 +387,7 @@ describe('lightAccessory', async function() {
 
   it('brightness set to 32 (closest 30)', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -414,7 +416,7 @@ describe('lightAccessory', async function() {
 
   it('brightness set to 36 (closest 40)', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -422,8 +424,6 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDelay: 0.1
     }
-
-
 
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Brightness, 36);
@@ -447,7 +447,7 @@ describe('lightAccessory', async function() {
   // Set HUE
   it('hue set to 20', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -455,8 +455,6 @@ describe('lightAccessory', async function() {
       pingGrace: 0.1,
       onDelay: 0.1
     }
-
-
 
     lightAccessory = new platform.classTypes['light'](log, config, platform);
     lightAccessory.serviceManager.setCharacteristic(Characteristic.Hue, 20);
@@ -478,7 +476,7 @@ describe('lightAccessory', async function() {
 
   it('hue set to 32 (closest 30)', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -507,7 +505,7 @@ describe('lightAccessory', async function() {
 
   it('hue set to 36 (closest 40)', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -538,7 +536,7 @@ describe('lightAccessory', async function() {
   // onDelay
   it('"onDelay": 0.5', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -587,7 +585,7 @@ describe('lightAccessory', async function() {
   // Persist State
   it('"persistState": true', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -619,7 +617,7 @@ describe('lightAccessory', async function() {
 
   it('"persistState": false', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -644,7 +642,7 @@ describe('lightAccessory', async function() {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -698,7 +696,7 @@ describe('lightAccessory', async function() {
   // Ensure the hex is not resent after reload
   it('"resendHexAfterReload": false, "persistState": true', async function() {
     const { platform, device, log } = setup();
-
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -740,6 +738,7 @@ describe('lightAccessory', async function() {
 
   it('ColorTemperature+/-, Brightness+/-', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Light',
@@ -928,7 +927,8 @@ describe('lightAccessory', async function() {
       ]
     };
 
-    const {device, accessories} = await getAccessories(config);
+    const {device, accessories, platform} = await getAccessories(config);
+    const { Characteristic } = platform.api.hap;
     accessories[0].serviceManager.setCharacteristic(Characteristic.On, true);
     await delayForDuration(0.3);
     expect(accessories[0].state.switchState).to.equal(true);

@@ -24,6 +24,7 @@ describe('doorAccessory', () => {
   // Closing -> Closed
   it('"closeDuration": 0.2, closing -> closed', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -49,6 +50,7 @@ describe('doorAccessory', () => {
   // Closing -> Closed -> Opening -> Opened
   it('"openDuration": 0.2, closing -> closed -> opening -> opened', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -112,6 +114,7 @@ describe('doorAccessory', () => {
   // Closing -> Closed -> Opening -> Opened -> Auto-closing -> Closed
   it('"autoCloseDelay" : true, closing -> closed -> opening -> opened -> auto-closing -> closed', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -167,6 +170,7 @@ describe('doorAccessory', () => {
   // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -211,6 +215,7 @@ describe('doorAccessory', () => {
 
   it('"persistState": false', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -239,6 +244,7 @@ describe('doorAccessory', () => {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -288,6 +294,7 @@ describe('doorAccessory', () => {
   // Ensure the hex is not resent after reload
   it('"resendHexAfterReload": false, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       ...defaultConfig,
@@ -339,6 +346,7 @@ describe('doorAccessory', () => {
   // Ensure correctReloadedState is working correctly
   it('correctReloadedState for interupted open - "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
   
     const config = {
       data,
@@ -385,6 +393,7 @@ describe('doorAccessory', () => {
   // Lock
   it('lock', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       data,
@@ -416,6 +425,7 @@ describe('doorAccessory', () => {
   // Unlock
   it('unlock', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       data,

@@ -12,6 +12,7 @@ describe('outletAccessory', () => {
   // Outlet Turn On
   it('turns on', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Outlet',
@@ -23,7 +24,6 @@ describe('outletAccessory', () => {
       pingGrace: 0.1,
       persistState: false
     }
-
 
     const outletAccessory = new platform.classTypes['outlet'](log, config, platform);
     outletAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -44,6 +44,7 @@ describe('outletAccessory', () => {
   // Outlet Turn On then Off
   it('turns off', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Outlet',
@@ -82,6 +83,7 @@ describe('outletAccessory', () => {
   // Auto Off
   it('"enableAutoOff": true, "onDuration": 1', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Outlet',
@@ -128,6 +130,7 @@ describe('outletAccessory', () => {
   // Auto On
   it('"enableAutoOn": true, "offDuration": 1', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Outlet',
@@ -178,6 +181,7 @@ describe('outletAccessory', () => {
   // Persist State
   it('"persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Unit Test Outlet',
@@ -208,6 +212,7 @@ describe('outletAccessory', () => {
 
   it('"persistState": false', async () => {
     const { platform, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Unit Test Outlet',
@@ -330,6 +335,7 @@ describe('outletAccessory', () => {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Outlet',
@@ -344,8 +350,6 @@ describe('outletAccessory', () => {
       resendHexAfterReloadDelay: 0.1,
       isUnitTest: true
     }
-
-
 
     let outletAccessory
 

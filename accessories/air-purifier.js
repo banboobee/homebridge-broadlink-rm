@@ -22,6 +22,7 @@ class AirPurifierAccessory extends FanAccessory {
   }
 
   updateCurrentState() {
+    const { Characteristic } = this;
     const { log, name, state, serviceManager } = this;
 
     if (state.switchState === true) {
@@ -36,6 +37,7 @@ class AirPurifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { config, data, name } = this;
     const {
       on,

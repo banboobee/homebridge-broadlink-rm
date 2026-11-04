@@ -70,6 +70,7 @@ describe('switchAccessory', async function() {
   // Switch Turn On
   it('turns on', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',
@@ -79,7 +80,6 @@ describe('switchAccessory', async function() {
       persistState: false,
       host: device.host.address
     }
-
 
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -101,6 +101,7 @@ describe('switchAccessory', async function() {
   // Switch Turn On then Off
   it('turns off', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',
@@ -138,6 +139,7 @@ describe('switchAccessory', async function() {
   // Auto Off
   it('"enableAutoOff": true, "onDuration": 1', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',
@@ -151,7 +153,6 @@ describe('switchAccessory', async function() {
     }
 
     switchAccessory = new platform.classTypes['switch'](log, config, platform);
-
 
     // Turn On Switch
     switchAccessory.serviceManager.setCharacteristic(Characteristic.On, true);
@@ -170,6 +171,7 @@ describe('switchAccessory', async function() {
   // Auto On
   it('"enableAutoOn": true, "offDuration": 1', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',
@@ -205,6 +207,7 @@ describe('switchAccessory', async function() {
   // Persist State
   it('"persistState": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       data,
@@ -237,6 +240,7 @@ describe('switchAccessory', async function() {
 
   it('"persistState": false', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       data,
@@ -371,6 +375,7 @@ describe('switchAccessory', async function() {
   // Ensure the hex is resent after reload
   it('"resendHexAfterReload": true, "persistState": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',
@@ -416,6 +421,7 @@ describe('switchAccessory', async function() {
   // Ensure the hex is not resent after reload
   it('"resendHexAfterReload": false, "persistState": true', async function() {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'Switch',

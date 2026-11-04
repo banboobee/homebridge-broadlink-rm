@@ -51,6 +51,7 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, platform) {
     super(log, config, platform);
 
+    const {Characteristic} = this;
     const {name} = this;
     const {host, persistState} = config;
     if (persistState === false) return;
@@ -86,6 +87,7 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
   }
 
   setDefaults() {
+    const { Characteristic } = this;
     const { config } = this;
     config.subType ??= 'speaker';
 

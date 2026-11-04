@@ -18,6 +18,7 @@ class Fanv1Accessory extends FanAccessory {
 
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, log, name, state, serviceManager } = this;
       const { enableAutoOff, onDuration } = config;
 
@@ -36,6 +37,7 @@ class Fanv1Accessory extends FanAccessory {
 
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
+      const { Characteristic } = this;
       const { config, log, name, state, serviceManager } = this;
       const { enableAutoOn, offDuration } = config;
 
@@ -53,6 +55,7 @@ class Fanv1Accessory extends FanAccessory {
   }
 
   setupServiceManager () {
+    const { Service, Characteristic } = this;
     const { config, data, name } = this;
     const { on, off, counterClockwise, clockwise } = data || {};
 

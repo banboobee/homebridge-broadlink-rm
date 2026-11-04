@@ -645,6 +645,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async checkAutoOff() {
+    const { Characteristic } = this;
     const {config, data} = this;
     // const {enableAutoOff, enableAutoOn} = config;
     const {onDuration} = config;

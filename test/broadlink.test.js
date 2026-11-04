@@ -28,6 +28,7 @@ describe('Broadlink device', () => {
 
   it('re-discover', async () => {
     const { platform, log } = setup();
+    const { Characteristic } = platform.api.hap;
     const {broadlink} = await getDevices({logLevel: 'trace'}, false);
     const config = {
       timeout: 0.1,
@@ -54,6 +55,7 @@ describe('Broadlink device', () => {
 
   it('multiple discover instances', async () => {
     const { platform, log } = setup();
+    const { Characteristic } = platform.api.hap;
     const {broadlink} = await getDevices({logLevel: 'trace'}, false);
     const discoveryAccessory1 = new platform.classTypes['discover-device'](
       log,

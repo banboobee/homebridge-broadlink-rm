@@ -13,6 +13,87 @@ const data = {
 
 // TODO: resendData
 
+describe('windowAccessory', () => {
+
+  it ('default config', async () => {
+    const { platform, device, log } = setup();
+
+    const config = {
+      name: 'Window',
+      data,
+      totalDurationOpen: 5,
+      totalDurationClose: 5,
+      persistState: false,
+      host: device.host.address
+    }
+
+    const windowAccessory = new platform.classTypes['window'](log, config, platform);
+
+    expect(windowAccessory.config.initialDelay).to.equal(0.1);
+  })
+
+  // Open blinds to 90% then close to 50%
+  it('0% -> 90% -> 60%', async () => {
+    const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
+
+    const config = {
+      name: 'Window',
+      data,
+      totalDurationOpen: 2,
+      totalDurationClose: 3,
+      persistState: false,
+      host: device.host.address
+    }
+
+    const windowAccessory = new platform.classTypes['window-covering'](log, config, platform);
+
+    const openDurationPerPercent = windowAccessory.determineOpenCloseDurationPerPercent({
+      positionState: Characteristic.PositionState.INCREASING,
+      totalDurationOpen: config.totalDurationOpen,
+      totalDurationClose: config.totalDurationClose
+    });
+
+    const closeDurationPerPercent = windowAccessory.determineOpenCloseDurationPerPercent({
+      positionState: Characteristic.PositionState.DECREASING,
+      totalDurationOpen: config.totalDurationOpen,
+      totalDurationClose: config.totalDurationClose
+    });
+
+    // Set blinds to 90%
+    windowAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 90);
+
+    // Wait for initialDelay
+    await delayForDuration(windowAccessory.config.initialDelay);
+    expect(windowAccessory.state.currentPosition).to.be.gte(0);
+
+    // Check value at 90%
+    await delayForDuration(90 * openDurationPerPercent);
+    await delayForDuration(.1);
+    expect(windowAccessory.state.currentPosition).to.equal(90);
+
+    // Set blinds to 60%
+    windowAccessory.serviceManager.setCharacteristic(Characteristic.TargetPosition, 60);
+
+    // Wait for initialDelay
+    await delayForDuration(windowAccessory.config.initialDelay);
+    expect(windowAccessory.state.currentPosition).to.be.lte(90);
+
+    // Check value at 60%
+    await delayForDuration(30 * closeDurationPerPercent);
+    await delayForDuration(.1);
+    expect(windowAccessory.state.currentPosition).to.equal(60);
+
+    // Check hex code was sent
+    const hasSentCodes = device.hasSentCodes([ 'OPEN', 'CLOSE', 'STOP' ]);
+    expect(hasSentCodes).to.equal(true);
+
+    // Check the number of sent codes
+    const sentHexCodeCount = device.getSentHexCodeCount();
+    expect(sentHexCodeCount).to.equal(4);
+  }).timeout(6000);
+})
+
 describe('windowCoveringAccessory', () => {
 
   it ('default config', async () => {
@@ -52,6 +133,7 @@ describe('windowCoveringAccessory', () => {
 
   it ('determineOpenCloseDurationPerPercent', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -87,6 +169,7 @@ describe('windowCoveringAccessory', () => {
   // Open blinds to 50%
   it('0% -> 50%', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -130,6 +213,7 @@ describe('windowCoveringAccessory', () => {
   // Open blinds to 20% then 50%
   it('0% -> 20% -> 50%', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -185,6 +269,7 @@ describe('windowCoveringAccessory', () => {
   // Open blinds to 90% then close to 50%
   it('0% -> 90% -> 60%', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -245,6 +330,7 @@ describe('windowCoveringAccessory', () => {
   // Test initialDelay
   it('"initialDelay": 1', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -281,6 +367,7 @@ describe('windowCoveringAccessory', () => {
   // Open blinds to 100%
   it('0% -> 100%', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',
@@ -323,6 +410,7 @@ describe('windowCoveringAccessory', () => {
   // Open blinds to 0%
   it('0% -> 100% -> 0%', async () => {
     const { platform, device, log } = setup();
+    const { Characteristic } = platform.api.hap;
 
     const config = {
       name: 'WindowCovering',

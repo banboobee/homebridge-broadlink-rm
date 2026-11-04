@@ -76,6 +76,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * Prerequisties: this.config is validated and defaults are initialized.
    */
   setDefaults() {
+    const { Characteristic } = this;
     const { config, state } = this
     const { coolingThresholdTemperature, heatingThresholdTemperature, defaultMode, defaultRotationSpeed } = config
 
@@ -128,6 +129,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * updating cached state based on whether the device is set to cool or heat.
    */
   updateServiceCurrentHeaterCoolerState() {
+    const { Characteristic } = this;
     const { serviceManager, state, log, logLevel } = this
     const { targetHeaterCoolerState } = state
 
@@ -174,6 +176,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {int} previousValue Previous value for targetHeaterCoolerState
    */
   async setTargetHeaterCoolerState(hexData, previousValue) {
+    const { Characteristic } = this;
     const { state, log, logLevel } = this
     const { targetHeaterCoolerState } = state
 
@@ -213,6 +216,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @returns {any} hexData - object, array or string values to be sent to IR device
    */
   decodeHexFromConfig(toUpdateCharacteristic) {
+    const { Characteristic } = this;
     const { state, config, data, log, logLevel, name } = this
     const { heatingThresholdTemperature, coolingThresholdTemperature, targetHeaterCoolerState } = state
     const { heat, cool } = data
@@ -266,6 +270,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @returns {any} hexData - object, array or string values to be sent to IR device
    */
   decodeHierarchichalHex(hexDataObject, checkCharacteristics, toUpdateCharacteristic) {
+    const { Characteristic } = this;
     const { state, log, logLevel, name } = this
     if (hexDataObject === undefined || hexDataObject == null) { return "hexDataObject" } // should never happen, unless bug
     if (typeof hexDataObject !== 'object') { return hexDataObject }
@@ -375,6 +380,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {number} previousValue - previous temperature value
    */
   async setTemperature(hexData, previousValue) {
+    const { Characteristic } = this;
     const { name, log, logLevel, state } = this
     const { targetHeaterCoolerState, coolingThresholdTemperature, heatingThresholdTemperature } = state
 
@@ -394,6 +400,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {int} previousValue
    */
   async setActive(hexData, previousValue) {
+    const { Characteristic } = this;
     const { state, config, data, logLevel } = this
     const { turnOnWhenOff } = config
     const { available } = config.internalConfig
@@ -444,6 +451,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {int} previousValue
    */
   async setSwingMode(hexData, previousValue) {
+    const { Characteristic } = this;
     const { state, data, log, logLevel, name } = this
     const { swingMode } = state
 
@@ -474,6 +482,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {int} previousValue - previous rotation speed of device
    */
   async setRotationSpeed(hexData, previousValue) {
+    const { Characteristic } = this;
     const { state, log, logLevel, name } = this
     const { rotationSpeed } = state
 
@@ -715,6 +724,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   updateTemperatureUI() {
+    const { Characteristic } = this;
     const { config, serviceManager } = this;
     const { noHumidity } = config;
 
@@ -742,6 +752,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   }
 
   getTemperatureDisplayUnits(callback) {
+    const { Characteristic } = this;
     const { config } = this;
     const temperatureDisplayUnits = (config.units.toLowerCase() === 'f') ? Characteristic.TemperatureDisplayUnits.FAHRENHEIT : Characteristic.TemperatureDisplayUnits.CELSIUS;
 
@@ -1076,6 +1087,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
   setupServiceManager() {
     this.configDefaultsHelper()
+    const { Service, Characteristic } = this;
     const { config, name } = this;
     const { minTemperature, maxTemperature } = config
     const { internalConfig } = config

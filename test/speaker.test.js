@@ -43,6 +43,7 @@ describe('SpeakerAccessory', async function() {
 
   it('tun on', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = JSON.parse(JSON.stringify(defaultConfig));
@@ -64,6 +65,7 @@ describe('SpeakerAccessory', async function() {
 
   it('tun off', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = JSON.parse(JSON.stringify(defaultConfig));
@@ -83,6 +85,7 @@ describe('SpeakerAccessory', async function() {
 
   it('mute', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = JSON.parse(JSON.stringify(defaultConfig));
@@ -105,6 +108,7 @@ describe('SpeakerAccessory', async function() {
 
   it('play', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
 
     const config = JSON.parse(JSON.stringify(defaultConfig));
@@ -135,6 +139,7 @@ describe('SpeakerAccessory', async function() {
 
   it('Volume', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
     const config = JSON.parse(JSON.stringify(defaultConfig));
     SpeakerAccessory = new platform.classTypes['speaker'](log, config, platform);
@@ -202,6 +207,7 @@ describe('SpeakerAccessory', async function() {
 
   it('"persistState": true', async function() {
     const { log, device, platform } = setup();
+    const { Characteristic } = platform.api.hap;
     defaultConfig.host = device.host.address
     let config = JSON.parse(JSON.stringify(defaultConfig));
     config.persistState = true;
