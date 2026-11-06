@@ -117,11 +117,11 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
-    const { Service, Characteristic } = this;
+    const { platform, Service, Characteristic } = this;
     const { data, name } = this;
     const { close, open, lock, unlock } = data || {};
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.GarageDoorOpener, this.log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.GarageDoorOpener);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'doorCurrentState',

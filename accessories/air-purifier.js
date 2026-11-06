@@ -37,7 +37,7 @@ class AirPurifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { Service, Characteristic } = this;
+    const { platform, Service, Characteristic } = this;
     const { config, data, name } = this;
     const {
       on,
@@ -54,7 +54,7 @@ class AirPurifierAccessory extends FanAccessory {
     if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.AirPurifier, this.log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.AirPurifier);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

@@ -267,10 +267,10 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager () {
-    const { Service, Characteristic } = this;
-    const { log, name } = this;
+    const { platform, Service, Characteristic } = this;
+    const { name } = this;
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.WindowCovering, log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.WindowCovering);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'currentPosition',

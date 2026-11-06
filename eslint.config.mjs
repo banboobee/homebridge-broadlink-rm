@@ -29,11 +29,7 @@ export default defineConfig([globalIgnores(["node_modules"]), {
       Atomics: "readonly",
       SharedArrayBuffer: "readonly",
       HistoryService: true,
-      Characteristic: true,
-      Service: true,
       eve: true,
-      cachedAccessories: true,
-      HomebridgeAPI: true,
     },
 
     ecmaVersion: 2022,

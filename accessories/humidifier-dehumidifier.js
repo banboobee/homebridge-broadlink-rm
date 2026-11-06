@@ -436,7 +436,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { Service, Characteristic } = this;
+    const { platform, Service, Characteristic } = this;
     const { config, data, name } = this;
     const { on, off, lockControls, unlockControls, swingToggle } = data || {};
 
@@ -445,7 +445,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.HumidifierDehumidifier, this.log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.HumidifierDehumidifier);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

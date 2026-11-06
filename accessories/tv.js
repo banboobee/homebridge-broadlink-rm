@@ -443,8 +443,8 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager() {
-    const { Service, Characteristic, Categories } = this;
-    const { data, name, config, log } = this;
+    const { platform, Service, Characteristic, Categories } = this;
+    const { data, name, config } = this;
     const { on, off } = data || {};
     let { subType } = config;
 
@@ -460,9 +460,9 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     // this.serviceManagers = [];
     this.serviceManager = new this.serviceManagerClass(
+      platform,
       name,
       Service.Television,
-      log,
       subType
     );
 

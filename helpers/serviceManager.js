@@ -2,19 +2,19 @@ const assert = require('assert')
 
 class ServiceManager {
 
-  constructor (name, serviceType, log, subType = undefined) {
+  constructor (platform, name, serviceType, subType = undefined) {
     assert(name, 'ServiceManager requires a "name" to be provided.')
     assert(serviceType, 'ServiceManager requires the "type" to be provided.')
-    assert(log, 'ServiceManager requires "log" to be provided.')
 
-    this.log = log
+    this.log = platform.log
     this.names = {};
 
     if (this.constructor.isUnitTest) {
       this.service = new serviceType(name);
     } else {
-      const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
-      this.accessory = cachedAccessories.find((cache) => cache.UUID === uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
+      const {Service, Characteristic} = platform.api.hap;
+      const uuid = platform.api.hap.uuid.generate(`${serviceType}:${name}`);
+      this.accessory = platform.cachedAccessories.find((cache) => cache.UUID === uuid) || new platform.api.platformAccessory(name, uuid, subType);
       this.accessory.getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
         .setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
@@ -22,8 +22,6 @@ class ServiceManager {
       this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
     }
     this.characteristics = {}
-
-    this.addNameCharacteristic(name);
   }
 
   setCharacteristic (characteristic, value) {
@@ -88,25 +86,6 @@ class ServiceManager {
 
   getCharacteristicTypeForName (name) {
     return this.characteristics[name]
-  }
-
-  // Name Characteristic
-
-  addNameCharacteristic (name) {
-    // console.log(`addNameCharacteristic: ${name}`);
-    this.addCharacteristic({ name: 'name', type: Characteristic.Name, method: this.getName });
-    this.setCharacteristic(Characteristic.Name, name);
-  }
-
-  getName (callback = undefined) {
-    // const { name } = this
-    const name = this.getCharacteristic(Characteristic.Name).value;
-
-    this.log(`${name} getName: ${name}`);
-
-    callback?.(null, name);
-
-    return name;
   }
 }
 

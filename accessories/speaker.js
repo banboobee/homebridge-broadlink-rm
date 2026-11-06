@@ -220,14 +220,14 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
   // };
 
   setupServiceManager() {
-    const { Service, Characteristic, Categories } = this;
-    const { data, name, log } = this;
+    const { platform, Service, Characteristic, Categories } = this;
+    const { data, name } = this;
     const { on, off } = data || {};
 
     this.serviceManager = new this.serviceManagerClass(
+      platform,
       name,
       Service.SmartSpeaker,
-      log,
       Categories.SPEAKER,
     );
 

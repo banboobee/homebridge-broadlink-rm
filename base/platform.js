@@ -1,22 +1,15 @@
 const persistentState = require('./helpers/persistentState')
-// const semver = require('semver');
-
-// if (semver.lt(process.version, '7.6.0')) {throw new Error(`Homebridge plugins that use the "homebridge-platform-helper" library require your node version to be at least the v12.14.0 LTM. Current version: ${process.version}`)}
 
 class HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
     HomebridgePlatform.isUnitTest = this.constructor.isUnitTest;
-    // if (this.constructor.isUnitTest === true) {
-    //   this.isUnitTest = true;
-    // } else {
-    //   this.isUnitTest = false;
-    // }
     this.log = log;
     this.config = config;
     // this.homebridge = homebridge;
     this.api = homebridge;
-    this.cachedAccessories = cachedAccessories;
+    // this.cachedAccessories = cachedAccessories;
+    this.cachedAccessories = [];
     this.eve = eve;
     this.HistoryService = HistoryService;
     HomebridgePlatform.log = this.log;
@@ -27,12 +20,6 @@ class HomebridgePlatform {
 
     //Set LogLevel
     switch(this.config.logLevel){
-      // case 'none':
-      //   this.logLevel = 6;
-      //   break;
-      // case 'critical':
-      //   this.logLevel = 5;
-      //   break;
       case 'error':
         this.logLevel = 4;
         break;
@@ -56,7 +43,6 @@ class HomebridgePlatform {
         break;
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
-    // if(this.config.disableLogs) {this.logLevel = 6;}
     HomebridgePlatform.logLevel = this.logLevel;
 
     this.checkConfig(config);
@@ -79,7 +65,7 @@ class HomebridgePlatform {
     this.log(`Restoring existing accessory ${cache.displayName} from cache.`);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
-    cachedAccessories.push(cache);
+    this.cachedAccessories.push(cache);
   }
 
   async discoverDevices () {
@@ -113,22 +99,12 @@ class HomebridgePlatform {
     })
 
     // Register new accessories
-    // this.api.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM',
-    //                                        accessories
-    //                                        .filter(x => !cachedAccessories.find(y => y === x.serviceManager.accessory))
-    //                                        .filter(x => x.config.type !== 'tv')
-    //                                        .map(x => x.serviceManager.accessory));
-    // Register external accessories
-    // this.api.publishExternalAccessories('homebridge-broadlink-rm',
-    //                                       accessories
-    //                                       .filter(x => x.config.type === 'tv')
-    //                                       .map(x => x.serviceManager.accessory));
     accessories.forEach(x => {
       if (x.config.type === 'tv' || x.config.type === 'speaker') {
         // Register external accessories
         this.api.publishExternalAccessories('homebridge-broadlink-rm', [x.serviceManager.accessory]);
         this.log(`Registered ${x.config.type} accessory ${x.config.name} with type ${x.config.subType}.`);
-      } else if (!cachedAccessories.find(y => y === x.serviceManager.accessory)) {
+      } else if (!this.cachedAccessories.find(y => y === x.serviceManager.accessory)) {
         // Register new accessories
         this.api.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x.serviceManager.accessory]);
         this.log(`Registered ${x.config.type} accessory ${x.config.name}.`)
@@ -136,7 +112,7 @@ class HomebridgePlatform {
     });
 
     // Unregister deleted accessories
-    cachedAccessories.forEach(x => {
+    this.cachedAccessories.forEach(x => {
       if (!accessories.find(y => y.serviceManager.accessory.UUID === x.UUID)) {
         this.api.unregisterPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x]);
         this.log(`Removed existing accessory ${x.displayName} from cache.`);

@@ -66,10 +66,10 @@ class HumiditySensorAccessory extends HumidifierAccessory {
 
   // Service Manager Setup
   setupServiceManager () {
-    const { Service, Characteristic } = this;
+    const { platform, Service, Characteristic } = this;
     const { config, name } = this;
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.HumiditySensor, this.log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.HumiditySensor);
 
     this.serviceManager.addGetCharacteristic({
       name: 'currentHumidity',

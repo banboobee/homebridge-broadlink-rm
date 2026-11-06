@@ -55,13 +55,13 @@ class Fanv1Accessory extends FanAccessory {
   }
 
   setupServiceManager () {
-    const { Service, Characteristic } = this;
+    const { platform, Service, Characteristic } = this;
     const { config, data, name } = this;
     const { on, off, counterClockwise, clockwise } = data || {};
 
     this.setDefaults();
 
-    this.serviceManager = new this.serviceManagerClass(name, Service.Fan, this.log);
+    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Fan);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
