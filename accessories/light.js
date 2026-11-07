@@ -556,110 +556,13 @@ class LightAccessory extends SwitchAccessory {
 
   setupServiceManager () {
     const { Service, Characteristic } = this;
-    const { /* data, name,*/ config } = this;
-    // const { on, off } = data || { };
+    const { config } = this;
     const history = config.history === true/* || config.noHistory === false*/;
     super.setupServiceManager(history ? Service.Outlet : Service.Lightbulb);
 
     if (history) {
-      // this.serviceManager.service.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
-      // this.serviceManager.service.updateCharacteristic(Characteristic.LockPhysicalControls, 1);
-      // this.serviceManager.addGetCharacteristic({
-      //        name: 'LockPhysicalControls',
-      //        type: Characteristic.LockPhysicalControls,
-      //        method: (callback) => {
-      //          callback(null, 1);
-      //        },
-      //        bind: this
-      // });
-
-      // const dummy =
-      //            this.serviceManager.accessory.getService(`${name} Consumption`) ||
-      //            this.serviceManager.accessory.addService(eve.Services.Consumption, `${name} Consumption`);
-      // dummy.setHiddenService(true);
-      // dummy.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
-      //        perms: [
-      //          this.platform.api.hap.Perms.PAIRED_READ,
-      //          this.platform.api.hap.Perms.NOTIFY,
-      //          this.platform.api.hap.Perms.HIDDEN
-      //        ]
-      // });
-      // dummy.updateCharacteristic(eve.Characteristics.TotalConsumption, 0);
-
-      // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.TotalConsumption);
-      // this.serviceManager.addGetCharacteristic({
-      //        name: 'TotalConsumption',
-      //        type: eve.Characteristics.TotalConsumption,
-      //        method: (callback) => {
-      //          callback(null, 0);
-      //        },
-      //        bind: this
-      // });
-      // this.serviceManager.service.getCharacteristic(eve.Characteristics.TotalConsumption).setProps({
-      //        perms: [
-      //          this.platform.api.hap.Perms.PAIRED_READ,
-      //          this.platform.api.hap.Perms.NOTIFY,
-      //          this.platform.api.hap.Perms.HIDDEN
-      //        ]
-      // });
-
-      // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.CurrentConsumption);
-      // this.serviceManager.addGetCharacteristic({
-      //        name: 'CurrentConsumption',
-      //        type: eve.Characteristics.CurrentConsumption,
-      //        method: (callback) => {
-      //          this.historyService?.addEntry(
-      //            {time: Math.round(new Date().valueOf()/1000), power: 0}
-      //          )
-      //          callback(null, 0);
-      //        },
-      //        bind: this
-      // });
-
-      // this.serviceManager.service.addOptionalCharacteristic(eve.Characteristics.LastActivation);
-      // this.serviceManager.addGetCharacteristic({
-      //        name: 'LastActivation',
-      //        type: eve.Characteristics.LastActivation,
-      //        method: (callback) => {
-      //          const lastActivation = this.state.lastActivation ?
-      //                Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
-      //          callback(null, lastActivation);
-      //        },
-      //        bind: this
-      // });
-
       this.serviceManager.service.addOptionalCharacteristic(Characteristic.Brightness);
     }
-
-    // this.serviceManager.addToggleCharacteristic({
-    //   name: 'switchState',
-    //   type: Characteristic.On,
-    //   getMethod: this.getCharacteristicValue,
-    //   setMethod: this.setCharacteristicValue,
-    //   bind: this,
-    //   props: {
-    //     onData: on,
-    //     offData: off,
-    //     setValuePromise: this.setSwitchState.bind(this)
-    //   }
-    // });
-
-    // this.serviceManager.getCharacteristic(Characteristic.On)
-    //   .on('change', async function(event) {
-    //  if (event.newValue !== event.oldValue) {
-    //    if (this.historyService) {
-    //      const value = event.newValue;
-    //      // this.logs.debug(`adding history of switchState.`, value);
-    //      const time = Math.round(new Date().valueOf()/1000);
-    //      // if (value) {
-    //      this.state.lastActivation = time;
-    //      // }
-    //      this.historyService.addEntry(
-    //        {time: time, status: value ? 1 : 0})
-    //      // await this.mqttpublish('On', value ? 'true' : 'false')
-    //    }
-    //  }
-    //   }.bind(this))
 
     this.serviceManager.addToggleCharacteristic({
       name: 'brightness',

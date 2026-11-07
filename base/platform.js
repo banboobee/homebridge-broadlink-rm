@@ -6,12 +6,8 @@ class HomebridgePlatform {
     HomebridgePlatform.isUnitTest = this.constructor.isUnitTest;
     this.log = log;
     this.config = config;
-    // this.homebridge = homebridge;
     this.api = homebridge;
-    // this.cachedAccessories = cachedAccessories;
     this.cachedAccessories = [];
-    this.eve = eve;
-    this.HistoryService = HistoryService;
     HomebridgePlatform.log = this.log;
 
     const { homebridgeDirectory } = config;

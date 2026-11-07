@@ -28,8 +28,6 @@ export default defineConfig([globalIgnores(["node_modules"]), {
       ...globals.jest,
       Atomics: "readonly",
       SharedArrayBuffer: "readonly",
-      HistoryService: true,
-      eve: true,
     },
 
     ecmaVersion: 2022,

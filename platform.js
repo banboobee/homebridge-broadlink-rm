@@ -1,4 +1,5 @@
 const HomebridgePlatform = require('./base/platform');
+const fakegatoHistory = require( 'fakegato-history');
 // const { assert } = require('chai');
 
 const npmPackage = require('./package.json');
@@ -201,8 +202,11 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     BroadlinkRMPlatform.verifyConfig([config], '', this.constructor.configKeys);
   }
 
-  addAccessories (accessories) {
+  async addAccessories (accessories) {
     const { config, log } = this;
+    const { EveHomeKitTypes } = await import( 'homebridge-lib/EveHomeKitTypes' );
+    this.eve = new EveHomeKitTypes( this.api )
+    this.HistoryService = fakegatoHistory( this.api );
 
     // if (!this.isUnitTest) this.discoverBroadlinkDevices();
     this.showMessage();

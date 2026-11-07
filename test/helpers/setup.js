@@ -59,7 +59,7 @@ const getAccessories = async (config) => {
   const { platform, device, log } = setup(config)
 
   const accessories = [];
-  platform.addAccessories(accessories);
+  await platform.addAccessories(accessories);
   accessories.forEach(async (accessory) => {
     if (accessory.updateAccessories) {
       await accessory.updateAccessories(accessories);

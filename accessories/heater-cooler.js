@@ -61,8 +61,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     if (config.noHistory !== true) {
       this.displayName = config.name;
       this.lastUpdatedAt = undefined;
-      // this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' });
-      this.historyService = new HistoryService("room", this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' });
+      this.historyService = new this.platform.HistoryService("room", this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ', '-') + '_persist.json' });
       this.historyService.log = this.log;
     }
 

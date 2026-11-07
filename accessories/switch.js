@@ -106,16 +106,6 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   constructor (log, config = {}, platform) {
     super(log, config, platform);
 
-    // Fakegato setup
-    // if (config.history === true/* || config.noHistory === false*/) {
-    //   // this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-    //   // this.historyService = new HistoryService('switch', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-    //   this.historyService = new HistoryService('custom', this.serviceManager.accessory, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-    //   this.historyService.addEntry(
-    //  {time: Math.round(new Date().valueOf()/1000),
-    //   status: this.state.switchState ? 1 : 0})
-    // }
-
     if (!this.constructor.isUnitTest) {this.checkPing(ping)}
   }
 
@@ -311,7 +301,8 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   setupServiceManager (service = undefined) {
-    const { platform, Service, Characteristic } = this;
+    const { platform, Service, Characteristic, } = this;
+    const { eve } = platform;
     const { data, name, config } = this;
     const { on, off } = data || { };    // toggle? verifyConfig to support.
     const history = config.history === true;
@@ -320,7 +311,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     if (history) {
       // Fakegato setup
-      this.historyService = new HistoryService('custom', this.serviceManager.accessory, {
+      this.historyService = new this.platform.HistoryService('custom', this.serviceManager.accessory, {
         storage: 'fs',
         // filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'
       });
