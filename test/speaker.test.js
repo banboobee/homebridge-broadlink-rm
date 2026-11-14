@@ -1,8 +1,7 @@
-const { expect } = require('chai');
-
-const { setup } = require('./helpers/setup');
-const hexCheck = require('./helpers/hexCheck');
-const delayForDuration = require('../helpers/delayForDuration');
+import  { expect } from 'chai';
+import { setup } from './helpers/setup.js';
+import hexCheck from './helpers/hexCheck.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 const data = {
   on: 'ON',

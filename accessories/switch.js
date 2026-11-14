@@ -1,9 +1,9 @@
 // -*- js-indent-level : 2 -*-
-const delayForDuration = require('../helpers/delayForDuration');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const ping = require('../helpers/ping')
-const arp = require('../helpers/arp')
-const BroadlinkRMAccessory = require('./accessory');
+import delayForDuration from '../helpers/delayForDuration.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import ping from '../helpers/ping.js';
+import arp from '../helpers/arp.js';
+import BroadlinkRMAccessory from './accessory.js';
 
 class SwitchAccessory extends BroadlinkRMAccessory {
   static configKeys = {
@@ -391,4 +391,4 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = SwitchAccessory;
+export default SwitchAccessory;

@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-
-const { setup } = require('./helpers/setup');
-const delayForDuration = require('../helpers/delayForDuration');
+import { expect } from 'chai';
+import { setup } from './helpers/setup.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 const data = {
   open: 'OPEN',

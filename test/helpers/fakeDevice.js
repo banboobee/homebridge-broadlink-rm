@@ -1,5 +1,4 @@
-const uuid = require('uuid')
-
+import * as uuid from 'uuid';
 class FakeDevice {
 
   constructor (log) {
@@ -88,4 +87,4 @@ class FakeDevice {
   }
 }
 
-module.exports = FakeDevice
+export default FakeDevice;

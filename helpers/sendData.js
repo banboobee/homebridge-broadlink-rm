@@ -1,10 +1,7 @@
-// const assert = require('assert')
+import { broadlink, getDevice } from './getDevice.js';
+import convertProntoCode from './convertProntoCode.js'
 
-const { broadlink, getDevice } = require('./getDevice');
-const convertProntoCode = require('./convertProntoCode')
-
-module.exports = async ({ host, hexData, log, name, logLevel }) => {
-  // assert(hexData && typeof hexData === 'string', `\x1b[31m[ERROR]: \x1b[0m${name} sendData (HEX value is missing)`);
+export default async ({ host, hexData, log, name, logLevel }) => {
   if (!hexData || typeof hexData !== 'string') {
     broadlink.logs.error(`\x1b[0m${name} sendData (HEX value is missing)`);
     return -1;

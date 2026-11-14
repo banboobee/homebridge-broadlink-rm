@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert';
 
 class ServiceManager {
 
@@ -89,4 +89,4 @@ class ServiceManager {
   }
 }
 
-module.exports = ServiceManager
+export default ServiceManager;

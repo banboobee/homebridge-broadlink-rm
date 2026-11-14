@@ -1,12 +1,10 @@
 // -*- mode: js; js-indent-level : 2 -*-
-const { assert } = require('chai');
-const fs = require('fs');
-const Mutex = require('await-semaphore').Mutex;
-
-const delayForDuration = require('../helpers/delayForDuration');
-// const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const { getDevice } = require('../helpers/getDevice');
-const BroadlinkRMAccessory = require('./accessory');
+import { assert } from 'chai';
+import * as fs from 'fs';
+import { Mutex } from 'await-semaphore';
+import delayForDuration from '../helpers/delayForDuration.js';
+import { getDevice } from '../helpers/getDevice.js';
+import BroadlinkRMAccessory from './accessory.js';
 
 class AirConAccessory extends BroadlinkRMAccessory {
   static configKeys = {
@@ -434,26 +432,25 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   reset() {
-    const NULL = () => {};      // disables 'Error: Timeout Cancelled'
     super.reset();
 
     this.state.isRunningAutomatically = false;
 
     if (this.shouldIgnoreAutoOnOffPromise) {
-      this.shouldIgnoreAutoOnOffPromise.cancel(NULL);
+      this.shouldIgnoreAutoOnOffPromise.cancel(false); // resolve
       this.shouldIgnoreAutoOnOffPromise = undefined;
 
       this.shouldIgnoreAutoOnOff = false;
     }
 
-    if (this.turnOnWhenOffDelayPromise) {
-      this.turnOnWhenOffDelayPromise.cancel(NULL);
-      this.turnOnWhenOffDelayPromise = undefined;
-    }
+    // if (this.turnOnWhenOffDelayPromise) {
+    //   this.turnOnWhenOffDelayPromise.cancel(false);
+    //   this.turnOnWhenOffDelayPromise = undefined;
+    // }
 
     if (this.autoOffTimeoutPromise) {
-      this.autoOffTimeoutPromise.cancel(NULL);
-      this.autoOffTimeoutPromise = null;
+      this.autoOffTimeoutPromise.cancel(); // throw
+      this.autoOffTimeoutPromise = undefined;
     }
   }
 
@@ -610,8 +607,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
       // If the air-conditioner is turned off then turn it on first and try this again
       if (await this.checkTurnOnWhenOff()) {
-        this.turnOnWhenOffDelayPromise = delayForDuration(.3);
-        await this.turnOnWhenOffDelayPromise
+        await delayForDuration(.3);
+        // this.turnOnWhenOffDelayPromise = delayForDuration(.3);
+        // await this.turnOnWhenOffDelayPromise
       }
 
       // Perform the auto -> cool/heat conversion if `replaceAutoMode` is specified
@@ -656,14 +654,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // } else
     if (/*enableAutoOff && */parseInt(onDuration) > 0) {
       if (this.autoOffTimeoutPromise) {
-        const NULL = () => {};  // disables 'Error: Timeout Cancelled'
-        this.autoOffTimeoutPromise.cancel(NULL);
-        this.autoOffTimeoutPromise = null;
+        this.autoOffTimeoutPromise.cancel(); // throw
+        this.autoOffTimeoutPromise = undefined;
       }
-      this.logs.info(`automatically turns off in ${onDuration} seconds.`);
-      this.autoOffTimeoutPromise = delayForDuration(onDuration);
-      await this.autoOffTimeoutPromise;
       try {
+        this.logs.info(`automatically turns off in ${onDuration} seconds.`);
+        this.autoOffTimeoutPromise = delayForDuration(onDuration);
+        await this.autoOffTimeoutPromise; // throw if cancelled
         this.logs.info(`turned off due to exceeding ${onDuration} onDuration seconds.`);
         await this.performSend(data.off);
         // await this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
@@ -1057,7 +1054,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     this.shouldIgnoreAutoOnOff = true;
-    this.shouldIgnoreAutoOnOffPromise = delayForDuration(minimumAutoOnOffDuration);
+    this.shouldIgnoreAutoOnOffPromise = delayForDuration(minimumAutoOnOffDuration); // advance if cancelled.
     await this.shouldIgnoreAutoOnOffPromise;
 
     this.shouldIgnoreAutoOnOff = false;
@@ -1446,4 +1443,4 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = AirConAccessory
+export default AirConAccessory;

@@ -1,12 +1,10 @@
-const { expect } = require('chai');
-const { MQTTpublish } = require('./helpers/setup');
-const { MQTTtest } = require('./helpers/setup');
-const hexCheck = require('./helpers/hexCheck');
-
-const { setup } = require('./helpers/setup');
-const ping = require('./helpers/fakePing');
-
-const delayForDuration = require('../helpers/delayForDuration');
+import { expect } from 'chai';
+import { MQTTpublish } from './helpers/setup.js';
+import { MQTTtest } from './helpers/setup.js';
+import hexCheck from './helpers/hexCheck.js';
+import { setup } from './helpers/setup.js';
+import ping from './helpers/fakePing.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 const data = {
   on: 'ON',

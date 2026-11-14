@@ -1,9 +1,6 @@
-const { expect } = require('chai');
-
-const { setup } = require('./helpers/setup')
-// const ping = require('./helpers/fakePing')
-
-const delayForDuration = require('../helpers/delayForDuration')
+import { expect } from 'chai';
+import { setup } from './helpers/setup.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 // TODO: Check the closest hex is chosen for fan speed
 

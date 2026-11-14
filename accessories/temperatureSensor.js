@@ -1,4 +1,4 @@
-const AirconAccessory = require('./aircon');
+import AirconAccessory from './aircon.js';
 
 class TemperatureSensorAccessory extends AirconAccessory {
 
@@ -103,4 +103,4 @@ class TemperatureSensorAccessory extends AirconAccessory {
   }
 }
 
-module.exports = TemperatureSensorAccessory
+export default TemperatureSensorAccessory;

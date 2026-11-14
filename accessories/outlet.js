@@ -1,4 +1,4 @@
-const SwitchAccessory = require('./switch');
+import SwitchAccessory from './switch.js';
 
 class OutletAccessory extends SwitchAccessory {
 
@@ -57,4 +57,4 @@ class OutletAccessory extends SwitchAccessory {
   }
 }
 
-module.exports = OutletAccessory;
+export default OutletAccessory;

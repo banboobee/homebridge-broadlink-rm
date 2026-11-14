@@ -1,5 +1,1 @@
-const errors = {
-  TIMEOUT_CANCELLATION: 'Timeout Cancelled' 
-};
-
-module.exports = errors;
+export const TIMEOUT_CANCELLATION = 'Timeout Cancelled';

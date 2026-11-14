@@ -1,7 +1,7 @@
-# Homebridge-Broadlink-RM-PoC
+# Homebridge-Broadlink-RM-Dynamic
 
 ## What is this?
-As the name implies, [this](https://github.com/banboobee/homebridge-broadlink-rm) repository is to prove the efficiencies of my Pull-Requests(PRs), and to share them with ___developers___.
+[This](https://github.com/banboobee/homebridge-broadlink-rm) repository is to prove the efficiencies of my Pull-Requests(PRs), and to share them with ___developers___.
 
 The findings are based the issues on [original](https://github.com/lprhodes/homebridge-broadlink-rm) and [base](https://github.com/kiwi-cam/homebridge-broadlink-rm), and pulled to base repository. Although almost of them were silently rejected like falling into a Black Hole, I don't mind. The maintainer should keep the repository within his manageable range.
 

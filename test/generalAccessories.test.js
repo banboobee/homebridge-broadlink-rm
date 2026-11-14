@@ -1,10 +1,8 @@
-
-const { expect } = require('chai');
-const delayForDuration = require('../helpers/delayForDuration');
-
-const { setup } = require('./helpers/setup');
-const { getAccessories } = require('./helpers/setup');
-const hexCheck = require('./helpers/hexCheck');
+import { expect } from 'chai';
+import delayForDuration from '../helpers/delayForDuration.js';
+import { setup } from './helpers/setup.js';
+import { getAccessories } from './helpers/setup.js';
+import hexCheck from './helpers/hexCheck.js';
 
 // const log = () => {
 //   return null

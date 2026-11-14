@@ -1,4 +1,4 @@
-const nodePersist = require('node-persist');
+import nodePersist from 'node-persist';
 
 const init = ({ homebridgeDirectory, homebridge }) => {
   if (!homebridgeDirectory) {
@@ -26,7 +26,7 @@ const save = ({ host, name, state }) => {
   return nodePersist.setItemSync(`${host}-${name}`, state);
 }
 
-module.exports = {
+export {
   init,
   clear,
   load,

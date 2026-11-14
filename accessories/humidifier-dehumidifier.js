@@ -1,11 +1,9 @@
-const uuid = require('uuid');
-const fs = require('fs');
-const findKey = require('find-key');
-
-const delayForDuration = require('../helpers/delayForDuration');
-const { getDevice } = require('../helpers/getDevice');
-
-const FanAccessory = require('./fan');
+import * as uuid from 'uuid';
+import fs from 'fs';
+import findKey from 'find-key';
+import delayForDuration from '../helpers/delayForDuration.js';
+import { getDevice } from '../helpers/getDevice.js';
+import FanAccessory from './fan.js';
 
 class HumidifierDehumidifierAccessory extends FanAccessory {
 
@@ -603,4 +601,4 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 }
 
-module.exports = HumidifierDehumidifierAccessory;
+export default HumidifierDehumidifierAccessory;

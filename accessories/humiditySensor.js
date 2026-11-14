@@ -1,6 +1,6 @@
-const delayForDuration = require('../helpers/delayForDuration');
-const { getDevice } = require('../helpers/getDevice');
-const HumidifierAccessory = require('./humidifier-dehumidifier');
+import delayForDuration from '../helpers/delayForDuration.js';
+import { getDevice } from '../helpers/getDevice.js';
+import HumidifierAccessory from './humidifier-dehumidifier.js';
 
 class HumiditySensorAccessory extends HumidifierAccessory {
 
@@ -96,4 +96,4 @@ class HumiditySensorAccessory extends HumidifierAccessory {
   }
 }
 
-module.exports = HumiditySensorAccessory
+export default HumiditySensorAccessory;

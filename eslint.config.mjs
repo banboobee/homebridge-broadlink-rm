@@ -1,5 +1,5 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import noAutofix from "eslint-plugin-no-autofix";
+import disableAutofix from 'eslint-plugin-disable-autofix';
 import globals from "globals";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +18,7 @@ export default defineConfig([globalIgnores(["node_modules"]), {
   extends: compat.extends("eslint:recommended"),
 
   plugins: {
-    "no-autofix": noAutofix,
+    'disable-autofix': disableAutofix,
   },
 
   languageOptions: {
@@ -30,7 +30,7 @@ export default defineConfig([globalIgnores(["node_modules"]), {
       SharedArrayBuffer: "readonly",
     },
 
-    ecmaVersion: 2022,
+    ecmaVersion: 2025,
     sourceType: "module",
   },
 
@@ -53,7 +53,8 @@ export default defineConfig([globalIgnores(["node_modules"]), {
     eqeqeq: "off",
     "no-extra-semi": "warn",
     "dot-notation": 0,
-    "no-autofix/prefer-const": "warn",
+    "disable-autofix/prefer-const": "warn",
+    "no-useless-assignment": "off",
 
     indent: ["error", 2, {
       SwitchCase: 1,

@@ -1,5 +1,5 @@
-const { broadlink, discoverDevices, discoveredDevices } = require('../helpers/getDevice');
-const BroadlinkRMAccessory = require('./accessory');
+import { broadlink, discoverDevices, discoveredDevices } from '../helpers/getDevice.js';
+import BroadlinkRMAccessory from './accessory.js';
 
 class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
   static configKeys = {
@@ -82,4 +82,4 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = DiscoverDeviceAccessory
+export default DiscoverDeviceAccessory;

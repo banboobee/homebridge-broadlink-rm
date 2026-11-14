@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 
 const hexCheck = ({ device, codes, count }) => {
   codes = codes || [];
@@ -14,4 +14,4 @@ const hexCheck = ({ device, codes, count }) => {
   }
 }
 
-module.exports = hexCheck;
+export default hexCheck;

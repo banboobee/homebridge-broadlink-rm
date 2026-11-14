@@ -1,8 +1,7 @@
-const { assert } = require('chai');
-
-const delayForDuration = require('../helpers/delayForDuration');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const BroadlinkRMAccessory = require('./accessory');
+import { assert } from 'chai';
+import delayForDuration from '../helpers/delayForDuration.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import BroadlinkRMAccessory from './accessory.js';
 
 class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
@@ -307,4 +306,4 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = WindowCoveringAccessory;
+export default WindowCoveringAccessory;

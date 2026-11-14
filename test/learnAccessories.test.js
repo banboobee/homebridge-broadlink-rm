@@ -1,7 +1,5 @@
-const { expect } = require('chai');
-
-const { getAccessories } = require('./helpers/setup')
-
+import { expect } from 'chai';
+import { getAccessories } from './helpers/setup.js';
 
 describe('learnAccessories', () => {
 

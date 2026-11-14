@@ -1,6 +1,5 @@
-const BroadlinkRMAccessory = require('./accessory');
-const persistentState = require('../base/helpers/persistentState');
-// const util = require('util');
+import BroadlinkRMAccessory from './accessory.js';
+import * as persistentState from '../base/helpers/persistentState.js';
 
 class SpeakerAccessory extends BroadlinkRMAccessory {
   static configKeys = {
@@ -354,4 +353,4 @@ class SpeakerAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = SpeakerAccessory;
+export default SpeakerAccessory;

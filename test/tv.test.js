@@ -1,10 +1,9 @@
-const { expect } = require('chai');
-
-const { setup } = require('./helpers/setup');
-const { MQTTpublish } = require('./helpers/setup');
-const { MQTTtest } = require('./helpers/setup');
-const hexCheck = require('./helpers/hexCheck');
-const delayForDuration = require('../helpers/delayForDuration');
+import { expect } from 'chai';
+import { setup } from './helpers/setup.js';
+import { MQTTpublish } from './helpers/setup.js';
+import { MQTTtest } from './helpers/setup.js';
+import hexCheck from './helpers/hexCheck.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 const data = {
   on: 'ON',

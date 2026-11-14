@@ -74,4 +74,4 @@ const convertProntoToBroadlink = (prontoCode, log) => {
   return broadlinkCode;
 }
 
-module.exports = convertProntoToBroadlink
+export default convertProntoToBroadlink;

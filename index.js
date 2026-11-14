@@ -1,5 +1,5 @@
-const BroadlinkRMPlatform = require('./platform');
+import BroadlinkRMPlatform from './platform.js';
 
-module.exports = async (homebridge) => {
+export default async (homebridge) => {
   homebridge.registerPlatform("homebridge-broadlink-rm", "BroadlinkRM", BroadlinkRMPlatform);
 }

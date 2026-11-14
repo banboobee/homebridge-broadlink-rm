@@ -1,10 +1,28 @@
-const HomebridgePlatform = require('./base/platform');
-const fakegatoHistory = require( 'fakegato-history');
-// const { assert } = require('chai');
+import HomebridgePlatform from './base/platform.js';
+import fakegatoHistory from 'fakegato-history';
+import { EveHomeKitTypes } from 'homebridge-lib/EveHomeKitTypes';
+import npmPackage from './package.json' with {type: 'json'};
+import { broadlink, discoverDevices } from './helpers/getDevice.js';
 
-const npmPackage = require('./package.json');
-// const checkForUpdates = require('./helpers/checkForUpdates');
-const { broadlink, discoverDevices } = require('./helpers/getDevice');
+import airconAccessory from './accessories/aircon.js';
+import airpurifierAccessory from './accessories/air-purifier.js';
+import humidifierAccessory from './accessories/humidifier-dehumidifier.js';
+import learnCodeAccessory from './accessories/learnCode.js';
+import switchAccessory from './accessories/switch.js';
+import garageDoorOpenerAccessory from './accessories/garageDoorOpener.js';
+import lockAccessory from './accessories/lock.js';
+import fanAccessory from './accessories/fan.js';
+import fanv1Accessory from './accessories/fanv1.js';
+import outletAccessory from './accessories/outlet.js';
+import lightAccessory from './accessories/light.js';
+import windowAccessory from './accessories/window.js';
+import windowCoveringAccessory from './accessories/windowCovering.js';
+import tvAccessory from './accessories/tv.js';
+import temperatureSensorAccessory from './accessories/temperatureSensor.js';
+import humiditySensorAccessory from './accessories/humiditySensor.js';
+import heatercoolerAccessory from './accessories/heater-cooler.js';
+import discoverDeviceAccessory from './accessories/discoverDevice.js';
+import speakerAccessory from './accessories/speaker.js';
 
 class BroadlinkRMPlatform extends HomebridgePlatform {
   static configKeys = {
@@ -171,26 +189,26 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
     'switch-repeat'
   ];
   static classTypes = {
-    'air-conditioner': require('./accessories/aircon'),
-    'air-purifier': require('./accessories/air-purifier'),
-    'humidifier-dehumidifier': require('./accessories/humidifier-dehumidifier'),
-    'learn-ir': require('./accessories/learnCode'),
-    'learn-code': require('./accessories/learnCode'),
-    'switch': require('./accessories/switch'),
-    'garage-door-opener': require('./accessories/garageDoorOpener'),
-    'lock': require('./accessories/lock'),
-    'fan': require('./accessories/fan'),
-    'fanv1': require('./accessories/fanv1'),
-    'outlet': require('./accessories/outlet'),
-    'light': require('./accessories/light'),
-    'window': require('./accessories/window'),
-    'window-covering': require('./accessories/windowCovering'),
-    'tv': require('./accessories/tv'),
-    'temperatureSensor': require('./accessories/temperatureSensor.js'),
-    'humiditySensor': require('./accessories/humiditySensor.js'),
-    'heater-cooler': require('./accessories/heater-cooler'),
-    'discover-device': require('./accessories/discoverDevice'),
-    'speaker': require('./accessories/speaker')
+    'air-conditioner': airconAccessory,
+    'air-purifier': airpurifierAccessory,
+    'humidifier-dehumidifier': humidifierAccessory,
+    'learn-ir': learnCodeAccessory,
+    'learn-code': learnCodeAccessory,
+    'switch': switchAccessory,
+    'garage-door-opener': garageDoorOpenerAccessory,
+    'lock': lockAccessory,
+    'fan': fanAccessory,
+    'fanv1': fanv1Accessory,
+    'outlet': outletAccessory,
+    'light': lightAccessory,
+    'window': windowAccessory,
+    'window-covering': windowCoveringAccessory,
+    'tv': tvAccessory,
+    'temperatureSensor': temperatureSensorAccessory,
+    'humiditySensor': humiditySensorAccessory,
+    'heater-cooler': heatercoolerAccessory,
+    'discover-device': discoverDeviceAccessory,
+    'speaker': speakerAccessory,
   }
   classTypes = this.constructor.classTypes;
 
@@ -204,8 +222,7 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
 
   async addAccessories (accessories) {
     const { config, log } = this;
-    const { EveHomeKitTypes } = await import( 'homebridge-lib/EveHomeKitTypes' );
-    this.eve = new EveHomeKitTypes( this.api )
+    this.eve = new EveHomeKitTypes( this.api );
     this.HistoryService = fakegatoHistory( this.api );
 
     // if (!this.isUnitTest) this.discoverBroadlinkDevices();
@@ -337,4 +354,4 @@ class BroadlinkRMPlatform extends HomebridgePlatform {
   }
 }
 
-module.exports = BroadlinkRMPlatform
+export default BroadlinkRMPlatform;

@@ -1,8 +1,9 @@
-const hap = require('hap-nodejs');
-const { exec, execSync } = require('child_process');
-const BroadlinkRMPlatform = require('../../platform');
-const FakeDevice = require('./fakeDevice')
-const { broadlink, addDevice, discoverDevices } = require('../../helpers/getDevice')
+import hap from 'hap-nodejs';
+import { exec, execSync } from 'child_process';
+import BroadlinkRMPlatform from '../../platform.js';
+import FakeDevice from './fakeDevice.js';
+import { broadlink, addDevice, discoverDevices } from '../../helpers/getDevice.js';
+import FakeServiceManager from './fakeServiceManager.js';
 
 const homebridge = {
   hap: hap,
@@ -24,13 +25,6 @@ const log = () => {};
 //   cachedAccessories: []
 // }
 
-global.Service = hap.Service;
-global.Characteristic = hap.Characteristic;
-global.cachedAccessories = [];
-global.eve = null;
-global.HistoryService = null;
-
-const FakeServiceManager = require('./fakeServiceManager');
 class FakePlatform extends BroadlinkRMPlatform {
   static isUnitTest = true;
   static {
@@ -45,18 +39,22 @@ class FakePlatform extends BroadlinkRMPlatform {
 }
 
 const setup = (config) => {
-  const device = new FakeDevice(log)
-  config?.accessories?.forEach((x) => x.host = device.host.address);
+  const device = new FakeDevice(log);
+  config?.accessories?.forEach((x) => {
+    if (typeof x === 'object') {
+      x.host = device.host.address;
+    }
+  });
 
   const platform = new FakePlatform(log, config, homebridge);
-  addDevice(device)
+  addDevice(device);
   broadlink.log = log;
 
-  return { platform, device, log }
+  return { platform, device, log };
 }
 
 const getAccessories = async (config) => {
-  const { platform, device, log } = setup(config)
+  const { platform, device, log } = setup(config);
 
   const accessories = [];
   await platform.addAccessories(accessories);
@@ -70,7 +68,7 @@ const getAccessories = async (config) => {
 }
 
 const getDevices = (config, auto = true) => {
-  const { platform, device, log } = setup(config)
+  const { platform, device, log } = setup(config);
 
   discoverDevices(auto, log, 0, 1);
 
@@ -93,4 +91,4 @@ const MQTTtest = async () => {
   }
 }
 
-module.exports = { setup, getAccessories, getDevices, MQTTpublish, MQTTtest }
+export { setup, getAccessories, getDevices, MQTTpublish, MQTTtest };

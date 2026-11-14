@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-
-const { setup, getDevices } = require('./helpers/setup');
-const delayForDuration = require('../helpers/delayForDuration');
+import { expect } from 'chai';
+import { setup, getDevices } from './helpers/setup.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 describe('Broadlink device', () => {
 

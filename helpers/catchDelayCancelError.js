@@ -1,4 +1,4 @@
-const { TIMEOUT_CANCELLATION } = require('./errors')
+import { TIMEOUT_CANCELLATION } from './errors.js';
 
 const catchDelayCancelError = async (originalMethod) => {
 
@@ -13,4 +13,4 @@ const catchDelayCancelError = async (originalMethod) => {
   return result
 }
 
-module.exports = catchDelayCancelError
+export default catchDelayCancelError;

@@ -1,4 +1,4 @@
-const arp = require('node-arp');
+import arp from 'node-arp';
 
 const arpIPAddress = (ipAddress, interval, callback) => {
   setInterval(() => {
@@ -13,5 +13,4 @@ const arpIPAddress = (ipAddress, interval, callback) => {
   }, interval * 1000);
 }
 
-module.exports = arpIPAddress;
-  
+export default arpIPAddress;

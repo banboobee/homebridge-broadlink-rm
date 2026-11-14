@@ -1,9 +1,7 @@
-const { expect } = require('chai');
-
-const { setup } = require('./helpers/setup');
-const ping = require('./helpers/fakePing');
-
-const delayForDuration = require('../helpers/delayForDuration');
+import { expect } from 'chai';
+import { setup } from './helpers/setup.js';
+import ping from './helpers/fakePing.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 // TODO: Check actual sending of a hex code
 

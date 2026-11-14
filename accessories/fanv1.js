@@ -1,6 +1,6 @@
-const FanAccessory = require('./fan');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const delayForDuration = require('../helpers/delayForDuration');
+import FanAccessory from './fan.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import delayForDuration from '../helpers/delayForDuration.js';
 
 class Fanv1Accessory extends FanAccessory {
   setDefaults () {
@@ -107,4 +107,4 @@ class Fanv1Accessory extends FanAccessory {
   }
 }
 
-module.exports = Fanv1Accessory;
+export default Fanv1Accessory;

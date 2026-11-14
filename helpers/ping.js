@@ -1,4 +1,4 @@
-const ping = require('ping');
+import ping from 'ping';
 
 const pingIPAddress = (ipAddress, interval, callback) => {
   setInterval(() => {
@@ -12,5 +12,4 @@ const pingIPAddress = (ipAddress, interval, callback) => {
   }, interval * 1000);
 }
 
-module.exports = pingIPAddress;
-  
+export default pingIPAddress;

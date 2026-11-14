@@ -1,8 +1,8 @@
-const BroadlinkRMAccessory = require('./accessory');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const delayForDuration = require('../helpers/delayForDuration');
-const ping = require('../helpers/ping');
-const arp = require('../helpers/arp')
+import BroadlinkRMAccessory from './accessory.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import delayForDuration from '../helpers/delayForDuration.js';
+import ping from '../helpers/ping.js';
+import arp from '../helpers/arp.js';
 
 class FanAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, platform) {
@@ -324,4 +324,4 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = FanAccessory;
+export default FanAccessory;

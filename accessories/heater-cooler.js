@@ -1,11 +1,10 @@
-const { assert } = require('chai');
-const uuid = require('uuid');
-const fs = require('fs');
-const findKey = require('find-key');
-
-const delayForDuration = require('../helpers/delayForDuration');
-const { getDevice } = require('../helpers/getDevice');
-const BroadlinkRMAccessory = require('./accessory');
+import { assert } from 'chai';
+import * as uuid from 'uuid';
+import fs from 'fs';
+import findKey from 'find-key';
+import delayForDuration from '../helpers/delayForDuration.js';
+import { getDevice } from '../helpers/getDevice.js';
+import BroadlinkRMAccessory from './accessory.js';
 
 // Initializing predefined constants based on homekit API
 // All temperature values passed and received from homekit API are defined in degree Celsius
@@ -1274,4 +1273,4 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
   // ---- End of HeaterCoolerAccessory ----
 }
 
-module.exports = HeaterCoolerAccessory
+export default HeaterCoolerAccessory;

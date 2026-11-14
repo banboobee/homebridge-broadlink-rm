@@ -1,5 +1,4 @@
-// const assert = require('assert')
-const ServiceManager = require('../../helpers/serviceManager')
+import ServiceManager from '../../helpers/serviceManager.js';
 
 class FakeServiceManager extends ServiceManager {
   static isUnitTest = true;
@@ -125,4 +124,4 @@ class FakeCharacteristic {
   }
 }
 
-module.exports = FakeServiceManager
+export default FakeServiceManager;

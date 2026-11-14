@@ -1,6 +1,6 @@
-const ServiceManager = require('../helpers/serviceManager');
-const persistentState = require('./helpers/persistentState');
-const mqtt = require('mqtt');
+import ServiceManager from '../helpers/serviceManager.js';
+import * as persistentState from './helpers/persistentState.js';
+import mqtt from 'mqtt';
 
 class HomebridgeAccessory {
   static ServiceManagerClass = ServiceManager;
@@ -604,7 +604,7 @@ class HomebridgeAccessory {
 
 }
 
-module.exports = HomebridgeAccessory;
+export default HomebridgeAccessory;
 
 const delayForDuration = (duration) => {
   return new Promise((resolve) => {

@@ -1,6 +1,6 @@
-const delayForDuration = require('../helpers/delayForDuration');
-const BroadlinkRMAccessory = require('./accessory');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
+import delayForDuration from '../helpers/delayForDuration.js';
+import BroadlinkRMAccessory from './accessory.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
 
 class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
 
@@ -173,4 +173,4 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = GarageDoorOpenerAccessory;
+export default GarageDoorOpenerAccessory;

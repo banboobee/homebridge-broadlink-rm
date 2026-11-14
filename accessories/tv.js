@@ -1,9 +1,9 @@
-const delayForDuration = require('../helpers/delayForDuration');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const ping = require('../helpers/ping');
-const arp = require('../helpers/arp');
-const BroadlinkRMAccessory = require('./accessory');
-const persistentState = require('../base/helpers/persistentState');
+import delayForDuration from '../helpers/delayForDuration.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import ping from '../helpers/ping.js';
+import arp from '../helpers/arp.js';
+import BroadlinkRMAccessory from './accessory.js';
+import * as persistentState from '../base/helpers/persistentState.js';
 
 class TVAccessory extends BroadlinkRMAccessory {
   static configKeys = {
@@ -868,4 +868,4 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = TVAccessory;
+export default TVAccessory;

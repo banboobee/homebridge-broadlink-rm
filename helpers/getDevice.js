@@ -1,11 +1,12 @@
-const ping = require('ping');
-const broadlink = new (require('../broadlinkjs-rm'));
-const delayForDuration = require('./delayForDuration');
-const Mutex = require('await-semaphore').Mutex;
+import ping from 'ping';
+import libbroadlink from '../broadlinkjs-rm/index.js';
+import delayForDuration from './delayForDuration.js';
+import { Mutex } from 'await-semaphore';
 
 const pingFrequency = 20000;
 const keepAliveFrequency = 90000;
 const pingTimeout = 5;
+const broadlink = new libbroadlink();
 let platform = undefined;
 
 const startKeepAlive = (device) => {
@@ -184,4 +185,4 @@ const getDevice = ({ host, log, learnOnly }) => {
   return device;
 }
 
-module.exports = { broadlink, getDevice, discoverDevices, discoveredDevices, addDevice };
+export { broadlink, getDevice, discoverDevices, discoveredDevices, addDevice };

@@ -1,6 +1,6 @@
-const delayForDuration = require('../helpers/delayForDuration');
-const BroadlinkRMAccessory = require('./accessory');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError')
+import delayForDuration from '../helpers/delayForDuration.js';
+import BroadlinkRMAccessory from './accessory.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
 
 class LockAccessory extends BroadlinkRMAccessory {
 
@@ -122,4 +122,4 @@ class LockAccessory extends BroadlinkRMAccessory {
   }
 }
 
-module.exports = LockAccessory;
+export default LockAccessory;

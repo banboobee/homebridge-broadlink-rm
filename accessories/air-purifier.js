@@ -1,5 +1,4 @@
-const FanAccessory = require('./fan');
-
+import FanAccessory from './fan.js';
 class AirPurifierAccessory extends FanAccessory {
 
   async setSwitchState (hexData, previousValue) {
@@ -134,4 +133,4 @@ class AirPurifierAccessory extends FanAccessory {
   }
 }
 
-module.exports = AirPurifierAccessory;
+export default AirPurifierAccessory;

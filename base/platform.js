@@ -1,4 +1,4 @@
-const persistentState = require('./helpers/persistentState')
+import * as persistentState from './helpers/persistentState.js';
 
 class HomebridgePlatform {
 
@@ -120,4 +120,4 @@ class HomebridgePlatform {
   }
 }
 
-module.exports = HomebridgePlatform;
+export default HomebridgePlatform;

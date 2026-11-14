@@ -1,10 +1,9 @@
 // -*- js-indent-level : 2 -*-
-const { assert } = require('chai');
-const delayForDuration = require('../helpers/delayForDuration');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError')
-const Mutex = require('await-semaphore').Mutex;
-
-const SwitchAccessory = require('./switch');
+import { assert } from 'chai';
+import delayForDuration from '../helpers/delayForDuration.js';
+import catchDelayCancelError from '../helpers/catchDelayCancelError.js';
+import { Mutex } from 'await-semaphore';
+import SwitchAccessory from './switch.js';
 
 class LightAccessory extends SwitchAccessory {
   static configKeys = {
@@ -617,4 +616,4 @@ class LightAccessory extends SwitchAccessory {
   }
 }
 
-module.exports = LightAccessory;
+export default LightAccessory;

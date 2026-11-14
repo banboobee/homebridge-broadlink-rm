@@ -1,8 +1,6 @@
-const HomebridgeAccessory = require('../base/accessory');
-const sendData = require('../helpers/sendData');
-// const delayForDuration = require('../helpers/delayForDuration');
-// const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const { getDevice } = require('../helpers/getDevice');
+import HomebridgeAccessory from '../base/accessory.js';
+import sendData from '../helpers/sendData.js';
+import { getDevice } from '../helpers/getDevice.js';
 
 class BroadlinkRMAccessory extends HomebridgeAccessory {
   static configCommonKeys = {
@@ -376,4 +374,4 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
   }
 }
 
-module.exports = BroadlinkRMAccessory;
+export default BroadlinkRMAccessory;
