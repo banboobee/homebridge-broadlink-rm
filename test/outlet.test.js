@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import ping from './helpers/fakePing.js';
 import delayForDuration from '../helpers/delayForDuration.js';
@@ -122,7 +122,7 @@ describe('outletAccessory', () => {
     // Check that only one code has been sent
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Auto On
@@ -173,7 +173,7 @@ describe('outletAccessory', () => {
     // Check that only one code has been sent
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(3);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Persist State

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { getAccessories } from './helpers/setup.js';
 
 describe('learnAccessories', () => {

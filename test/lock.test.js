@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import delayForDuration from '../helpers/delayForDuration.js';
 
@@ -163,7 +163,7 @@ describe('lockAccessory', () => {
     // Locked
     expect(lockAccessory.state.lockCurrentState).to.equal(Characteristic.LockCurrentState.SECURED);
     expect(lockAccessory.state.lockTargetState).to.equal(Characteristic.LockTargetState.SECURED);
-  }).timeout(2100);
+  }, 2100);
 
 
   // Persist State

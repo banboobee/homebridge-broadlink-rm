@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import delayForDuration from '../helpers/delayForDuration.js';
 import { setup } from './helpers/setup.js';
 import { getAccessories } from './helpers/setup.js';
@@ -298,7 +298,7 @@ describe('disableLogs', () => {
       ],
       count: 16
     });
-  }).timeout(4000);
+  }, 4000);
 
   it('Advanced HEX with timeout', async () => {
     const config = {
@@ -369,7 +369,7 @@ describe('disableLogs', () => {
       ],
       count: 5
     });
-  }).timeout(4000);
+  }, 4000);
 
   it('Context HEX', async () => {
     const { platform, device, log } = setup();

@@ -1,4 +1,4 @@
-import  { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import hexCheck from './helpers/hexCheck.js';
 import delayForDuration from '../helpers/delayForDuration.js';
@@ -171,7 +171,9 @@ describe('SpeakerAccessory', async function() {
     await delayForDuration(0.1);
     expect(SpeakerAccessory.state.volume).to.equal(100);
 
-    SpeakerAccessory.serviceManager.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT);
+    await expect(
+      SpeakerAccessory.serviceManager.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.INCREMENT)
+    ).rejects.toThrow('HAP Status Error');
     await delayForDuration(0.1);
     expect(SpeakerAccessory.state.volume).to.equal(100);
 
@@ -194,7 +196,9 @@ describe('SpeakerAccessory', async function() {
     await delayForDuration(0.1);
     expect(SpeakerAccessory.state.volume).to.equal(0);
 
-    SpeakerAccessory.serviceManager.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT);
+    await expect(
+      SpeakerAccessory.serviceManager.setCharacteristic(Characteristic.VolumeSelector, Characteristic.VolumeSelector.DECREMENT)
+    ).rejects.toThrow('HAP Status Error');
     await delayForDuration(0.1);
     expect(SpeakerAccessory.state.volume).to.equal(0);
 

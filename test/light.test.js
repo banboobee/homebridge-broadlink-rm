@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it, afterEach } from 'vitest';
 import { setup } from './helpers/setup.js';
 import { getAccessories } from './helpers/setup.js';
 import { MQTTpublish } from './helpers/setup.js';
@@ -130,7 +130,7 @@ describe('lightAccessory', async function() {
     // Check that only one code has been sent
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-  }).timeout(3000);
+  }, 3000);
 
 
   // Light Turn On then Off
@@ -313,7 +313,7 @@ describe('lightAccessory', async function() {
 
     // Expecting "off" after 1.3s total
     expect(lightAccessory.state.switchState).to.equal(false);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Auto On
@@ -349,7 +349,7 @@ describe('lightAccessory', async function() {
 
     // Expecting on after 1.1s total
     expect(lightAccessory.state.switchState).to.equal(true);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Set Brightness
@@ -687,7 +687,7 @@ describe('lightAccessory', async function() {
     sentHexCodeCount = device.getSentHexCodeCount();
     // expect(sentHexCodeCount).to.equal(2);    // including brightness?
     expect(sentHexCodeCount).to.equal(1);
-  }).timeout(2000);
+  }, 2000);
 
 
   // Ensure the hex is not resent after reload
@@ -793,7 +793,7 @@ describe('lightAccessory', async function() {
     //                ],
     //         count: 4});
 
-  }).timeout(3000);
+  }, 3000);
 
   (MQTTready ? it : it.skip)('"mqttStateOnly": false', async function() {
     const { platform, device, log } = setup();

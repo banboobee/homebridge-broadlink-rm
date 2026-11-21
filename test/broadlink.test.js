@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup, getDevices } from './helpers/setup.js';
 import delayForDuration from '../helpers/delayForDuration.js';
 
@@ -23,7 +23,7 @@ describe('Broadlink device', () => {
     await delayForDuration(1);
 
     broadlink.close();  // No device pollings due to null config.
-  }).timeout(3000);
+  }, 3000);
 
   it('re-discover', async () => {
     const { platform, log } = setup();
@@ -50,7 +50,7 @@ describe('Broadlink device', () => {
     expect(discoveryAccessory.state.switchState).to.equal(false);
 
     broadlink.close();
-  }).timeout(11000);
+  }, 11000);
 
   it('multiple discover instances', async () => {
     const { platform, log } = setup();
@@ -83,5 +83,5 @@ describe('Broadlink device', () => {
     expect(discoveryAccessory1.state.switchState).to.equal(false);
 
     broadlink.close();
-  }).timeout(6000);
+  }, 6000);
 })

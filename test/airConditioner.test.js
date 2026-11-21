@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it, afterEach } from 'vitest';
 import { setup } from './helpers/setup.js';
 import { getAccessories } from './helpers/setup.js';
 import { MQTTpublish } from './helpers/setup.js';
@@ -703,7 +703,7 @@ describe('airConAccessory', async function() {
 
     // auto-off should have occurred by now as 1.2s has passed
     hexCheck({ device, codes: [ 'TEMPERATURE_30', 'OFF' ], count: 2 });
-  }).timeout(2100);
+  }, 2100);
 
 
   it('auto-cool & "minimumAutoOnOffDuration": 0.5', async function() {
@@ -750,7 +750,7 @@ describe('airConAccessory', async function() {
 
     // auto-off should have occurred by now as 1.2s has passed
     hexCheck({ device, codes: [ 'TEMPERATURE_16', 'OFF' ], count: 2 });
-  }).timeout(2100);
+  }, 2100);
 
 
   it ('"pseudoDeviceTemperature": 2', async function() {

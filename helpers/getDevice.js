@@ -85,7 +85,7 @@ const discoveredDevices = {};
 const manualDevices = {};
 let discoverDevicesInterval;
 
-const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout = 60, thisPlatform = null) => {
+const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout = 60, thisPlatform = undefined) => {
   broadlink.log = log;
   broadlink.debug = logLevel;
   platform = thisPlatform;
@@ -119,8 +119,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
     broadlink.logs.info(`Discovered ${device.model} (${device.name ? device.name+', ' : ''}0x${device.type.toString(16)}${v ? ', v'+parseInt(v) : ''}) at ${device.host.address} (${device.host.macAddress})`);
     addDevice(device);
 
-    const accessories = platform.accessories?.filter((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress);
-    if (accessories.length > 0) {
+    const accessories = platform?.accessories?.filter((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress);
+    if (accessories?.length > 0) {
       startPing(device);
       startKeepAlive(device);
       accessories.forEach((x) => {

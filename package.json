@@ -9,7 +9,7 @@
     "release": "release-it",
     "lint": "eslint -c eslint.config.mjs --ext js .",
     "lint-fix": "eslint -c eslint.config.mjs --ext js --fix .",
-    "test": "mocha"
+    "test": "vitest"
   },
   "keywords": [
     "homebridge-plugin",
@@ -49,7 +49,7 @@
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "hap-nodejs": "^0.14.1",
-    "mocha": "^12.0.3",
-    "release-it": "^19.2.4"
+    "release-it": "^19.2.4",
+    "vitest": "^4.1.12"
   }
 }

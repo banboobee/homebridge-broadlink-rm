@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import delayForDuration from '../helpers/delayForDuration.js';
 
@@ -90,7 +90,7 @@ describe('windowAccessory', () => {
     // Check the number of sent codes
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(4);
-  }).timeout(6000);
+  }, 6000);
 })
 
 describe('windowCoveringAccessory', () => {
@@ -206,7 +206,7 @@ describe('windowCoveringAccessory', () => {
     // Check the number of sent codes
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-  }).timeout(6000);
+  }, 6000);
 
 
   // Open blinds to 20% then 50%
@@ -262,7 +262,7 @@ describe('windowCoveringAccessory', () => {
     // Check the number of sent codes
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(4);
-  }).timeout(6000);
+  }, 6000);
 
 
   // Open blinds to 90% then close to 50%
@@ -324,7 +324,7 @@ describe('windowCoveringAccessory', () => {
     // Check the number of sent codes
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(4);
-  }).timeout(6000);
+  }, 6000);
 
   // Test initialDelay
   it('"initialDelay": 1', async () => {
@@ -360,7 +360,7 @@ describe('windowCoveringAccessory', () => {
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(0);
 
-  }).timeout(6000);
+  }, 6000);
 
 
   // Open blinds to 100%
@@ -403,7 +403,7 @@ describe('windowCoveringAccessory', () => {
     // Check the number of sent codes
     const sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(2);
-  }).timeout(6000);
+  }, 6000);
 
 
   // Open blinds to 0%
@@ -464,6 +464,6 @@ describe('windowCoveringAccessory', () => {
     sentHexCodeCount = device.getSentHexCodeCount();
     expect(sentHexCodeCount).to.equal(4);
 
-  }).timeout(6000);
+  }, 6000);
 
 })

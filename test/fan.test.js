@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import delayForDuration from '../helpers/delayForDuration.js';
 

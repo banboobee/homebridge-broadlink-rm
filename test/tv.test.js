@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it, afterEach } from 'vitest';
 import { setup } from './helpers/setup.js';
 import { MQTTpublish } from './helpers/setup.js';
 import { MQTTtest } from './helpers/setup.js';

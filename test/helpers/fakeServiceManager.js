@@ -13,10 +13,11 @@ class FakeServiceManager extends ServiceManager {
     this.hasRecordedSetCharacteristic = false
   }
 
-  setCharacteristic (characteristic, value) {
+  setCharacteristic = async (characteristic, value) => {
     this.hasRecordedSetCharacteristic = true
 
-    super.setCharacteristic(characteristic, value)
+    // await super.setCharacteristic(characteristic, value); // why???
+    await this.service.setCharacteristic(characteristic, value);
   }
 }
 
@@ -28,10 +29,12 @@ class FakeService {
     this.characteristics = {}
   }
 
-  setCharacteristic (type, value) {
+  setCharacteristic = async (type, value) => {
     const characteristic = this.characteristics[type]
 
-    if (characteristic) {characteristic.set(value);}
+    if (characteristic) {
+      await characteristic.set(value);
+    }
   }
 
   getCharacteristic (type) {
@@ -57,18 +60,18 @@ class FakeCharacteristic {
     this.serviceName = serviceName
   }
 
-  get () {
-    return this.getMethod(() => {
+  get = async () => {
+    return await this.getMethod(() => {
       // this.log('Fake Get Callback Received')
       this.log(`FakeServiceManager: get${this.type.name} received callback.`);
     })
   }
 
-  set (value) {
+  set = async (value) => {
     // this.log('Set Fake Value Received', value, this.type.name)
     this.log(`FakeServiceManager: set${this.type.name} ${value}`);
 
-    return this.setMethod(value, (err, value) => {
+    return await this.setMethod(value, (err, value) => {
       if (err) {
         return this.log(`FakeServiceManager: set${this.type.name} received failed callback ${err}.`)
       }
@@ -79,12 +82,20 @@ class FakeCharacteristic {
   }
 
   on (getSet, method) {
-    if (getSet === 'get') {this.getMethod = method}
-    if (getSet === 'set') {this.setMethod = method}
+    if (getSet === 'get') {
+      this.getMethod = (callback) => {
+        method(callback);
+      }
+    }
+    if (getSet === 'set') {
+      this.setMethod = (value, callback) => {
+        method(value, callback);
+      }
+    }
   }
 
   onSet (method) {
-    this.setMethod = (value) => {return new Promise((resolve, reject) => {
+    this.setMethod = async (value) => {return new Promise((resolve, reject) => {
       method(value).then(() => {
         resolve(true);
       }).catch((e) => {
@@ -94,7 +105,7 @@ class FakeCharacteristic {
   }
 
   onGet (method) {
-    this.getMethod = () => {return new Promise((resolve, reject) => {
+    this.getMethod = async () => {return new Promise((resolve, reject) => {
       method().then(() => {
         resolve(true);
       }).catch((e) => {

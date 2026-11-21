@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it } from 'vitest';
 import { setup } from './helpers/setup.js';
 import delayForDuration from '../helpers/delayForDuration.js';
 
@@ -161,7 +161,7 @@ describe('doorAccessory', () => {
     // Closed
     expect(doorAccessory.state.doorCurrentState).to.equal(Characteristic.CurrentDoorState.CLOSED);
     expect(doorAccessory.state.doorTargetState).to.equal(Characteristic.TargetDoorState.CLOSED);
-  }).timeout(2100);
+  }, 2100);
 
 
   // Persist State

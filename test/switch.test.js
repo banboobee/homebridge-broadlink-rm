@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, describe, it, afterEach } from 'vitest';
 import { MQTTpublish } from './helpers/setup.js';
 import { MQTTtest } from './helpers/setup.js';
 import hexCheck from './helpers/hexCheck.js';
@@ -163,7 +163,7 @@ describe('switchAccessory', async function() {
     await delayForDuration(0.7);
     // Expecting off after 1.1s total
     expect(switchAccessory.state.switchState).to.equal(false);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Auto On
@@ -199,7 +199,7 @@ describe('switchAccessory', async function() {
     await delayForDuration(0.7);
     // Expecting on after 1.1s total
     expect(switchAccessory.state.switchState).to.equal(true);
-  }).timeout(4000);
+  }, 4000);
 
 
   // Persist State
