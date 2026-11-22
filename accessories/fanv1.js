@@ -61,7 +61,7 @@ class Fanv1Accessory extends FanAccessory {
 
     this.setDefaults();
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Fan);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.Fan);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

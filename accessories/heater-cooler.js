@@ -1091,7 +1091,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     const { internalConfig } = config
     const { available } = internalConfig
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.HeaterCooler);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.HeaterCooler);
 
     // Setting up all Required Characteristic handlers
     this.serviceManager.addToggleCharacteristic({

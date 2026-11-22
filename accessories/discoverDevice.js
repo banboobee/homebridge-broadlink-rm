@@ -67,7 +67,7 @@ class DiscoverDeviceAccessory extends BroadlinkRMAccessory {
     const { platform, Service, Characteristic } = this;
     const { name } = this;
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Switch);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.Switch);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

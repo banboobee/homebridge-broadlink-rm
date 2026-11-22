@@ -1254,7 +1254,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { platform, Service, Characteristic } = this;
     const { config, name } = this;
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Thermostat);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.Thermostat);
 
     config.history ??= true;
     config.humidity ??= true;

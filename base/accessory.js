@@ -1,21 +1,9 @@
-import ServiceManager from '../helpers/serviceManager.js';
 import * as persistentState from './helpers/persistentState.js';
 import mqtt from 'mqtt';
 
 class HomebridgeAccessory {
-  static ServiceManagerClass = ServiceManager;
-
   constructor(log, config = {}, platform){
-    if (this.constructor.ServiceManagerClass === ServiceManager) {
-      HomebridgeAccessory.isUnitTest = false;
-      // this.isUnitTest = false;
-      this.serviceManagerType = 'ServiceManager';
-    } else {
-      HomebridgeAccessory.isUnitTest = true;
-      // this.isUnitTest = true;
-      this.serviceManagerType = 'FakeServiceManager';
-    }
-    this.serviceManagerClass = this.constructor.ServiceManagerClass;
+    this.constructor.isUnitTest = platform.constructor.isUnitTest;
 
     const { host, name, data } = config;
 

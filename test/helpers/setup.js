@@ -17,24 +17,12 @@ const homebridge = {
 // }
 const log = () => {};
 
-// const platform = {
-//   api: homebridge,
-//   log: log,
-//   Service: hap.Service,
-//   Characteristic: hap.Characteristic,
-//   cachedAccessories: []
-// }
-
 class FakePlatform extends BroadlinkRMPlatform {
   static isUnitTest = true;
-  static {
-    Object.keys(this.classTypes).forEach(type => {
-      this.classTypes[type].ServiceManagerClass = FakeServiceManager;
-    });
-  }
 
   constructor (log, config = {}, homebridge) {
     super(log, config, homebridge);
+    this.serviceManager = FakeServiceManager;
   }
 }
 

@@ -459,7 +459,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     }
 
     // this.serviceManagers = [];
-    this.serviceManager = new this.serviceManagerClass(
+    this.serviceManager = new platform.serviceManager(
       platform,
       name,
       Service.Television,

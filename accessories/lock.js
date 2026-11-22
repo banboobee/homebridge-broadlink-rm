@@ -94,7 +94,7 @@ class LockAccessory extends BroadlinkRMAccessory {
     const { data, name } = this;
     const { lock, unlock } = data || {};
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.LockMechanism);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.LockMechanism);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'lockCurrentState',

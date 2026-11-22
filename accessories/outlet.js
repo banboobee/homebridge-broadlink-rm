@@ -28,7 +28,7 @@ class OutletAccessory extends SwitchAccessory {
     const { data, name } = this;
     const { on, off } = data || { };
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Outlet);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.Outlet);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

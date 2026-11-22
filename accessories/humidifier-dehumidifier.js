@@ -442,7 +442,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.HumidifierDehumidifier);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.HumidifierDehumidifier);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',

@@ -1,9 +1,11 @@
+import ServiceManager from '../helpers/serviceManager.js';
 import * as persistentState from './helpers/persistentState.js';
 
 class HomebridgePlatform {
 
   constructor (log, config = {}, homebridge) {
     HomebridgePlatform.isUnitTest = this.constructor.isUnitTest;
+    this.serviceManager = ServiceManager;
     this.log = log;
     this.config = config;
     this.api = homebridge;

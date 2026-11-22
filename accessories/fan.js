@@ -254,7 +254,7 @@ class FanAccessory extends BroadlinkRMAccessory {
     const { config, data, name } = this;
     const { on, off, clockwise, counterClockwise, swingToggle } = data || {};
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, Service.Fanv2);
+    this.serviceManager = new platform.serviceManager(platform, name, Service.Fanv2);
 
     this.setDefaults();
 

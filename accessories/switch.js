@@ -307,7 +307,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { on, off } = data || { };    // toggle? verifyConfig to support.
     const history = config.history === true;
 
-    this.serviceManager = new this.serviceManagerClass(platform, name, service ?? history ? Service.Outlet : Service.Switch);
+    this.serviceManager = new platform.serviceManager(platform, name, service ?? history ? Service.Outlet : Service.Switch);
 
     if (history) {
       // Fakegato setup
