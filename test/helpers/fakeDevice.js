@@ -1,8 +1,9 @@
+import { vi } from 'vitest';
 import * as uuid from 'uuid';
-class FakeDevice {
 
+class FakeDevice {
   constructor (log) {
-    const identifier = uuid.v4()
+    const identifier = uuid.v4();
 
     this.host = {
       address: identifier,
@@ -21,33 +22,33 @@ class FakeDevice {
   }
 
   resetSentHexCodes () {
-    this.sentHexCodes = []
+    this.sendData.mockClear();
   }
 
   getSentHexCodeCount () {
-    return this.sentHexCodes.length
+    return this.sendData.mock.calls.length;
   }
 
   hasSentCode (hexCode) {
-    return (this.sentHexCodes.indexOf(hexCode) > -1);
+    return !!this.sendData.mock.calls.find(x => x[2] === hexCode);
   }
 
   hasSentCodes (hexCodes) {
-    let hasSentCodes = true
+    let hasSentCodes = true;
 
     hexCodes.forEach((hexCode) => {
-      if (this.sentHexCodes.indexOf(hexCode) === -1) {hasSentCodes = false}
+      if (!this.sendData.mock.calls.find(x => x[2] === hexCode)) {
+        hasSentCodes = false;
+      }
     })
 
-    return hasSentCodes
+    return hasSentCodes;
   }
 
-  sendData (hexBufferData, debug, originalHexString) {
-    if (!hexBufferData) {throw new Error('Missing HEX Data')}
-
-    this.sentHexCodes.push(originalHexString)
-
-    // return originalHexString.length > 0 ? 0 : -1;
+  sendData = vi.fn((hexBufferData, debug, originalHexString) => {
+    if (!hexBufferData) {
+      throw new Error('Missing HEX Data');
+    }
     if (originalHexString.length < 1) {
       return -1;
     } else if (this.failureResponseOnSendData === 'random') {
@@ -57,7 +58,7 @@ class FakeDevice {
     } else {
       return 0;
     }
-  }
+  });
 
   on (type, callback) {
     this.callbacks[type] = callback;
@@ -66,11 +67,12 @@ class FakeDevice {
   sendFakeOnCallback (type, value) {
     const callback = this.callbacks[type];
 
-    if(callback) {callback(value);}
+    if (callback) {
+      callback(value);
+    }
   }
 
   checkTemperature () {
-
   }
 
   setFailureResponseOnSendData(mode) {

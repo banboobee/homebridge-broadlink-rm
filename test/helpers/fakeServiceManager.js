@@ -114,16 +114,6 @@ class FakeCharacteristic {
     })};
   }
 
-  // getValue () {
-  //   return new Promise((resolve, reject) => {
-  //     this.getMethod((error, value) => {
-  //       if (error) {return reject(error)}
-
-  //       resolve(value)
-  //     })
-  //   })
-  // }
-
   updateValue (value) {
     this.value = value;
   }
