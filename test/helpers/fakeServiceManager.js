@@ -16,8 +16,7 @@ class FakeServiceManager extends ServiceManager {
   setCharacteristic = async (characteristic, value) => {
     this.hasRecordedSetCharacteristic = true
 
-    // await super.setCharacteristic(characteristic, value); // why???
-    await this.service.setCharacteristic(characteristic, value);
+    await super.setCharacteristic(characteristic, value);
   }
 }
 

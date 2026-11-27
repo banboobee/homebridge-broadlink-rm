@@ -24,7 +24,7 @@ class ServiceManager {
     this.characteristics = {}
   }
 
-  setCharacteristic = async (characteristic, value) => {
+  async setCharacteristic (characteristic, value) {
     await this.service.setCharacteristic(characteristic, value);
   }
 
