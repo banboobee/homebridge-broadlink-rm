@@ -334,7 +334,7 @@ describe('switchAccessory', async function() {
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
-    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
     expect(switchAccessory.state.switchState).to.equal(true);
 
     // Stop the ping setInterval
@@ -363,7 +363,7 @@ describe('switchAccessory', async function() {
 
     await delayForDuration(0.3);
     expect(switchAccessory.state.switchState).to.equal(true);
-    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Stop the ping setInterval
     clearInterval(pingInterval);
@@ -404,7 +404,7 @@ describe('switchAccessory', async function() {
 
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3);
-    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('ON');
@@ -450,7 +450,7 @@ describe('switchAccessory', async function() {
 
     // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3);
-    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(switchAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
 
     // Check ON hex code was not sent
     const hasSentOnCode = device.hasSentCode('ON');

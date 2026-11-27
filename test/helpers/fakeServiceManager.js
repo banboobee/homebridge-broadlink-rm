@@ -1,24 +1,64 @@
-import ServiceManager from '../../helpers/serviceManager.js';
+import { vi } from 'vitest';
+import FakeServiceManager from '../../helpers/serviceManager.js';
 
-class FakeServiceManager extends ServiceManager {
-  static isUnitTest = true;
-  constructor (platform, name, serviceType) {
-    super(platform, name, serviceType)
+vi.mock('../../helpers/serviceManager.js', async (importOriginal) => {
+  const original = await importOriginal();
+  const ServiceManager = original.default
 
-    this.service = new FakeService(name, platform.log);
-    this.hasRecordedSetCharacteristic = false
+  class FakseServiceManager  {
+    constructor(platform, name, serviceType) {
+      this.log = platform.log
+      this.names = {};
+      this.characteristics = {}
+      this.service = new FakeService(name, platform.log);
+    }
+
+    // clearRecordedSetCharacteristic = () => {
+    //   this.setCharacteristic.mockClear();
+    // }
+
+    hasRecordedSetCharacteristic = () => {
+      return !!this.setCharacteristic.mock.calls.length;
+    }
+
+    setCharacteristic = vi.fn(async (characteristic, value) => {
+      await super.setCharacteristic(characteristic, value);
+    })
+
+    refreshCharacteristicUI = (characteristic) => {
+      this.getCharacteristic(characteristic);
+    }
   }
 
-  clearRecordedSetCharacteristic () {
-    this.hasRecordedSetCharacteristic = false
-  }
+  Object.setPrototypeOf(
+    FakseServiceManager.prototype,
+    ServiceManager.prototype
+  );
 
-  setCharacteristic = async (characteristic, value) => {
-    this.hasRecordedSetCharacteristic = true
-
-    await super.setCharacteristic(characteristic, value);
+  return {
+    default: FakseServiceManager,
   }
-}
+})
+
+// class FakeServiceManager extends ServiceManager {
+//   static isUnitTest = true;
+//   constructor (platform, name, serviceType) {
+//     super(platform, name, serviceType)
+
+//     this.service = new FakeService(name, platform.log);
+//     this.hasRecordedSetCharacteristic = false
+//   }
+
+//   clearRecordedSetCharacteristic () {
+//     this.hasRecordedSetCharacteristic = false
+//   }
+
+//   setCharacteristic = async (characteristic, value) => {
+//     this.hasRecordedSetCharacteristic = true
+
+//     await super.setCharacteristic(characteristic, value);
+//   }
+// }
 
 class FakeService {
 

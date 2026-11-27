@@ -296,7 +296,7 @@ describe('outletAccessory', () => {
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }));
 
     await delayForDuration(0.3);
-    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
     expect(outletAccessory.state.outletInUse).to.equal(true);
 
     // Stop the ping setInterval
@@ -323,7 +323,7 @@ describe('outletAccessory', () => {
 
     await delayForDuration(0.3);
     expect(outletAccessory.state.outletInUse).to.equal(true);
-    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Stop the ping setInterval
     clearInterval(pingInterval);
@@ -365,7 +365,7 @@ describe('outletAccessory', () => {
 
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3);
-    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(outletAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('ON');

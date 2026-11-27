@@ -677,7 +677,7 @@ describe('lightAccessory', async function() {
     // Wait for onDelay
     await delayForDuration(0.2);
 
-    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('ON');
@@ -722,7 +722,7 @@ describe('lightAccessory', async function() {
 
     // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3);
-    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(lightAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
 
     // Check ON hex code was not sent
     const hasSentOnCode = device.hasSentCode('ON');

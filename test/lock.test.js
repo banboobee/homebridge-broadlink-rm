@@ -288,7 +288,7 @@ describe('lockAccessory', () => {
 
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3)
-    expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('LOCK_HEX');
@@ -340,7 +340,7 @@ describe('lockAccessory', () => {
 
     // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3);
-    expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(lockAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
 
     // Check ON hex code was not sent
     const hasSentOnCode = device.hasSentCode('LOCK_HEX');

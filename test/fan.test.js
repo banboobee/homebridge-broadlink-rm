@@ -424,7 +424,7 @@ describe('fanAccessory', () => {
 
     // We should find that setCharacteristic has been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3)
-    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(true);
+    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(true);
 
     // Check ON hex code was sent
     const hasSentOnCode = device.hasSentCode('ON');
@@ -467,7 +467,7 @@ describe('fanAccessory', () => {
 
     // We should find that setCharacteristic has not been called after a duration of resendHexAfterReloadDelay
     await delayForDuration(0.3)
-    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic).to.equal(false);
+    expect(fanAccessory.serviceManager.hasRecordedSetCharacteristic()).to.equal(false);
 
     // Check ON hex code was not sent
     const hasSentOnCode = device.hasSentCode('ON');
